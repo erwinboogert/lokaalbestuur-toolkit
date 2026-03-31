@@ -1,0 +1,10 @@
+{
+  "naam": "Goes",
+  "type": "gemeente",
+  "bron": "ori",
+  "vergadertypen": [
+    "gemeenteraad",
+    "commissie",
+    "raadsbrede commissie"
+  ]
+}
