@@ -27,7 +27,19 @@ from pathlib import Path
 
 # Bovenliggende map voor alle downloads
 # Per gemeente wordt hier een submap aangemaakt, bijv. ~/Documents/notulen/arnhem/
-OUTPUT_BASIS = Path.home() / "Documents" / "notulen"
+_toolkit_map = Path(__file__).parent
+_config_pad = _toolkit_map / "config.local.json"
+_data_map: Path | None = None
+if _config_pad.exists():
+    try:
+        _cfg = json.loads(_config_pad.read_text(encoding="utf-8"))
+        if "data_map" in _cfg:
+            _data_map = Path(_cfg["data_map"]).expanduser()
+    except Exception:
+        pass
+
+OUTPUT_BASIS = _data_map if _data_map else (Path.home() / "Documents" / "notulen")
+_ORGANEN_MAP = (_data_map / "organen") if _data_map else (_toolkit_map / "organen")
 
 # Welke vergadertypen wil je downloaden? True = ja, False = nee
 VERGADERTYPEN = {
@@ -202,9 +214,9 @@ def download(url: str, bestemming: Path) -> int:
 # ── Hoofdprogramma ────────────────────────────────────────────────────────────
 
 def laad_orgaan_config(orgaan_naam: str) -> None:
-    """Laad vergadertypen uit organen/<naam>.json als dat bestand aanwezig is."""
+    """Laad vergadertypen uit de geconfigureerde organen-map."""
     global VERGADERTYPEN
-    pad = Path(__file__).parent / "organen" / f"{orgaan_naam}.json"
+    pad = _ORGANEN_MAP / f"{orgaan_naam}.json"
     if not pad.exists():
         return
     config = json.loads(pad.read_text(encoding="utf-8"))

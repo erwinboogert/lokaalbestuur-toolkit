@@ -39,7 +39,19 @@ import pdfplumber
 
 # Bovenliggende map voor alle gemeentearchieven
 # Per gemeente wordt hier een submap verwacht, bijv. ~/Documents/notulen/arnhem/
-OUTPUT_BASIS = Path.home() / "Documents" / "notulen"
+_toolkit_map = Path(__file__).parent
+_config_pad = _toolkit_map / "config.local.json"
+_data_map: Path | None = None
+if _config_pad.exists():
+    try:
+        _cfg = json.loads(_config_pad.read_text(encoding="utf-8"))
+        if "data_map" in _cfg:
+            _data_map = Path(_cfg["data_map"]).expanduser()
+    except Exception:
+        pass
+
+OUTPUT_BASIS = _data_map if _data_map else (Path.home() / "Documents" / "notulen")
+_DOSSIERS_MAP = (_data_map / "dossiers") if _data_map else (_toolkit_map / "dossiers")
 
 # Label voor dit dossier — verschijnt in de alerttitel en bestandsnaam
 DOSSIER_LABEL = "asielzoekers-opvang"
@@ -96,11 +108,10 @@ def parse_args():
 
 
 def laad_dossier(naam: str) -> dict:
-    """Laad dossierconfig uit dossiers/<naam>.json naast dit script."""
-    toolkit_map = Path(__file__).parent
-    dossier_pad = toolkit_map / "dossiers" / f"{naam}.json"
+    """Laad dossierconfig uit de geconfigureerde dossiers-map."""
+    dossier_pad = _DOSSIERS_MAP / f"{naam}.json"
     if not dossier_pad.exists():
-        beschikbaar = [p.stem for p in (toolkit_map / "dossiers").glob("*.json")]
+        beschikbaar = [p.stem for p in _DOSSIERS_MAP.glob("*.json")] if _DOSSIERS_MAP.exists() else []
         print(f"Dossier niet gevonden: {dossier_pad}")
         if beschikbaar:
             print(f"Beschikbare dossiers: {', '.join(sorted(beschikbaar))}")

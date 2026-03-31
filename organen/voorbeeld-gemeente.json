@@ -1,5 +1,6 @@
 {
-  "naam": "Amsterdam",
+  "_opmerking": "Dit is een voorbeeldconfig. Vervang door de naam van jouw gemeente.",
+  "naam": "Voorbeeld",
   "type": "gemeente",
   "bron": "ori",
   "vergadertypen": [

@@ -16,10 +16,25 @@ from datetime import datetime
 from pathlib import Path
 
 TOOLKIT_MAP = Path(__file__).parent
-DOSSIERS_MAP = TOOLKIT_MAP / "dossiers"
-ORGANEN_MAP = TOOLKIT_MAP / "organen"
-OUTPUT_BASIS = Path.home() / "Documents" / "notulen"
 PYTHON = "/opt/homebrew/bin/python3"
+
+
+def _lees_config() -> dict:
+    pad = TOOLKIT_MAP / "config.local.json"
+    if pad.exists():
+        try:
+            return json.loads(pad.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return {}
+
+
+_cfg = _lees_config()
+_data_map = Path(_cfg["data_map"]).expanduser() if "data_map" in _cfg else None
+
+DOSSIERS_MAP = (_data_map / "dossiers") if _data_map else (TOOLKIT_MAP / "dossiers")
+ORGANEN_MAP = (_data_map / "organen") if _data_map else (TOOLKIT_MAP / "organen")
+OUTPUT_BASIS = _data_map if _data_map else (Path.home() / "Documents" / "notulen")
 
 # Standaard vergadertypen per orgaantype — gebruikt bij aanmaken nieuw orgaan
 VERGADERTYPEN_PER_TYPE = {
