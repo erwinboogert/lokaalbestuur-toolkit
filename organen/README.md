@@ -6,7 +6,7 @@ Deze map bevat configuratiebestanden per orgaan. Elk bestand beschrijft één or
 
 ```json
 {
-  "naam": "Barendrecht",
+  "naam": "Rotterdam",
   "type": "gemeente",
   "bron": "ori",
   "vergadertypen": [
@@ -28,7 +28,7 @@ Deze map bevat configuratiebestanden per orgaan. Elk bestand beschrijft één or
 
 - Gebruik de naam zoals die voorkomt in de Open Raadsinformatie API-index
 - Alleen kleine letters, cijfers en koppeltekens
-- Gemeente: `barendrecht.json`, `den-haag.json`
+- Gemeente: `rotterdam.json`, `den-haag.json`
 - Waterschap: `hollandse-delta.json`, `rijnland.json`
 - GR: `drechtsteden-gr.json`, `midden-holland-gr.json`
 

@@ -60,10 +60,10 @@ Doel: van keyword-alerts naar echte onderzoekstool waarmee je dwars door het arc
 `index.py` — SQLite FTS5-index van alle gedownloade stukken. Eenmalig opbouwen, daarna milliseconden per zoekopdracht.
 
 ```bash
-python3 index.py barendrecht                      # bouw/update index
-python3 index.py barendrecht "grondprijs"         # zoek
-python3 index.py barendrecht "grond OR woningbouw" --uitvoer  # exporteer naar Markdown
-python3 index.py barendrecht --status             # statistieken
+python3 index.py rotterdam                      # bouw/update index
+python3 index.py rotterdam "grondprijs"         # zoek
+python3 index.py rotterdam "grond OR woningbouw" --uitvoer  # exporteer naar Markdown
+python3 index.py rotterdam --status             # statistieken
 ```
 
 Resultaten bevatten: bestandsnaam, vergaderdatum, vergadertype, snippet met gemarkeerde treffers.
@@ -72,7 +72,7 @@ Resultaten bevatten: bestandsnaam, vergaderdatum, vergadertype, snippet met gema
 `tijdlijn.py` — zoekt alle treffers voor een term door het archief, sorteert chronologisch en exporteert als Markdown naar `~/Documents/notulen/<orgaan>/tijdlijnen/`.
 
 ```bash
-python3 tijdlijn.py barendrecht "woningbouw"
+python3 tijdlijn.py rotterdam "woningbouw"
 python3 tijdlijn.py --dossier asielopvang "spreidingswet"
 ```
 
@@ -80,7 +80,7 @@ python3 tijdlijn.py --dossier asielopvang "spreidingswet"
 `partijen.py` — heuristische sprekerdetectie op basis van gangbare Nederlandse vergadernotatie. Koppelt fragmenten aan fracties, gegroepeerd per partij. Waarschuwt expliciet als geen sprekers worden herkend.
 
 ```bash
-python3 partijen.py barendrecht "woningbouw"
+python3 partijen.py rotterdam "woningbouw"
 python3 partijen.py --dossier asielopvang "spreidingswet" --uitvoer
 ```
 
@@ -129,7 +129,7 @@ Doel: de toolkit voorbereiden op meerdere brontypen door orgaan en dossier te sc
 Kleine verbeteringen en acties die buiten de fases vallen.
 
 - **GitHub-repository aanmaken** — repository publiek zetten op GitHub onder naam van Erwin Boogert; vereist `gh auth login` en `gh repo create`
-- **Dossier kan meerdere organen volgen** — `"organen": ["barendrecht", "ridderkerk"]` in dossier-config; `analyse.py` itereert over meerdere documentenmappen en bundelt resultaten in één rapport. Bewust uitgesteld: vereist substantiële refactor van `analyse.py`.
+- **Dossier kan meerdere organen volgen** — `"organen": ["rotterdam", "utrecht", "groningen"]` in dossier-config; `analyse.py` itereert over meerdere documentenmappen en bundelt resultaten in één rapport. Bewust uitgesteld: vereist substantiële refactor van `analyse.py`.
 
 ---
 
@@ -149,10 +149,11 @@ lokaalbestuur-toolkit/
 ├── scraper_gr.py           ← nieuw: gemeenschappelijke regelingen
 ├── scraper_waterschap.py   ← nieuw: waterschappen
 ├── scraper_cbs.py          ← nieuw (fase 7): iv3/CBS financiën
-├── bronnen/                ← nieuw: configuratie per brontype
+├── bronnen/                ← configuratie per brontype
 │   ├── regelingen.json     ← actieve gemeenschappelijke regelingen
-│   ├── waterschappen.json  ← actieve waterschappen
-│   └── gemeenten_cbs.json  ← gemeenten voor financiële monitoring
+│   ├── waterschappen.json  ← actieve waterschappen (fase 6b)
+│   ├── gemeentecodes.json  ← CBS-gemeentecodes (fase 7)
+│   └── iv3datasets.json    ← CBS dataset-IDs per jaar (fase 7)
 ```
 
 Het dashboard (`python3 toolkit.py`) toont alle actieve bronnen in één overzicht:
@@ -165,24 +166,44 @@ Het dashboard (`python3 toolkit.py`) toont alle actieve bronnen in één overzic
   Financiën        4 gemeenten   laatste update: jan 2026
 ```
 
-### Fase 6a — Gemeenschappelijke regelingen
+### ✅ Fase 6a — Gemeenschappelijke regelingen (infrastructuur)
 
-Gemeenten voeren steeds meer taken niet zelf uit, maar via samenwerkingsverbanden met andere gemeenten. Denk aan sociale diensten, regionale omgevingsdiensten, veiligheidsregio's en jeugdhulpregio's. Deze zogeheten gemeenschappelijke regelingen hebben eigen besturen, eigen begrotingen en eigen vergaderingen — maar vallen buiten het zicht van de individuele gemeenteraad. Er is nauwelijks democratisch toezicht en journalistieke aandacht ontbreekt vrijwel volledig. Juist hier kunnen grote bedragen worden besteed en besluiten worden genomen zonder dat iemand goed oplet. Een deel van deze regelingen is al vindbaar via de Open Raadsinformatie API, maar ze zijn ondervertegenwoordigd.
+Gemeenten voeren steeds meer taken niet zelf uit, maar via samenwerkingsverbanden met andere gemeenten. Denk aan sociale diensten, regionale omgevingsdiensten, veiligheidsregio's en jeugdhulpregio's. Deze zogeheten gemeenschappelijke regelingen hebben eigen besturen, eigen begrotingen en eigen vergaderingen — maar vallen buiten het zicht van de individuele gemeenteraad. Er is nauwelijks democratisch toezicht en journalistieke aandacht ontbreekt vrijwel volledig.
 
-**Nieuw bestand:** `scraper_gr.py` — werkt identiek aan `scraper.py`, maar filtert specifiek op samenwerkingsorganen in de ORI-API.
+`scraper_gr.py` biedt de infrastructuur: catalogus, scraper, toolkit-integratie.
 
 ```bash
-python3 scraper_gr.py veiligheidsregio-rotterdam  # download vergaderstukken
-python3 scraper_gr.py --lijst                     # toon beschikbare regelingen
+python3 scraper_gr.py drechtsteden           # download vergaderstukken
+python3 scraper_gr.py drechtsteden --droog   # droog uitvoeren
+python3 scraper_gr.py --lijst                # toon geconfigureerde GRs
+python3 scraper_gr.py --lijst-ori            # toon wat beschikbaar is in ORI
 ```
 
 Output in: `~/Documents/notulen/regelingen/<naam>/`
+Catalogus: `bronnen/regelingen.json`
 
 **Toolkit-commando's:**
 ```bash
 python3 toolkit.py nieuwe-regeling    # voeg een GR toe aan bronnen/regelingen.json
 python3 toolkit.py scrape-regelingen  # download nieuwe stukken voor alle actieve regelingen
 ```
+
+**Beperking:** GRs staan momenteel niet in de ORI API — de API bevat uitsluitend gemeenten (ori_), waterschappen (owi_) en provincies (osi_). De infrastructuur werkt zodra een GR via ORI ontsloten wordt, of wanneer de bron wordt uitgebreid naar Notubiz.
+
+### Open punt: Notubiz als bron voor GR-documenten
+
+GR-documenten zijn doorgaans vindbaar via Notubiz (notubiz.nl). De Notubiz API bestaat en is deels publiek toegankelijk:
+
+- `api.notubiz.nl/organisations` — werkt zonder authenticatie; geeft 395 organisaties terug als XML, waaronder gemeenten én GRs (o.a. "Gemeenschappelijke regeling Nieuw Reijerwaard", "Samenwerkingsorgaan Hoeksche Waard").
+- `api.notubiz.nl/events` — bestaat maar werkt niet zonder een ongedocumenteerde verplichte parameter, waarschijnlijk een API-sleutel. De officiële documentatie zegt: "Er is nog geen documentatie beschikbaar voor publiek gebruik."
+
+**Drie mogelijke paden:**
+
+1. **API-sleutel aanvragen bij Notubiz** — laagste technische drempel als ze die verstrekken. Onbekend of dat mogelijk is voor derden.
+2. **HTML-scraping van notubiz.nl** — werkt zonder sleutel, maar is fragiel en afhankelijk van hun opmaak.
+3. **Wachten op ORI-uitbreiding** — ORI indexeert al Notubiz-content van gemeenten; mogelijk worden GRs in de toekomst ook opgenomen.
+
+Een `scraper_gr_notubiz.py` zou pad 1 of 2 kunnen implementeren en de bestaande `scraper_gr.py`-infrastructuur (catalogus, toolkit-integratie) hergebruiken.
 
 ### Fase 6b — Waterschappen
 
@@ -233,24 +254,40 @@ Alle Nederlandse gemeenten zijn wettelijk verplicht hun financiële verantwoordi
 
 Deze data wordt door lokale journalisten nauwelijks gebruikt, terwijl het precies het type materiaal is dat signalen oplevert: gemeente A geeft structureel 40% meer uit aan externe inhuur dan vergelijkbare gemeenten, gemeente B heeft de afvalstoffenheffing verhoogd terwijl de reserve groeit. Gecombineerd met raadsstukken uit de bestaande toolkit ontstaat een krachtige combinatie: je ziet wat er besloten is én of het geld er ook daadwerkelijk naartoe gegaan is.
 
-**Nieuw bestand:** `scraper_cbs.py` — haalt iv3-data op via de CBS StatLine API, slaat op als CSV per gemeente.
-
-```bash
-python3 scraper_cbs.py arnhem                              # haal iv3-data op
-python3 scraper_cbs.py --vergelijk arnhem breda roosendaal # vergelijkingsrapport
-```
-
-Output in: `~/Documents/notulen/<gemeente>/financien/`
-- `iv3_<jaar>.csv` — ruwe data
-- `vergelijking_<datum>.md` — Markdown-rapport met opvallende afwijkingen
-
-**Toolkit-commando's:**
-```bash
-python3 toolkit.py financien arnhem  # haal data op + toon samenvatting
-python3 toolkit.py vergelijk arnhem  # vergelijk met vergelijkbare gemeenten
-```
-
 De financiële data is institutioneel (gemeente als geheel) en valt daarmee binnen de bestaande privacygrenzen van de toolkit.
+
+### ✅ Data ophalen en opslaan
+
+`scraper_cbs.py` — haalt de jaarrekening op uit de onbewerkte iv3-data van CBS (dataderden.cbs.nl), slaat op als CSV per gemeente per jaar.
+
+```bash
+python3 scraper_cbs.py rotterdam              # laatste 3 beschikbare jaren
+python3 scraper_cbs.py rotterdam 2022         # specifiek jaar
+python3 scraper_cbs.py rotterdam --droog      # toon wat opgehaald zou worden
+python3 scraper_cbs.py --lijst                # toon geconfigureerde gemeenten
+```
+
+Output in: `~/Documents/notulen/<gemeente>/financien/iv3_<jaar>.csv`
+
+Eenheid: 1.000 euro. Velden: taakveld/balanspost-code, categorie, eerste en tweede plaatsing.
+Gemeentecodes: `bronnen/gemeentecodes.json` (37 gemeenten, uitbreidbaar).
+Dataset-IDs per jaar: `bronnen/iv3datasets.json` (2010–2025).
+
+**Toolkit-commando:**
+```bash
+python3 toolkit.py financien rotterdam        # haal data op via toolkit
+python3 toolkit.py financien rotterdam 2022   # specifiek jaar
+```
+
+### Nog open
+
+- **iv3-codes vertalen naar leesbare labels** — de taakveld/balanspost-codes (bijv. `6.1`, `L1.1`) zijn CBS-codes uit het Besluit begroting en verantwoording. Zonder vertaaltabel zijn de CSV-bestanden niet direct leesbaar voor een journalist. Vereist een handmatig samengestelde of extern verkregen codetabel.
+
+- **Vergelijkbare gemeenten bepalen** — voor een betekenisvolle vergelijking moet je weten welke gemeenten vergelijkbaar zijn (inwonertal, stedelijkheidsgraad, centrumfunctie). CBS heeft een gemeentetypologie; die moet worden geïntegreerd.
+
+- **Afwijkingen signaleren** — automatisch detecteren wanneer een gemeente significant afwijkt van vergelijkbare gemeenten. Vereist statistische keuzes (mediaan, drempelwaarden) en domeinkennis over wat een relevante afwijking is.
+
+- **Vergelijkingsrapport** — Markdown-rapport met opvallende afwijkingen per gemeente, bruikbaar als startpunt voor een verhaal. Dit bouwt voort op de drie punten hierboven.
 
 ---
 
@@ -278,38 +315,3 @@ De toolkit draait bewust lokaal, op de eigen machine van de journalist. Dat is g
 
 De toolkit mag een journalist sneller bij de juiste vraag brengen. Wat het niet mag doen, is de vraag zelf beantwoorden. Alerts, fragmenten, tijdlijnen en checklists zijn hulpmiddelen voor de journalist — die beoordeelt zelf wat een signaal waard is, welke bronnen hij raadpleegt en of er een verhaal is. De redactionele verantwoordelijkheid blijft altijd bij de mens.
 
----
-
-## Fase 8 — Zoekarchitectuur (open beslissing)
-
-*Toegevoegd maart 2026. Nog geen beslissing genomen.*
-
-### Aanleiding
-
-De toolkit bouwt een groeiend lokaal archief van raadsstukken — maandelijks aangevuld, mogelijk over meerdere gemeenten en jaren. De vraag is hoe dit archief het beste doorzoekbaar wordt gemaakt, gegeven dat het gebruik primair *ontdekkend* is: je weet niet altijd wat je zoekt.
-
-### De drie opties
-
-**FTS5 (full-text zoekindex, al gebouwd als `index.py`)**
-Zoekt op exacte woorden en varianten. Snel en betrouwbaar. Werkt goed als je weet wat je zoekt — een naam, een term, een specifiek woord. Werkt slecht voor ontdekkend werken: je moet al een mentaal beeld hebben van welk woord in de tekst staat. "Grondtransactie" vindt je niet als de tekst "verkoop perceel" zegt.
-
-**Semantic search (vector-database via Ollama)**
-Zoekt op betekenis. Je kunt vragen stellen als "wat speelt er rond wonen?" en documenten vinden die het woord "woningbouw" nooit bevatten, maar wel gaan over huisvesting, starters, huurmarkt of bouwplannen. Krachtig voor ontdekkend werk, maar nog steeds query-gestuurd: je hebt een vraag nodig. Vereist meer infrastructuur (Ollama, embedding-model, vector-database).
-
-**Periodieke digest (nog niet gebouwd)**
-Claude leest automatisch alle nieuwe documenten van de week en schrijft op wat er opvalt — zonder dat de journalist een vraag stelt. Dit is de enige optie die écht toevallige ontdekkingen mogelijk maakt: je krijgt een signaal over iets waar je niet op zocht. Past het beste bij de werkwijze van een onderzoeksjournalist die "vist". Sluit aan bij het bestaande alertsysteem. Laagste complexiteit van de drie.
-
-### Kernoverweging
-
-Claude kan documenten niet allemaal tegelijk lezen: het contextvenster heeft een limiet. Bij een klein archief is dat geen probleem. Bij een archief van jaren en meerdere gemeenten — duizenden documenten — is *selectie* noodzakelijk. De vraag is welk mechanisme die selectie maakt, en of dat mechanisme blinde vlekken creëert.
-
-FTS5 en semantic search selecteren op basis van een query. Wie niet weet wat er speelt, zoekt er ook niet op. De digest selecteert niet: alles nieuws wordt gelezen. Dat is het fundamentele verschil.
-
-### Voorlopige conclusie
-
-Voor ontdekkend journalistiek werk — vissen, patronen zien, onverwachte verbanden — is de **digest de meest waardevolle volgende stap**. Semantic search voegt waarde toe als het archief zo groot wordt dat zelfs de digest niet meer behapbaar is, of als je gericht wil zoeken met vage begrippen. Vector-database-infrastructuur is pas zinvol als de vorige twee stappen tekortschieten.
-
-**Aanbevolen volgorde:**
-1. Digest bouwen — Claude leest wekelijks alle nieuwe stukken, schrijft signalen op
-2. FTS5 gebruiken voor precieze nazoekacties (al beschikbaar)
-3. Semantic search overwegen als het archief substantieel groeit of multi-gemeente wordt

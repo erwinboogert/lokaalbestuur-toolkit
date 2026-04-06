@@ -1,0 +1,65 @@
+project:
+  name: "WikiBrain Lokaal Bestuur"
+  language: "nl"
+  domain: "Lokaal bestuur, gemeentepolitiek en democratische controle in Nederland"
+
+paths:
+  sources: "~/Documents/notulen"   # pas aan naar jouw archief
+  raw: "./raw"
+  wiki: "./wiki"
+  prompts: "./prompts"
+
+ingest:
+  batch_size: 50
+  converters:
+    primary: "markitdown"
+    fallback: "pymupdf4llm"
+    fallback2: "marker"         # optioneel, zwaarder — vereist aparte installatie
+    use_marker: false           # zet op true als de eerste twee onvoldoende zijn
+  summary_max_sentences: 3
+  supported_extensions:
+    - .pdf
+    - .docx
+    - .xlsx
+    - .pptx
+    - .html
+    - .md
+    - .png
+    - .jpg
+    - .jpeg
+
+compile:
+  batch_size: 20
+  min_sources_for_article: 2
+  max_article_length_words: 800
+  discovery:
+    use_prefilter: true         # eerst keyword/alias lookup, LLM alleen voor twijfel
+    llm_threshold: 0.6          # score waaronder de pre-filter twijfelt en LLM inschakelt
+  alias_conflict_check: true    # voer aliasconflictencheck uit bij elke compile-run
+
+search:
+  index_path: "./wiki/_meta/search.db"
+  top_k: 10
+
+query:
+  max_context_articles: 5       # maximaal aantal volledige artikelen per query naar LLM
+  output_dir: "./wiki/outputs"
+  safe_exec: true               # matplotlib code uitvoeren in sandboxed subprocess
+
+llm:
+  temperature:
+    summary: 0.2
+    article: 0.3
+    discovery: 0.4
+    query: 0.5
+    lint: 0.2
+  max_tokens:
+    summary: 200
+    article: 1200
+    query: 2000
+
+git:
+  auto_commit: false
+  commit_after:
+    - compile
+    - lint

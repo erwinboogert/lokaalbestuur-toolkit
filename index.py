@@ -2,11 +2,11 @@
 Zoekindex voor raadsstukken — bouw en doorzoek een lokale full-text index
 
 Gebruik:
-    python3 index.py barendrecht                    # bouw/update de index
-    python3 index.py barendrecht "woningbouw"       # zoek in de index
-    python3 index.py barendrecht "grond OR woningbouw"
-    python3 index.py barendrecht "woningbouw" --uitvoer   # exporteer naar Markdown
-    python3 index.py barendrecht --status           # toon statistieken
+    python3 index.py rotterdam                    # bouw/update de index
+    python3 index.py rotterdam "woningbouw"       # zoek in de index
+    python3 index.py rotterdam "grond OR woningbouw"
+    python3 index.py rotterdam "woningbouw" --uitvoer   # exporteer naar Markdown
+    python3 index.py rotterdam --status           # toon statistieken
     python3 index.py --dossier asielopvang "spreidingswet"
 
 Zoeksyntaxis (SQLite FTS5):

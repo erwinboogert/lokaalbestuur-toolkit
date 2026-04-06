@@ -1,0 +1,13 @@
+Schrijf een bronpagina voor het volgende document.
+
+Vul in:
+- Titel van het document
+- Auteur(s) indien bekend
+- Datum van publicatie indien bekend
+- Type document (rapport, interview, artikel, etc.)
+- Kernthema's (2-4 punten)
+- Geciteerde of relevante concepten als [[wikilinks]]
+- Korte samenvatting (max 5 zinnen)
+
+Bronbestand:
+{text}

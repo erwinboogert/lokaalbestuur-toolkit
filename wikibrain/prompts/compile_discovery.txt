@@ -1,0 +1,19 @@
+Gegeven de samenvatting van een nieuw bronbestand en de bestaande conceptenlijst:
+Bepaal welke bestaande concepten relevant zijn voor deze bron.
+Bepaal of er nieuwe concepten zijn die nog niet in de lijst staan.
+Geef twijfelgevallen expliciet aan — gebruik geen gissingen.
+Domein: {domain}
+
+Samenvatting bronbestand:
+{summary}
+
+Bestaande concepten (canonical names):
+{concepts}
+
+Antwoord als JSON:
+{
+  "matched_existing": ["ConceptNaam1", "ConceptNaam2"],
+  "new_concepts": ["NieuwConcept1"],
+  "uncertain": ["MogelijkDuplicaat"],
+  "reasoning": "Korte toelichting"
+}

@@ -6,9 +6,9 @@ chronologisch als Markdown-tijdlijn. Handig voor het reconstrueren
 van hoe een dossier zich door de tijd heeft ontwikkeld.
 
 Gebruik:
-    python3 tijdlijn.py barendrecht "woningbouw"
+    python3 tijdlijn.py rotterdam "woningbouw"
     python3 tijdlijn.py --dossier asielopvang "spreidingswet"
-    python3 tijdlijn.py barendrecht "grond" --droog
+    python3 tijdlijn.py rotterdam "grond" --droog
 
 De tijdlijn wordt opgeslagen in:
     ~/Documents/notulen/<orgaan>/tijdlijnen/tijdlijn-<term>-<datum>.md

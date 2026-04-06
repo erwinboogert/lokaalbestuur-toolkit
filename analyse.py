@@ -4,9 +4,9 @@ Werkt volledig lokaal — geen API of internetverbinding nodig.
 
 Gebruik:
     python3 analyse.py --dossier asielopvang          # orgaan uit dossier-config
-    python3 analyse.py barendrecht --dossier asielopvang   # orgaan expliciet opgeven
-    python3 analyse.py barendrecht --droog            # zonder dossier, droog uitvoeren
-    python3 analyse.py --dossier asielopvang --docs-map ~/archief/barendrecht
+    python3 analyse.py rotterdam --dossier asielopvang   # orgaan expliciet opgeven
+    python3 analyse.py rotterdam --droog            # zonder dossier, droog uitvoeren
+    python3 analyse.py --dossier asielopvang --docs-map ~/archief/rotterdam
 
 Werking:
     1. Kijk welke PDF's nieuw zijn sinds de vorige analyse

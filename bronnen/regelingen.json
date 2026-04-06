@@ -1,0 +1,4 @@
+{
+  "_opmerking": "Geconfigureerde gemeenschappelijke regelingen. ori_index = naam zoals die voorkomt in de ORI API (zonder ori_-prefix en tijdstempel). Gebruik 'python3 scraper_gr.py --lijst-ori' om beschikbare GRs in ORI te ontdekken.",
+  "_vergadertypen_standaard": ["algemeen bestuur", "dagelijks bestuur", "portefeuillehoudersoverleg"]
+}

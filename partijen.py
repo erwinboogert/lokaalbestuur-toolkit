@@ -6,9 +6,9 @@ aan sprekers en fracties. Handig voor het reconstrueren welke partijen
 welk standpunt innamen over een onderwerp.
 
 Gebruik:
-    python3 partijen.py barendrecht "woningbouw"
+    python3 partijen.py rotterdam "woningbouw"
     python3 partijen.py --dossier asielopvang "spreidingswet"
-    python3 partijen.py barendrecht "woningbouw" --uitvoer
+    python3 partijen.py rotterdam "woningbouw" --uitvoer
 
 Let op: de sprekerdetectie is heuristisch en werkt het best bij goed
 opgemaakte vergaderverslagen. Gescande PDF's of afwijkende opmaak kunnen

@@ -1,0 +1,22 @@
+Schrijf een wiki-artikel over het concept "{concept}" op basis van de aangeleverde bronnen.
+
+Structuur:
+1. Kernomschrijving (2-3 zinnen)
+2. Definitie en reikwijdte
+3. Context in Nederland
+4. Actuele discussies
+5. Bronnen in deze kennisbase (met relevante passage per bron)
+6. Zie ook (gerelateerde concepten als [[wikilinks]])
+
+Maximaal {max_words} woorden. Geen meningen, geen externe informatie.
+Gebruik [[wikilinks]] voor gerelateerde concepten.
+
+Frontmatter invullen:
+- title: {concept}
+- aliases: {aliases}
+- tags: relevante tags
+- related: gerelateerde concepten
+- sources: paden naar bronbestanden
+
+Bronnen:
+{sources}
