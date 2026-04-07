@@ -137,19 +137,6 @@ Dit is aanvullend op de primaire werkwijze — je hebt het niet nodig voor een e
 
 ---
 
-## Optioneel: WikiBrain kennisbank (Obsidian)
-
-WikiBrain bouwt over tijd een kennisnetwerk op uit de gedownloade stukken — navigeerbaar in Obsidian als backlinks, graafweergave en tijdlijnen. Nuttig als je een gemeente maandenlang volgt en begrip wil opbouwen over wat er speelt.
-
-```bash
-python3 toolkit.py wikibrain-ingest     # verwerk nieuwe raadsstukken
-python3 toolkit.py wikibrain-compile    # update wiki-artikelen
-python3 toolkit.py wikibrain-query "Welke besluiten over woningbouw?"
-```
-
-Open `wikibrain/wiki/` als Obsidian-vault. Zie `wikibrain/README.md` voor documentatie.
-
----
 
 ## Vereisten en installatie
 
@@ -187,19 +174,8 @@ python3 scraper_gr.py <gr>                      # GR-stukken downloaden (vereist
 python3 toolkit.py nieuw-dossier                # nieuw dossier met trefwoorden
 python3 analyse.py --dossier <naam>             # handmatig alert draaien
 
-# Zoeken en verdiepen
+# Zoeken (direct, zonder Claude)
 python3 index.py <gemeente> "zoekterm"          # zoek in de index
-python3 tijdlijn.py <gemeente> "zoekterm"       # chronologische reconstructie
-python3 partijen.py <gemeente> "zoekterm"       # partijposities
-
-# WikiBrain
-python3 toolkit.py wikibrain-ingest             # raadsstukken verwerken
-python3 toolkit.py wikibrain-compile            # wiki-artikelen bijwerken
-python3 toolkit.py wikibrain-query "vraag"      # stel een vraag
-
-# Financiën
-python3 toolkit.py financien <gemeente>         # CBS iv3-data ophalen
-python3 toolkit.py financien <gemeente> 2022    # specifiek jaar
 
 # Overzicht
 python3 toolkit.py                              # dashboard
@@ -215,12 +191,10 @@ De map `prompts/` bevat sjablonen voor gebruik in Claude Code:
 
 | Prompt | Wanneer |
 |---|---|
-| `vrije-vraag.md` | Brede onderzoeksvraag zonder vooraf bekende trefwoorden — gebruik dit als startpunt |
+| `vrije-vraag.md` | Brede onderzoeksvraag zonder vooraf bekende trefwoorden — **start hier** |
 | `raadsstukken-analyse.md` | Gestructureerde analyse van een bekend dossier |
 | `wederhoor.md` | Gerichte vragen per partij op basis van de stukken |
 | `bronnenbrief.md` | Eerste contactbrief aan een bron of betrokkene |
-| `vergelijking.md` | Vergelijk meerdere gemeenten op hetzelfde onderwerp |
-| `budget.md` | Analyseer begrotingsposten en financiële keuzes |
 
 ---
 
@@ -242,17 +216,13 @@ lokaalbestuur-toolkit/
 ├── scraper.py              gemeentedocumenten (ORI API)
 ├── scraper_waterschap.py   waterschapstukken (ORI API)
 ├── scraper_gr.py           GR-stukken (vereist Notubiz API-sleutel)
-├── scraper_cbs.py          financiële data (CBS iv3)
 ├── analyse.py              keyword-alerts
 ├── index.py                zoekindex (SQLite FTS5)
-├── tijdlijn.py             chronologische reconstructie
-├── partijen.py             partijposities
-├── bronnen/                catalogussen (gemeenten, waterschappen, GRs, CBS)
+├── bronnen/                catalogussen (gemeenten, waterschappen, GRs)
 ├── organen/                configuratie per orgaan
 ├── dossiers/               configuratie per monitoringsdossier
 ├── prompts/                Claude-prompts
-├── checklists/             rode-vlagchecklist lokaal bestuur
-└── wikibrain/              kennisbank (Obsidian)
+└── checklists/             rode-vlagchecklist lokaal bestuur
 
 ~/Documents/notulen/
 ├── rotterdam/

@@ -3,14 +3,11 @@ Lokaalbestuur Toolkit — dashboard en interface
 
 Gebruik:
     python3 toolkit.py                      toon dashboard (overzicht van actieve dossiers)
-    python3 toolkit.py nieuw-dossier        stel een nieuw dossier in
+    python3 toolkit.py onderzoek <gemeente> bereid Claude Code-sessie voor (bronnencheck + briefing)
     python3 toolkit.py nieuw-orgaan         voeg een orgaan toe (gemeente, waterschap of GR)
+    python3 toolkit.py nieuw-dossier        stel een monitoringsdossier in (trefwoorden + alerts)
     python3 toolkit.py status               uitgebreid statusoverzicht
     python3 toolkit.py check                controleer installatie
-    python3 toolkit.py wikibrain-ingest     verwerk nieuwe raadsstukken naar kennisbank
-    python3 toolkit.py wikibrain-compile    update WikiBrain-artikelen
-    python3 toolkit.py wikibrain-query      stel een vraag aan de kennisbank
-    python3 toolkit.py financien <gemeente> haal iv3-financiëndata op uit CBS
     python3 toolkit.py nieuwe-regeling      voeg een GR toe aan de catalogus
     python3 toolkit.py scrape-regelingen    download stukken voor alle GRs
     python3 toolkit.py nieuw-waterschap     voeg een waterschap toe aan de catalogus
@@ -26,7 +23,6 @@ from datetime import datetime
 from pathlib import Path
 
 TOOLKIT_MAP = Path(__file__).parent
-WIKIBRAIN_MAP = TOOLKIT_MAP / "wikibrain"
 PYTHON = "/opt/homebrew/bin/python3"
 
 
@@ -136,27 +132,6 @@ def voeg_crontabregel_toe(commentaar: str, regel: str):
 
 # ── Commando's ────────────────────────────────────────────────────────────────
 
-def wikibrain_status() -> dict:
-    """Lees WikiBrain-statistieken uit wiki/_meta."""
-    meta = WIKIBRAIN_MAP / "wiki" / "_meta"
-    n_artikelen = len(list((meta / "..").glob("concepts/*.md"))) if (meta / "..").exists() else 0
-    index_pad = meta / "INDEX.md"
-    laatste_compile = "nog niet gedraaid"
-    if index_pad.exists():
-        ts = index_pad.stat().st_mtime
-        laatste_compile = datetime.fromtimestamp(ts).strftime("%d %b %Y, %H:%M")
-    queue_pad = WIKIBRAIN_MAP / "raw" / "queue.json"
-    n_wachtrij = 0
-    if queue_pad.exists():
-        try:
-            wachtrij = json.loads(queue_pad.read_text(encoding="utf-8"))
-            if isinstance(wachtrij, list):
-                n_wachtrij = sum(1 for item in wachtrij if item.get("status") != "compiled")
-        except Exception:
-            pass
-    return {"artikelen": n_artikelen, "laatste_compile": laatste_compile, "wachtrij": n_wachtrij}
-
-
 def dashboard():
     """Hoofddashboard: overzicht van actieve dossiers en beschikbare commando's."""
     print()
@@ -179,21 +154,13 @@ def dashboard():
     # Bronnen-overzicht
     _toon_bronnen_status()
 
-    # WikiBrain-status
-    wb = wikibrain_status()
-    print()
-    print("WikiBrain kennisbank:")
-    print(f"  artikelen: {wb['artikelen']}   wachtrij: {wb['wachtrij']}   laatste compile: {wb['laatste_compile']}")
-
     print()
     print("─" * 50)
     print()
-    print("  python3 toolkit.py nieuw-dossier    → nieuw dossier aanmaken")
-    print("  python3 toolkit.py nieuw-orgaan     → nieuw orgaan toevoegen")
-    print("  python3 toolkit.py status           → uitgebreid overzicht")
-    print("  python3 toolkit.py wikibrain-ingest → verwerk nieuwe raadsstukken")
-    print("  python3 toolkit.py wikibrain-compile → update kennisbank")
-    print("  python3 toolkit.py wikibrain-query  → stel een vraag aan de kennisbank")
+    print("  python3 toolkit.py onderzoek <gemeente>  → Claude-sessie voorbereiden")
+    print("  python3 toolkit.py nieuw-orgaan          → orgaan toevoegen")
+    print("  python3 toolkit.py nieuw-dossier         → monitoringsdossier aanmaken")
+    print("  python3 toolkit.py status                → uitgebreid overzicht")
     print()
 
 
@@ -423,12 +390,6 @@ def nieuwe_gemeente():
     log_pad = OUTPUT_BASIS / orgaan / "logs" / "scraper.log"
     cron_scraper = f"0 9 * * 3 {PYTHON} {TOOLKIT_MAP / 'scraper.py'} {orgaan} >> {log_pad} 2>&1"
     voeg_crontabregel_toe(f"Scraper — {orgaan}", cron_scraper)
-
-    log_pad_wb = OUTPUT_BASIS / orgaan / "logs" / "wikibrain.log"
-    cron_wb_ingest = f"15 9 * * 3 cd {WIKIBRAIN_MAP} && {PYTHON} -m wikibrain.cli ingest >> {log_pad_wb} 2>&1"
-    cron_wb_compile = f"45 9 * * 3 cd {WIKIBRAIN_MAP} && {PYTHON} -m wikibrain.cli compile >> {log_pad_wb} 2>&1"
-    voeg_crontabregel_toe(f"WikiBrain ingest — {orgaan}", cron_wb_ingest)
-    voeg_crontabregel_toe(f"WikiBrain compile — {orgaan}", cron_wb_compile)
 
     # GR-suggesties voor gemeenten
     if orgaan_type == "gemeente":
@@ -966,35 +927,6 @@ def nieuw_alert(args: list):
     print()
 
 
-def financien(args: list):
-    """Haal iv3-financiëndata op uit CBS voor een gemeente."""
-    if not args:
-        print("\nGebruik: python3 toolkit.py financien <gemeente> [jaar] [--droog]")
-        print("Voorbeeld: python3 toolkit.py financien rotterdam")
-        print("           python3 toolkit.py financien rotterdam 2022\n")
-        return
-    subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper_cbs.py")] + args)
-
-
-def wikibrain_ingest():
-    """Verwerk nieuwe en gewijzigde raadsstukken naar WikiBrain."""
-    subprocess.run([PYTHON, "-m", "wikibrain.cli", "ingest"], cwd=WIKIBRAIN_MAP)
-
-
-def wikibrain_compile():
-    """Update de kennisbank op basis van verwerkte bronnen."""
-    subprocess.run([PYTHON, "-m", "wikibrain.cli", "compile"], cwd=WIKIBRAIN_MAP)
-
-
-def wikibrain_query(args: list):
-    """Stel een vraag aan de kennisbank."""
-    if not args:
-        print("\nGebruik: python3 toolkit.py wikibrain-query \"jouw vraag\"\n")
-        return
-    vraag_tekst = " ".join(args)
-    subprocess.run([PYTHON, "-m", "wikibrain.cli", "query", vraag_tekst], cwd=WIKIBRAIN_MAP)
-
-
 def check():
     """Controleer of de toolkit correct is geïnstalleerd en klaar voor gebruik."""
     import urllib.request
@@ -1055,24 +987,6 @@ def check():
     else:
         print("  ! Geen dossiers aangemaakt — gebruik: python3 toolkit.py nieuw-dossier")
 
-    # WikiBrain
-    wb_config = WIKIBRAIN_MAP / "config.yaml"
-    if wb_config.exists():
-        print("  ✓ WikiBrain aanwezig en geconfigureerd")
-    else:
-        print("  ✗ WikiBrain config.yaml niet gevonden — check wikibrain/ map")
-        fouten += 1
-
-    try:
-        import importlib.util
-        spec = importlib.util.find_spec("markitdown")
-        if spec:
-            print("  ✓ markitdown geïnstalleerd")
-        else:
-            print("  ! markitdown niet gevonden — installeer met: pip install markitdown[all]")
-    except Exception:
-        pass
-
     # Crontab
     result = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
     crontab = result.stdout
@@ -1080,10 +994,6 @@ def check():
         print("  ✓ Crontab scraper aanwezig")
     else:
         print("  ! Geen scraper-crontab — gebruik: python3 toolkit.py nieuw-orgaan")
-    if "wikibrain" in crontab:
-        print("  ✓ Crontab WikiBrain aanwezig")
-    else:
-        print("  ! Geen WikiBrain-crontab — voeg toe via: python3 toolkit.py nieuw-orgaan")
     if "analyse.py" in crontab:
         print("  ✓ Crontab analyse aanwezig")
     else:
@@ -1133,21 +1043,12 @@ def main():
         nieuw_waterschap()
     elif args[0] == "scrape-waterschappen":
         scrape_waterschappen()
-    elif args[0] == "financien":
-        financien(args[1:])
     elif args[0] == "onderzoek":
         onderzoek(args[1:])
-    elif args[0] == "wikibrain-ingest":
-        wikibrain_ingest()
-    elif args[0] == "wikibrain-compile":
-        wikibrain_compile()
-    elif args[0] == "wikibrain-query":
-        wikibrain_query(args[1:])
     else:
         print(f"\nOnbekend commando: '{args[0]}'")
-        print("Gebruik: python3 toolkit.py [nieuw-dossier | nieuw-orgaan | status | check |")
-        print("                             wikibrain-ingest | wikibrain-compile | wikibrain-query |")
-        print("                             financien <gemeente> | nieuwe-regeling | scrape-regelingen |")
+        print("Gebruik: python3 toolkit.py [onderzoek <gemeente> | nieuw-orgaan | nieuw-dossier |")
+        print("                             status | check | nieuwe-regeling | scrape-regelingen |")
         print("                             nieuw-waterschap | scrape-waterschappen]\n")
         sys.exit(1)
 
