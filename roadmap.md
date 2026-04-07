@@ -129,6 +129,7 @@ Doel: de toolkit voorbereiden op meerdere brontypen door orgaan en dossier te sc
 Kleine verbeteringen en acties die buiten de fases vallen.
 
 - **✅ GitHub-repository aanmaken** — publiek op github.com/erwinboogert/lokaalbestuur-toolkit
+- **✅ Werkwijze 1 — vrije onderzoeksvraag** — `python3 toolkit.py onderzoek <gemeente>` bereidt een Claude Code-sessie voor: bronnencheck (gemeente + GRs + waterschappen), zoekindex bijwerken, contextbriefing genereren. Prompt: `prompts/vrije-vraag.md`.
 - **Dossier kan meerdere organen volgen** — `"organen": ["rotterdam", "utrecht", "groningen"]` in dossier-config; `analyse.py` itereert over meerdere documentenmappen en bundelt resultaten in één rapport. Bewust uitgesteld: vereist substantiële refactor van `analyse.py`.
 
 ---
