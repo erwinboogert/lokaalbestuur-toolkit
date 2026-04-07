@@ -7,13 +7,17 @@ Een lokaal onderzoeksframework voor journalisten die openbare raadsdocumenten va
 | Bestand/map | Functie |
 |---|---|
 | `toolkit.py` | Hoofdinterface: dashboard, nieuwe dossiers, installatiecheck |
-| `scraper.py` | Download raadsstukken van elke Nederlandse gemeente, waterschap of GR |
+| `scraper.py` | Download raadsstukken van elke Nederlandse gemeente via ORI API |
+| `scraper_waterschap.py` | Download vergaderstukken van alle 13 waterschappen via ORI API |
+| `scraper_gr.py` | Download vergaderstukken van gemeenschappelijke regelingen |
+| `scraper_cbs.py` | Haal iv3-financiëndata op van CBS per gemeente per jaar |
 | `analyse.py` | Doorzoek gedownloade PDF's op trefwoorden en genereer alerts |
 | `index.py` | Bouw een lokale full-text zoekindex (SQLite FTS5) |
 | `tijdlijn.py` | Exporteer treffers chronologisch als Markdown-tijdlijn |
 | `partijen.py` | Koppel fragmenten aan fracties op basis van sprekerdetectie |
 | `organen/` | Configuratie per orgaan: vergadertypen, brontype |
 | `dossiers/` | Configuratiebestanden per onderzoeksdossier |
+| `bronnen/` | Catalogussen: gemeenten, waterschappen, GRs, CBS-codes |
 | `prompts/` | Herbruikbare analyseprompts voor gebruik met Claude Code |
 | `checklists/` | Rode-vlagchecklist voor lokaal bestuurlijk onderzoek |
 | `skills/` | Claude Code skills voor bronnenonderzoek |
@@ -84,6 +88,20 @@ python3 toolkit.py nieuw-orgaan
 
 De wizard vraagt naar de naam, het type (gemeente, waterschap of GR) en de vergadertypen. De configuratie wordt opgeslagen in `organen/<naam>.json` en is herbruikbaar voor alle dossiers die je later aanmaakt voor dit orgaan. De wizard stelt ook de crontab-regels in voor automatisch wekelijks downloaden, indexeren en analyseren.
 
+**GR-suggesties bij gemeenten:** als je een gemeente toevoegt, zoekt de toolkit automatisch op welke gemeenschappelijke regelingen die gemeente deelneemt — via organisaties.overheid.nl. Je krijgt een genummerde lijst en kiest welke je wilt volgen. Die komen in de GR-catalogus terecht voor eventueel later gebruik.
+
+```
+  12 gemeenschappelijke regelingen gevonden voor rotterdam:
+
+    1.  Beschermd wonen regio Rotterdam
+    2.  DCMR Milieudienst Rijnmond 2015
+    3.  Jeugdhulp Rijnmond
+    4.  Metropoolregio Rotterdam Den Haag 2014
+    ...
+
+  Welke wil je toevoegen aan de catalogus? (nummers, kommagescheiden, of leeglaten):
+```
+
 ### Stap 1 — Documenten downloaden
 
 ```bash
@@ -143,14 +161,26 @@ Open het bestand, lees de fragmenten, en beoordeel zelf of er iets in zit dat ve
 Alle functies zijn bereikbaar via `toolkit.py`:
 
 ```bash
-python3 toolkit.py                      # dashboard: overzicht van actieve dossiers
-python3 toolkit.py check                # installatiecheck
-python3 toolkit.py nieuw-orgaan         # nieuw orgaan toevoegen (gemeente, waterschap of GR)
-python3 toolkit.py nieuw-dossier        # nieuw dossier aanmaken (interactieve wizard)
-python3 toolkit.py status               # uitgebreid overzicht van dossiers en archieven
-python3 toolkit.py wikibrain-ingest     # verwerk nieuwe raadsstukken naar kennisbank
-python3 toolkit.py wikibrain-compile    # update wiki-artikelen
-python3 toolkit.py wikibrain-query      # stel een vraag aan de kennisbank
+python3 toolkit.py                          # dashboard: overzicht van actieve dossiers
+python3 toolkit.py check                    # installatiecheck
+python3 toolkit.py nieuw-orgaan             # nieuw orgaan toevoegen (gemeente, waterschap of GR)
+python3 toolkit.py nieuw-dossier            # nieuw dossier aanmaken (interactieve wizard)
+python3 toolkit.py status                   # uitgebreid overzicht van dossiers en archieven
+python3 toolkit.py wikibrain-ingest         # verwerk nieuwe raadsstukken naar kennisbank
+python3 toolkit.py wikibrain-compile        # update wiki-artikelen
+python3 toolkit.py wikibrain-query          # stel een vraag aan de kennisbank
+
+# Waterschappen
+python3 toolkit.py nieuw-waterschap         # voeg een waterschap toe aan de catalogus
+python3 toolkit.py scrape-waterschappen     # download stukken voor alle waterschappen
+
+# Gemeenschappelijke regelingen
+python3 toolkit.py nieuwe-regeling          # voeg een GR handmatig toe aan de catalogus
+python3 toolkit.py scrape-regelingen        # download stukken voor alle GRs (vereist API-toegang)
+
+# Financiën
+python3 toolkit.py financien rotterdam      # haal CBS iv3-financiëndata op
+python3 toolkit.py financien rotterdam 2022 # specifiek jaar
 ```
 
 Het commando `nieuw-alert` wordt door Claude automatisch aangeroepen na het opslaan van een rapport — je hoeft dat zelf niet te doen.
@@ -275,6 +305,29 @@ lokaalbestuur-toolkit/
 
 ---
 
-## Databron
+## Waterschappen en gemeenschappelijke regelingen
 
-Raadsstukken komen van de [Open Raadsinformatie API](https://openraadsinformatie.nl), een initiatief van de Open State Foundation. Niet alle gemeenten zijn beschikbaar; gebruik `python3 scraper.py` zonder argument voor de actuele lijst.
+De toolkit monitort niet alleen gemeenten, maar ook twee bestuurslagen die door lokale journalisten structureel worden gemist.
+
+### Waterschappen
+
+Waterschappen beheren waterveiligheid, dijken, rioolwaterzuivering en grondwaterpeil. Ze vergaderen openbaar en zijn beschikbaar via de ORI API. Alle 13 waterschappen die via ORI ontsloten zijn staan vooraf geconfigureerd in `bronnen/waterschappen.json`.
+
+```bash
+python3 scraper_waterschap.py hollandse-delta         # download vergaderstukken
+python3 scraper_waterschap.py --lijst                 # toon geconfigureerde waterschappen
+python3 toolkit.py nieuw-waterschap                   # voeg een waterschap toe
+```
+
+### Gemeenschappelijke regelingen (GRs)
+
+Gemeenten voeren steeds meer taken uit via samenwerkingsverbanden: sociale diensten, omgevingsdiensten, veiligheidsregio's, jeugdhulp. Deze gemeenschappelijke regelingen hebben eigen besturen en begrotingen, maar vallen buiten het zicht van de gemeenteraad en de lokale pers.
+
+Er zijn in Nederland circa 1.000 GRs. Ze zijn wettelijk verplicht openbaar te vergaderen (Wgr art. 22) en vallen onder de actieve openbaarmakingsplicht van de Woo, maar er is geen centraal publicatiekanaal zoals ORI voor gemeenten. Veel GRs publiceren via Notubiz, soms achter login.
+
+**Wat de toolkit doet:**
+- Bij het toevoegen van een gemeente zoekt de toolkit automatisch welke GRs daarbij horen (via organisaties.overheid.nl) en stelt die voor
+- GRs worden opgeslagen in `bronnen/regelingen.json` met brontype en bekende contactgegevens
+- Zodra een GR publiek toegankelijk is (via Notubiz API of ORI), kan de scraper direct worden ingezet
+
+**Als de stukken niet publiek beschikbaar zijn:** de `/wob-verzoek` skill genereert een formeel WOO-verzoek op basis van de wettelijke plicht. GRs zijn bestuursorganen — ze kunnen openbaarmaking niet weigeren zonder wettelijke grondslag.

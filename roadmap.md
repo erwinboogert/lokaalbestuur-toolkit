@@ -128,7 +128,7 @@ Doel: de toolkit voorbereiden op meerdere brontypen door orgaan en dossier te sc
 
 Kleine verbeteringen en acties die buiten de fases vallen.
 
-- **GitHub-repository aanmaken** — repository publiek zetten op GitHub onder naam van Erwin Boogert; vereist `gh auth login` en `gh repo create`
+- **✅ GitHub-repository aanmaken** — publiek op github.com/erwinboogert/lokaalbestuur-toolkit
 - **Dossier kan meerdere organen volgen** — `"organen": ["rotterdam", "utrecht", "groningen"]` in dossier-config; `analyse.py` itereert over meerdere documentenmappen en bundelt resultaten in één rapport. Bewust uitgesteld: vereist substantiële refactor van `analyse.py`.
 
 ---
@@ -240,6 +240,38 @@ Output: een Markdown-rapport met bronstatus, contactgegevens, en — indien nodi
 
 **Waarom dit beter is dan alleen wachten op de API:**
 GRs zijn wettelijk verplicht openbaar te vergaderen. Een journalist die actief vraagt om de stukken — gewapend met de juiste wettelijke grondslag en een concreet verzoek — heeft een stevige positie. De toolkit kan die positie ondersteunen, ook zonder technische toegang tot de documenten.
+
+### ✅ GR-suggesties bij nieuw-orgaan
+
+De eerste concrete stap van de GR-navigator is gebouwd: wanneer een journalist een gemeente toevoegt via `python3 toolkit.py nieuw-orgaan`, haalt de toolkit automatisch op welke GRs bij die gemeente horen en stelt die voor.
+
+**Hoe het werkt:**
+
+1. `bronnen/gemeenten_overheid.json` — mapping van alle 355 Nederlandse gemeenten naar hun ID op organisaties.overheid.nl
+2. `haal_grs_voor_gemeente(slug)` — haalt live de GR-deelnames op via de gemeente-pagina op organisaties.overheid.nl (sectie "Neemt deel aan gemeenschappelijke regelingen")
+3. Wizard toont genummerde lijst; journalist kiest welke relevant zijn
+4. Gekozen GRs worden opgeslagen in `bronnen/regelingen.json` met brontype `geen` als startpunt
+
+**Voorbeeld — Rotterdam:**
+```
+  GRs opzoeken voor deze gemeente…
+  12 gemeenschappelijke regelingen gevonden voor rotterdam:
+
+    1.  Beschermd wonen regio Rotterdam
+    2.  Archeologie Hellevoetsluis-Rotterdam
+    3.  DCMR Milieudienst Rijnmond 2015
+    4.  Jeugdhulp Rijnmond
+    5.  Metropoolregio Rotterdam Den Haag 2014
+    6.  Nieuw Reijerwaard
+    ...
+
+  Welke wil je toevoegen aan de catalogus? (nummers, kommagescheiden, of leeglaten):
+```
+
+**Nog open binnen de GR-navigator:**
+- `python3 toolkit.py gr-info <slug>` — bronstatus + vervolgstappen per GR
+- WOO-verzoeksjabloon pre-invullen per GR
+- Notubiz API-sleutel integreren zodra beschikbaar
 
 ### ✅ Fase 6b — Waterschappen
 
