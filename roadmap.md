@@ -205,34 +205,30 @@ GR-documenten zijn doorgaans vindbaar via Notubiz (notubiz.nl). De Notubiz API b
 
 Een `scraper_gr_notubiz.py` zou pad 1 of 2 kunnen implementeren en de bestaande `scraper_gr.py`-infrastructuur (catalogus, toolkit-integratie) hergebruiken.
 
-### Fase 6b — Waterschappen
+### ✅ Fase 6b — Waterschappen
 
-Waterschappen zijn democratisch gekozen bestuursorganen die verantwoordelijk zijn voor waterveiligheid, dijkbeheer, rioolwaterzuivering en grondwaterpeil. Ze beheren samen miljarden aan publiek geld en vergaderen openbaar, maar worden in de lokale en regionale journalistiek vrijwel nooit bericht. Met de toenemende druk van klimaatverandering wordt hun werk steeds relevanter. De vergaderstukken zijn openbaar maar niet via één centrale API beschikbaar — dit vraagt een eigen scraper per waterschap, geconfigureerd via `bronnen/waterschappen.json`.
+Waterschappen zijn democratisch gekozen bestuursorganen die verantwoordelijk zijn voor waterveiligheid, dijkbeheer, rioolwaterzuivering en grondwaterpeil. Ze beheren samen miljarden aan publiek geld en vergaderen openbaar, maar worden in de lokale en regionale journalistiek vrijwel nooit bericht. Met de toenemende druk van klimaatverandering wordt hun werk steeds relevanter.
+
+Waterschappen zijn — in tegenstelling tot gemeenschappelijke regelingen — wél ontsloten via de ORI API (prefix `owi_`). Daarmee was de implementatie technisch vergelijkbaar met de bestaande gemeente-scraper.
+
+**13 waterschappen beschikbaar in ORI**, alle vooraf geconfigureerd in `bronnen/waterschappen.json`:
+Aa en Maas, Brabantse Delta, De Dommel, Hollandse Delta, Hollands Noorderkwartier, Delfland, Hunze en Aa's, Limburg, Scheldestromen, Vechtstromen, Amstel Gooi en Vecht, Wetterskip Fryslân, Zuiderzeeland.
 
 **Nieuw bestand:** `scraper_waterschap.py`
 
 ```bash
-python3 scraper_waterschap.py hollandse-delta  # download vergaderstukken
-python3 scraper_waterschap.py --lijst          # toon geconfigureerde waterschappen
+python3 scraper_waterschap.py hollandse-delta           # download vergaderstukken
+python3 scraper_waterschap.py hollandse-delta --droog   # droog uitvoeren
+python3 scraper_waterschap.py --lijst                   # toon geconfigureerde waterschappen
+python3 scraper_waterschap.py --lijst-ori               # toon alle owi_-indices in ORI
 ```
 
 Output in: `~/Documents/notulen/waterschappen/<naam>/`
 
-**Configuratie in `bronnen/waterschappen.json`:**
-```json
-{
-  "hollandse-delta": {
-    "naam": "Waterschap Hollandse Delta",
-    "systeem": "notubiz",
-    "base_url": "..."
-  }
-}
-```
-
 **Toolkit-commando's:**
 ```bash
-python3 toolkit.py nieuw-waterschap    # voeg een waterschap toe
-python3 toolkit.py scrape-waterschappen
+python3 toolkit.py nieuw-waterschap     # voeg een waterschap toe aan de catalogus
+python3 toolkit.py scrape-waterschappen # download stukken voor alle waterschappen
 ```
 
 ### Bouwvolgorde fase 6

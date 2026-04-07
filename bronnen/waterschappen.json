@@ -1,0 +1,60 @@
+{
+  "_opmerking": "Geconfigureerde waterschappen voor scraping via ORI-API (owi_-prefix)",
+  "_vergadertypen_standaard": ["algemeen bestuur", "college van dijkgraaf en heemraden", "dagelijks bestuur", "verenigde vergadering"],
+  "_toelichting_vergadertypen": "Waterschappen gebruiken sterk uiteenlopende vergadernamen. Per waterschap kan 'vergadertypen' worden ingesteld om alleen specifieke typen op te halen. Zonder override worden de standaardtypes gebruikt (substring-match, hoofdletterongevoelig).",
+  "aa-en-maas": {
+    "naam": "Waterschap Aa en Maas",
+    "ori_index": "aa-en-maas"
+  },
+  "brabantse-delta": {
+    "naam": "Waterschap Brabantse Delta",
+    "ori_index": "brabantse_delta"
+  },
+  "de-dommel": {
+    "naam": "Waterschap De Dommel",
+    "ori_index": "de-dommel"
+  },
+  "hollandse-delta": {
+    "naam": "Waterschap Hollandse Delta",
+    "ori_index": "hollandse_delta",
+    "vergadertypen": ["besluitvormende vv", "commissie water", "commissie mbh", "commissie wwv"]
+  },
+  "hollands-noorderkwartier": {
+    "naam": "Hoogheemraadschap Hollands Noorderkwartier",
+    "ori_index": "hoogheemraadschap_hollands_noorderkwartier"
+  },
+  "delfland": {
+    "naam": "Hoogheemraadschap van Delfland",
+    "ori_index": "hoogheemraadschap_van_delfland",
+    "vergadertypen": ["verenigde vergadering", "commissie bestuur", "commissie waterkwantiteit", "commissie waterveiligheid"]
+  },
+  "hunze-en-aas": {
+    "naam": "Waterschap Hunze en Aa's",
+    "ori_index": "hunze-en-aa"
+  },
+  "limburg": {
+    "naam": "Waterschap Limburg",
+    "ori_index": "limburg"
+  },
+  "scheldestromen": {
+    "naam": "Waterschap Scheldestromen",
+    "ori_index": "scheldestromen"
+  },
+  "vechtstromen": {
+    "naam": "Waterschap Vechtstromen",
+    "ori_index": "vechtstromen"
+  },
+  "amstel-gooi-en-vecht": {
+    "naam": "Waterschap Amstel, Gooi en Vecht",
+    "ori_index": "waterschap_amstel_gooi_en_vecht"
+  },
+  "wetterskip-fryslan": {
+    "naam": "Wetterskip Fryslân",
+    "ori_index": "wetterskip_fryslan"
+  },
+  "zuiderzeeland": {
+    "naam": "Waterschap Zuiderzeeland",
+    "ori_index": "zuiderzeeland",
+    "vergadertypen": ["ab beeldvormend", "ab besluitvormend", "college van dijkgraaf en heemraden"]
+  }
+}

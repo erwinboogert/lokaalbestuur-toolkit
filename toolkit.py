@@ -13,6 +13,8 @@ Gebruik:
     python3 toolkit.py financien <gemeente> haal iv3-financiëndata op uit CBS
     python3 toolkit.py nieuwe-regeling      voeg een GR toe aan de catalogus
     python3 toolkit.py scrape-regelingen    download stukken voor alle GRs
+    python3 toolkit.py nieuw-waterschap     voeg een waterschap toe aan de catalogus
+    python3 toolkit.py scrape-waterschappen download stukken voor alle waterschappen
 """
 
 import json
@@ -172,6 +174,9 @@ def dashboard():
         print("\n  Geen dossiers gevonden.")
         print("  Maak er een aan met: python3 toolkit.py nieuw-dossier")
 
+    # Bronnen-overzicht
+    _toon_bronnen_status()
+
     # WikiBrain-status
     wb = wikibrain_status()
     print()
@@ -188,6 +193,53 @@ def dashboard():
     print("  python3 toolkit.py wikibrain-compile → update kennisbank")
     print("  python3 toolkit.py wikibrain-query  → stel een vraag aan de kennisbank")
     print()
+
+
+def _toon_bronnen_status():
+    """Toon een compacte statusregel per brontype op het dashboard."""
+    regels = []
+
+    # Gemeenten (organen/*.json van type gemeente)
+    organen = lees_organen()
+    gemeenten = []
+    for o in organen:
+        pad = ORGANEN_MAP / f"{o}.json"
+        try:
+            cfg = json.loads(pad.read_text(encoding="utf-8"))
+            if cfg.get("type", "gemeente") == "gemeente":
+                gemeenten.append(o)
+        except Exception:
+            pass
+    if gemeenten:
+        regels.append(f"  Raadsstukken    {len(gemeenten)} gemeente(n)")
+
+    # Regelingen
+    reg_pad = TOOLKIT_MAP / "bronnen" / "regelingen.json"
+    if reg_pad.exists():
+        try:
+            reg_cfg = json.loads(reg_pad.read_text(encoding="utf-8"))
+            n_reg = sum(1 for k in reg_cfg if not k.startswith("_"))
+            if n_reg:
+                regels.append(f"  Regelingen      {n_reg} actief")
+        except Exception:
+            pass
+
+    # Waterschappen
+    ws_pad = TOOLKIT_MAP / "bronnen" / "waterschappen.json"
+    if ws_pad.exists():
+        try:
+            ws_cfg = json.loads(ws_pad.read_text(encoding="utf-8"))
+            n_ws = sum(1 for k in ws_cfg if not k.startswith("_"))
+            if n_ws:
+                regels.append(f"  Waterschappen   {n_ws} geconfigureerd")
+        except Exception:
+            pass
+
+    if regels:
+        print()
+        print("Actieve bronnen:")
+        for r in regels:
+            print(r)
 
 
 def nieuw_dossier():
@@ -389,6 +441,81 @@ def nieuwe_regeling():
     print(f"  python3 scraper_gr.py {slug}")
     print(f"  python3 scraper_gr.py {slug} --droog")
     print()
+
+
+def nieuw_waterschap():
+    """Wizard: voeg een waterschap toe aan bronnen/waterschappen.json."""
+    print()
+    print("Nieuw waterschap toevoegen")
+    print("─" * 50)
+    print()
+    print("  Tip: gebruik eerst 'python3 scraper_waterschap.py --lijst-ori' om te zien")
+    print("  welke waterschappen beschikbaar zijn in de ORI API.")
+    print()
+
+    slug = vraag("Slug (bijv. hollandse-delta, delfland)").lower()
+    naam = vraag("Volledige naam (bijv. Waterschap Hollandse Delta)")
+    ori_index = vraag("ORI-indexnaam (naam zonder 'owi_'-prefix en tijdstempel)")
+
+    print()
+    print("  Vergadertypen — typ ze één voor één in, lege regel voor standaard:")
+    print("  (standaard: algemeen bestuur, college van dijkgraaf en heemraden)")
+    print()
+    vergadertypen = []
+    while True:
+        vtype = input(f"    Vergadertype {len(vergadertypen) + 1}: ").strip().lower()
+        if not vtype:
+            break
+        vergadertypen.append(vtype)
+
+    if not vergadertypen:
+        vergadertypen = ["algemeen bestuur", "college van dijkgraaf en heemraden"]
+
+    pad = TOOLKIT_MAP / "bronnen" / "waterschappen.json"
+    try:
+        config = json.loads(pad.read_text(encoding="utf-8"))
+    except Exception:
+        config = {}
+
+    config[slug] = {
+        "naam": naam,
+        "ori_index": ori_index,
+        "vergadertypen": vergadertypen,
+    }
+
+    pad.write_text(json.dumps(config, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    print()
+    print(f"  ✓ Opgeslagen in: {pad}")
+    print()
+    print(f"  Direct downloaden:")
+    print(f"  python3 scraper_waterschap.py {slug}")
+    print(f"  python3 scraper_waterschap.py {slug} --droog")
+    print()
+
+
+def scrape_waterschappen():
+    """Download nieuwe vergaderstukken voor alle geconfigureerde waterschappen."""
+    pad = TOOLKIT_MAP / "bronnen" / "waterschappen.json"
+    if not pad.exists():
+        print("\nGeen bronnen/waterschappen.json gevonden. Voeg eerst een waterschap toe via: python3 toolkit.py nieuw-waterschap\n")
+        return
+    try:
+        config = json.loads(pad.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"\nFout bij lezen waterschappen.json: {e}\n")
+        return
+
+    waterschappen = {k: v for k, v in config.items() if not k.startswith("_")}
+    if not waterschappen:
+        print("\nNog geen waterschappen geconfigureerd. Gebruik: python3 toolkit.py nieuw-waterschap\n")
+        return
+
+    print(f"\n{len(waterschappen)} waterschappen scrapen…\n")
+    for slug in waterschappen:
+        print(f"  → {slug}")
+        subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper_waterschap.py"), slug])
+        print()
 
 
 def scrape_regelingen():
@@ -698,6 +825,10 @@ def main():
         nieuwe_regeling()
     elif args[0] == "scrape-regelingen":
         scrape_regelingen()
+    elif args[0] == "nieuw-waterschap":
+        nieuw_waterschap()
+    elif args[0] == "scrape-waterschappen":
+        scrape_waterschappen()
     elif args[0] == "financien":
         financien(args[1:])
     elif args[0] == "wikibrain-ingest":
@@ -710,7 +841,8 @@ def main():
         print(f"\nOnbekend commando: '{args[0]}'")
         print("Gebruik: python3 toolkit.py [nieuw-dossier | nieuw-orgaan | status | check |")
         print("                             wikibrain-ingest | wikibrain-compile | wikibrain-query |")
-        print("                             financien <gemeente> | nieuwe-regeling | scrape-regelingen]\n")
+        print("                             financien <gemeente> | nieuwe-regeling | scrape-regelingen |")
+        print("                             nieuw-waterschap | scrape-waterschappen]\n")
         sys.exit(1)
 
 
