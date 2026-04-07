@@ -1,4 +1,4 @@
-# Prompt: Wederhoor voorbereiden
+# Wederhoor voorbereiden
 
 Gebruik deze prompt nadat je een analyse hebt gedraaid met `raadsstukken-analyse.md`. De prompt genereert gerichte vragen voor wederhoor op basis van wat er in de stukken staat — niet generieke vragen, maar vragen die voortkomen uit specifieke passages, besluiten of tegenstrijdigheden.
 

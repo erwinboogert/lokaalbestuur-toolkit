@@ -2,16 +2,14 @@
 Lokaalbestuur Toolkit — dashboard en interface
 
 Gebruik:
-    python3 toolkit.py                      toon dashboard (overzicht van actieve dossiers)
-    python3 toolkit.py onderzoek <gemeente> bereid Claude Code-sessie voor (bronnencheck + briefing)
-    python3 toolkit.py nieuw-orgaan         voeg een orgaan toe (gemeente, waterschap of GR)
-    python3 toolkit.py nieuw-dossier        stel een monitoringsdossier in (trefwoorden + alerts)
-    python3 toolkit.py status               uitgebreid statusoverzicht
-    python3 toolkit.py check                controleer installatie
-    python3 toolkit.py nieuwe-regeling      voeg een GR toe aan de catalogus
-    python3 toolkit.py scrape-regelingen    download stukken voor alle GRs
-    python3 toolkit.py nieuw-waterschap     voeg een waterschap toe aan de catalogus
-    python3 toolkit.py scrape-waterschappen download stukken voor alle waterschappen
+    python3 toolkit.py                       toon dashboard (overzicht van actieve dossiers)
+    python3 toolkit.py onderzoek <gemeente>  bereid Claude Code-sessie voor (bronnencheck + briefing)
+    python3 toolkit.py scrape <orgaan>       download nieuwe vergaderstukken voor een orgaan
+    python3 toolkit.py scrape --alles        download nieuwe vergaderstukken voor alle organen
+    python3 toolkit.py nieuw-orgaan          voeg een orgaan toe (gemeente, waterschap of GR)
+    python3 toolkit.py nieuw-dossier         stel een monitoringsdossier in (trefwoorden + alerts)
+    python3 toolkit.py status                uitgebreid statusoverzicht
+    python3 toolkit.py check                 controleer installatie
 """
 
 import json
@@ -421,10 +419,16 @@ def nieuwe_gemeente():
                         reg_config = {}
 
                     for gr in gekozen:
+                        bestaand = reg_config.get(gr["slug"], {})
+                        deelnemers = bestaand.get("deelnemers", [])
+                        if orgaan not in deelnemers:
+                            deelnemers.append(orgaan)
                         reg_config[gr["slug"]] = {
+                            **bestaand,
                             "naam": gr["naam"],
-                            "brontype": "geen",
-                            "_opmerking": f"Deelnemer: {orgaan}. Bron onbekend — controleer of deze GR via Notubiz of eigen website publiceert.",
+                            "brontype": bestaand.get("brontype", "geen"),
+                            "deelnemers": deelnemers,
+                            "_opmerking": f"Bron onbekend — controleer of deze GR via Notubiz of eigen website publiceert.",
                         }
                     reg_pad.write_text(json.dumps(reg_config, indent=2, ensure_ascii=False), encoding="utf-8")
                     print()
@@ -683,6 +687,43 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list) -> st
     regels.append("**Onderzoeksvraag van de journalist:**")
     regels.append("")
     regels.append("[vul hier je vraag in]")
+    regels.append("")
+    regels.append("---")
+    regels.append("")
+    regels.append("### Wat kun je na je analyse doen?")
+    regels.append("")
+    regels.append("**Prompts** — plak de inhoud van het bestand in dit gesprek:")
+    regels.append("")
+    prompts_map = TOOLKIT_MAP / "prompts"
+    uitgesloten = {"vrije-vraag.md"}
+    for pad in sorted(prompts_map.glob("*.md")):
+        if pad.name in uitgesloten:
+            continue
+        try:
+            eerste_regel = pad.read_text(encoding="utf-8").splitlines()[0].lstrip("# ").strip()
+        except Exception:
+            eerste_regel = pad.stem
+        regels.append(f"- `prompts/{pad.name}` — {eerste_regel}")
+    regels.append("")
+    regels.append("**Skills** — typ de opdracht in dit gesprek:")
+    regels.append("")
+    skills_map = TOOLKIT_MAP / ".claude" / "skills"
+    for pad in sorted(skills_map.glob("*.md")):
+        naam = pad.stem
+        beschrijving = naam
+        hint = ""
+        try:
+            tekst = pad.read_text(encoding="utf-8")
+            for regel in tekst.splitlines():
+                if regel.startswith("description:"):
+                    beschrijving = regel.split(":", 1)[1].strip()
+                if regel.startswith("argument-hint:"):
+                    hint = " " + regel.split(":", 1)[1].strip()
+                if regel.strip() == "---" and beschrijving != naam:
+                    break
+        except Exception:
+            pass
+        regels.append(f"- `/{naam}{hint}` — {beschrijving}")
 
     return "\n".join(regels)
 
@@ -734,6 +775,9 @@ def onderzoek(args: list):
                 if not k.startswith("_")
             }
             for slug, info in regelingen.items():
+                deelnemers = info.get("deelnemers", [])
+                if deelnemers and gemeente not in deelnemers:
+                    continue
                 naam = info.get("naam", slug)
                 gr_map = OUTPUT_BASIS / "regelingen" / slug
                 if gr_map.exists() and any(gr_map.rglob("*.pdf")):
@@ -791,6 +835,9 @@ def onderzoek(args: list):
 
     briefing = _genereer_briefing(gemeente, beschikbaar, ontbrekend)
 
+    context_pad = gemeente_map / "context.md"
+    context_pad.write_text(briefing, encoding="utf-8")
+
     print()
     print("─" * 50)
     print()
@@ -798,12 +845,10 @@ def onderzoek(args: list):
     print()
     print(f"    claude {gemeente_map}")
     print()
-    print("  Plak dit als context vóór je vraag aan Claude:")
+    print(f"  Contextbriefing opgeslagen als: {context_pad}")
+    print("  Plak de inhoud vóór je vraag, of lees hem op in Claude met:")
     print()
-    print("  ┌" + "─" * 48)
-    for regel in briefing.split("\n"):
-        print(f"  │ {regel}")
-    print("  └" + "─" * 48)
+    print(f"    Lees context.md")
     print()
 
 
@@ -1018,6 +1063,69 @@ def check():
     print()
 
 
+def scrape(args: list):
+    """Download nieuwe vergaderstukken voor een orgaan of alle organen."""
+    if not args or args[0] == "--alles":
+        # Alle geconfigureerde organen
+        organen = lees_organen()
+        if not organen:
+            print("\nGeen organen geconfigureerd. Gebruik: python3 toolkit.py nieuw-orgaan\n")
+            return
+        print(f"\n{len(organen)} organen bijwerken…\n")
+        for slug in organen:
+            pad = ORGANEN_MAP / f"{slug}.json"
+            try:
+                cfg = json.loads(pad.read_text(encoding="utf-8"))
+                orgaan_type = cfg.get("type", "gemeente")
+            except Exception:
+                orgaan_type = "gemeente"
+            _scrape_orgaan(slug, orgaan_type)
+        return
+
+    slug = args[0].lower()
+    droog = "--droog" in args
+
+    # Zoek orgaantype op in config
+    orgaan_pad = ORGANEN_MAP / f"{slug}.json"
+    if orgaan_pad.exists():
+        try:
+            cfg = json.loads(orgaan_pad.read_text(encoding="utf-8"))
+            orgaan_type = cfg.get("type", "gemeente")
+        except Exception:
+            orgaan_type = "gemeente"
+    else:
+        # Probeer te raden uit bronnen-catalogussen
+        reg_pad = TOOLKIT_MAP / "bronnen" / "regelingen.json"
+        ws_pad = TOOLKIT_MAP / "bronnen" / "waterschappen.json"
+        try:
+            if reg_pad.exists() and slug in json.loads(reg_pad.read_text(encoding="utf-8")):
+                orgaan_type = "gr"
+            elif ws_pad.exists() and slug in json.loads(ws_pad.read_text(encoding="utf-8")):
+                orgaan_type = "waterschap"
+            else:
+                orgaan_type = "gemeente"
+        except Exception:
+            orgaan_type = "gemeente"
+
+    _scrape_orgaan(slug, orgaan_type, droog=droog)
+
+
+def _scrape_orgaan(slug: str, orgaan_type: str, droog: bool = False):
+    """Roep de juiste scraper aan op basis van het orgaantype."""
+    scraper_map = {
+        "gemeente": "scraper.py",
+        "waterschap": "scraper_waterschap.py",
+        "gr": "scraper_gr.py",
+    }
+    scraper = scraper_map.get(orgaan_type, "scraper.py")
+    cmd = [PYTHON, str(TOOLKIT_MAP / scraper), slug]
+    if droog:
+        cmd.append("--droog")
+    print(f"\n  → {slug} ({orgaan_type})")
+    subprocess.run(cmd)
+    print()
+
+
 # ── Hoofdprogramma ────────────────────────────────────────────────────────────
 
 def main():
@@ -1045,11 +1153,12 @@ def main():
         scrape_waterschappen()
     elif args[0] == "onderzoek":
         onderzoek(args[1:])
+    elif args[0] == "scrape":
+        scrape(args[1:])
     else:
         print(f"\nOnbekend commando: '{args[0]}'")
-        print("Gebruik: python3 toolkit.py [onderzoek <gemeente> | nieuw-orgaan | nieuw-dossier |")
-        print("                             status | check | nieuwe-regeling | scrape-regelingen |")
-        print("                             nieuw-waterschap | scrape-waterschappen]\n")
+        print("Gebruik: python3 toolkit.py [onderzoek <gemeente> | scrape <orgaan> | scrape --alles |")
+        print("                             nieuw-orgaan | nieuw-dossier | status | check]\n")
         sys.exit(1)
 
 

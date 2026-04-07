@@ -16,6 +16,7 @@ Een journalistiek onderzoekstool waarmee je openbare vergaderstukken van Nederla
 - `prompts/` — analyseprompts voor gebruik in Claude Code-gesprekken:
   - `vrije-vraag.md` — brede onderzoeksvraag zonder vooraf bekende trefwoorden **(start hier)**
   - `raadsstukken-analyse.md` — gestructureerde analyse van een bekend dossier
+  - `rode-vlaggen.md` — rode-vlaggen toets na een onderzoekssessie (7 categorieën)
   - `wederhoor.md` — gerichte vragen per partij op basis van de stukken
   - `bronnenbrief.md` — eerste contactbrief aan een bron of betrokkene
 - `skills/` — systeembrede Claude Code skills (kopieer naar `~/.claude/skills/` voor gebruik)

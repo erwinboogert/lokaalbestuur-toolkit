@@ -1,4 +1,4 @@
-# Prompt: Bronnenbrief opstellen
+# Bronnenbrief opstellen
 
 Gebruik deze prompt om een eerste contactbrief of -mail op te stellen voor een bron, getuige of betrokkene. De brief is gebaseerd op wat er in de raadsstukken staat — concreet, zonder te onthullen wat je al weet of welke richting je onderzoek op gaat.
 

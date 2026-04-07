@@ -1,95 +1,107 @@
 # Lokaalbestuur Toolkit
 
-Een onderzoekstool voor journalisten die openbare bestuursdocumenten van Nederlandse gemeenten, waterschappen en samenwerkingsverbanden willen doorzoeken met behulp van AI. Werkt volledig lokaal — geen API-sleutel, geen account, geen data naar buiten.
+Nederlandse gemeenten, waterschappen en samenwerkingsverbanden publiceren duizenden vergaderstukken per jaar. Ze zijn openbaar, maar in de praktijk onvindbaar: verspreid over honderden websites, als slecht doorzoekbare PDF's, zonder centrale index.
+
+Deze toolkit downloadt die stukken automatisch en maakt ze doorzoekbaar — lokaal op je eigen machine, zonder account of API-sleutel. Je kunt er vervolgens open onderzoeksvragen over stellen: niet "zoek het woord woningbouw", maar "is er een verband tussen de bezuinigingen op sport en de stijgende obesitascijfers onder jongeren?"
 
 ---
 
-## Waar het om gaat
+## Wat de toolkit doet
 
-Je downloadt vergaderstukken van een gemeente (of waterschap, of samenwerkingsverband), en kunt daar vervolgens open onderzoeksvragen over stellen aan Claude Code. Niet "zoek het woord woningbouw" maar "de gemeente investeert al jaren niet meer in sportaccommodaties — is er een verband met stijgende obesitas onder jongeren?"
+De toolkit bestaat uit drie lagen die je los of samen kunt gebruiken:
 
-Claude doorzoekt het archief, leest relevante stukken, en geeft je een beeld. Jij recherche verder.
+**1. Downloaden** — De scraper haalt vergaderstukken op via de [Open Raadsinformatie API](https://openraadsinformatie.nl) (een initiatief van de Open State Foundation). Eerste keer duurt even; daarna haalt hij alleen nieuwe stukken op.
+
+**2. Doorzoekbaar maken** — Uit de gedownloade PDF's bouwt de toolkit een lokale zoekindex (SQLite FTS5). Je kunt die direct bevragen via de terminal, of als startpunt gebruiken in een AI-gesprek.
+
+**3. Onderzoeken** — De toolkit genereert een contextbriefing die beschrijft welke bronnen beschikbaar zijn, hoe ze doorzoekbaar zijn, en welk type organisatie relevant is voor welk onderwerp. Die briefing geef je mee aan een AI — het werkt met elke AI-assistent die tekst kan lezen, maar profiteert het meest van een AI die zelf bestanden kan openen en doorzoeken, zoals [Claude Code](https://claude.ai/code).
 
 ---
 
-## Primaire werkwijze — in drie stappen
+## Wat je nodig hebt
 
-### Stap 1 — Documenten downloaden
-
-```bash
-python3 scraper.py rotterdam
-```
-
-Documenten komen in `~/Documents/notulen/rotterdam/`. Eerste keer kan even duren — daarna haalt de scraper alleen nieuwe stukken op.
-
-Wil je eerst zien wat er gedownload wordt zonder iets op te slaan:
+- Python 3.10 of hoger
+- `pdfplumber` voor tekstextractie
 
 ```bash
-python3 scraper.py rotterdam --droog
+pip install pdfplumber
+python3 toolkit.py check    # controleert of alles klopt
 ```
 
-### Stap 2 — Onderzoeksomgeving klaarzetten
+**Optioneel maar aanbevolen:** [Claude Code](https://claude.ai/code) — een AI-assistent die je installeert als CLI en die zelf bestanden en mappen kan doorzoeken. Daarmee kun je de toolkit zijn volledige potentieel benutten (zie verderop).
+
+---
+
+## Aan de slag — in drie stappen
+
+### Stap 1 — Gemeente instellen en documenten downloaden
+
+```bash
+python3 toolkit.py nieuw-orgaan
+```
+
+Een wizard vraagt naar naam en type. Voor gemeenten zoekt de toolkit daarna automatisch op welke gemeenschappelijke regelingen (GRs) erbij horen en stelt die voor om toe te voegen. Daarna download je de documenten:
+
+```bash
+python3 toolkit.py scrape rotterdam
+```
+
+Documenten komen in `~/Documents/notulen/rotterdam/`. Wil je eerst zien wat er gedownload wordt zonder iets op te slaan:
+
+```bash
+python3 toolkit.py scrape rotterdam --droog
+```
+
+### Stap 2 — Onderzoeksomgeving voorbereiden
 
 ```bash
 python3 toolkit.py onderzoek rotterdam
 ```
 
 Dit commando:
-- Controleert welke bronnen beschikbaar zijn (gemeente, plus GRs en waterschappen die je hebt toegevoegd)
-- Bouwt een zoekindex zodat Claude niet elk PDF-bestand hoeft te openen
-- Toont welke bronnen er zijn en welke nog gedownload kunnen worden
-- Genereert een **contextbriefing** die je straks aan Claude geeft
+- Controleert welke bronnen beschikbaar zijn (gemeente, plus eventuele GRs en waterschappen)
+- Bouwt de zoekindex bij
+- Schrijft een **contextbriefing** naar `~/Documents/notulen/rotterdam/context.md`
 
-Voorbeeld output:
+De briefing beschrijft voor een AI welke bronnen er zijn, hoe ze doorzoekbaar zijn, en welk type organisatie relevant is voor welk onderwerp. Aan het einde staat ook een overzicht van beschikbare prompts en skills.
 
-```
-Onderzoeksomgeving — Rotterdam
-──────────────────────────────────────────────────
+### Stap 3 — Onderzoeken
 
-  Index bijwerken voor rotterdam…
+**Zonder AI — direct via de terminal:**
 
-  Beschikbare bronnen:
-
-  ✓  Gemeente Rotterdam                        847 doc  index ✓
-  ✓  GR Jeugdhulp Rijnmond                      23 doc
-  ○  GR DCMR Milieudienst Rijnmond              → python3 scraper_gr.py dcmr-milieudienst-rijnmond-2015
-
-  Open Claude Code in de documentenmap:
-
-    claude ~/Documents/notulen/rotterdam
-
-  Plak dit als context vóór je vraag aan Claude:
-  ┌────────────────────────────────────────────────
-  │ ## Onderzoekscontext — lokaalbestuur-toolkit
-  │ ...
+```bash
+python3 index.py rotterdam "sportaccommodaties"
 ```
 
-### Stap 3 — Vraag stellen aan Claude Code
+Geeft je een lijst van documenten met die term, inclusief datum en vergadertype. Nuttig voor gerichte zoekopdrachten als je al weet waar je naar zoekt.
+
+**Met Claude Code:**
 
 ```bash
 claude ~/Documents/notulen/rotterdam
 ```
 
-Plak de briefing die stap 2 heeft gegenereerd, en stel daarna je vraag. De briefing vertelt Claude:
-- Welke bronnen beschikbaar zijn en hoe die doorzoekbaar zijn
-- Welk type organisatie relevant is voor welk onderwerp (GGD → gezondheid, jeugdhulp → jongeren, waterschap → klimaat)
-- Hoe hij de zoekindex gebruikt voor efficiency
+Open Claude Code in de documentenmap. Typ dan:
 
-Zie `prompts/vrije-vraag.md` voor uitleg over hoe je je vraag het best opbouwt.
+```
+Lees context.md
+```
+
+Claude leest de briefing en weet meteen welke bronnen er zijn en hoe hij moet zoeken. Stel daarna je vraag. Zie `prompts/vrije-vraag.md` voor een sjabloon.
+
+Het verschil: zonder AI krijg je treffers op trefwoorden. Met Claude Code kun je vragen stellen als: "welke besluiten over jeugdhulp zijn er genomen in de afgelopen drie jaar, en wat ontbreekt er in de verantwoording?" — en Claude leest zelf de relevante stukken.
 
 ---
 
 ## Meer bronnen toevoegen
 
-De `onderzoek`-briefing wordt automatisch rijker als je meer bronnen hebt geconfigureerd. Gemeenschappelijke regelingen (GRs) en waterschappen bevatten vaak uitvoeringsinformatie die de gemeente zelf niet heeft.
+De briefing wordt rijker naarmate je meer bronnen toevoegt. Gemeenschappelijke regelingen (GRs) en waterschappen bevatten vaak uitvoeringsinformatie die de gemeente zelf niet heeft.
 
-### Een gemeente toevoegen (eenmalig)
+### Gemeenschappelijke regelingen (GRs)
 
-```bash
-python3 toolkit.py nieuw-orgaan
-```
+GRs zijn samenwerkingsverbanden tussen gemeenten — voor jeugdzorg, milieu, veiligheid, sociale diensten. Ze voeren beleid uit dat de gemeente heeft uitbesteed. Als je wilt weten wat er in de praktijk van dat beleid terechtkomt, moet je daar kijken.
 
-De wizard vraagt naar naam en type. Voor gemeenten zoekt de toolkit daarna automatisch welke GRs bij die gemeente horen en stelt die voor:
+Bij het aanmaken van een gemeente toont de toolkit automatisch welke GRs erbij horen:
 
 ```
   12 gemeenschappelijke regelingen gevonden voor rotterdam:
@@ -102,99 +114,80 @@ De wizard vraagt naar naam en type. Voor gemeenten zoekt de toolkit daarna autom
   Welke wil je toevoegen aan de catalogus?
 ```
 
-### Waterschappen downloaden
+GRs zijn wettelijk verplicht hun stukken openbaar te maken (Wgr art. 22, Woo). Scraping is beschikbaar zodra API-toegang is geregeld; in de tussentijd kun je via Claude Code een WOO-verzoek opstellen met `/wob-verzoek`.
 
-Alle 13 Nederlandse waterschappen die via de ORI API beschikbaar zijn staan vooraf geconfigureerd:
+### Waterschappen
 
-```bash
-python3 scraper_waterschap.py hollandse-delta
-python3 scraper_waterschap.py --lijst           # welke zijn er?
-```
-
-### GRs downloaden
-
-GRs hebben geen centraal publicatiekanaal zoals gemeenten. Veel publiceren via Notubiz, soms achter login. De toolkit vraagt momenteel een API-sleutel aan bij Notubiz; zodra die beschikbaar is werkt de scraper. Tussentijds:
+Alle 21 Nederlandse waterschappen die via de ORI API beschikbaar zijn staan vooraf geconfigureerd. Downloaden:
 
 ```bash
-python3 toolkit.py nieuwe-regeling   # GR handmatig toevoegen aan de catalogus
+python3 toolkit.py scrape hollandse-delta
 ```
 
-GRs zijn wettelijk verplicht hun stukken openbaar te maken (Wgr art. 22, Woo). Als een GR niets publiceert, kun je een WOO-verzoek genereren via de `/wob-verzoek` skill in Claude Code.
+Relevant bij onderwerpen als waterveiligheid, klimaatadaptatie, grondwater en rioolwaterzuivering.
 
 ---
 
-## Optioneel: automatische monitoring
+## Met Claude Code: wat het extra oplevert
 
-Als je een gemeente intensief volgt en wekelijks gesignaleerd wilt worden bij nieuwe relevante stukken, kun je een dossier aanmaken met trefwoorden:
+Als je Claude Code installeert, krijgt de toolkit er een laag bij. Claude Code is een AI-assistent die je vanuit de terminal opent in een map en die zelf bestanden kan lezen, doorzoeken en vergelijken.
+
+De toolkit is zo gebouwd dat Claude Code weet wat er beschikbaar is:
+
+- De `context.md` briefing vertelt Claude welke bronnen er zijn en hoe hij moet zoeken
+- De `prompts/` map bevat sjablonen voor veelvoorkomende onderzoeksvormen
+- De `.claude/skills/` map bevat acties die Claude kan uitvoeren — rapport opslaan, WOO-verzoek genereren, alert instellen
+
+Na een onderzoekssessie biedt Claude zelf aan welke vervolgstappen zinvol zijn. Dat overzicht staat ook in de briefing:
+
+| Prompt | Wanneer |
+|---|---|
+| `prompts/vrije-vraag.md` | Brede onderzoeksvraag zonder vooraf bekende trefwoorden — **start hier** |
+| `prompts/raadsstukken-analyse.md` | Gestructureerde analyse van een bekend dossier |
+| `prompts/rode-vlaggen.md` | Na een onderzoekssessie: checklist van zeven categorieën op misstanden |
+| `prompts/wederhoor.md` | Gerichte vragen per partij op basis van de stukken |
+| `prompts/bronnenbrief.md` | Eerste contactbrief aan een bron of betrokkene |
+
+---
+
+## Automatische monitoring (optioneel)
+
+Als je een gemeente intensief volgt en wekelijks gesignaleerd wilt worden bij nieuwe relevante stukken:
 
 ```bash
 python3 toolkit.py nieuw-dossier
 ```
 
-Daarna draait de analyse automatisch elke week via crontab. Bij treffers verschijnt een macOS-melding en staat een alertrapport klaar in `~/Documents/notulen/<orgaan>/alerts/`.
+Een wizard vraagt naar trefwoorden. Daarna draait de analyse automatisch elke week via crontab. Bij treffers verschijnt een macOS-melding en staat een alertrapport klaar in `~/Documents/notulen/<orgaan>/alerts/`.
 
-Dit is aanvullend op de primaire werkwijze — je hebt het niet nodig voor een eerste onderzoek.
-
----
-
-
-## Vereisten en installatie
-
-**Vereisten:**
-- Python 3.10 of hoger
-- `pdfplumber` voor tekstextractie uit PDFs
-
-```bash
-pip install pdfplumber
-```
-
-**Installatiecheck:**
-
-```bash
-python3 toolkit.py check
-```
-
-Controleert Python-versie, bibliotheken, API-verbinding, dossiers en crontab.
+Je hebt dit niet nodig voor een eerste onderzoek — het is aanvullend op de primaire werkwijze.
 
 ---
 
 ## Alle commando's
 
 ```bash
-# Primaire werkwijze
-python3 scraper.py <gemeente>                   # download raadsstukken
-python3 toolkit.py onderzoek <gemeente>         # bronnencheck + Claude-briefing genereren
+# Documenten
+python3 toolkit.py scrape <orgaan>              # download nieuwe stukken
+python3 toolkit.py scrape <orgaan> --droog      # droog uitvoeren (geen downloads)
+python3 toolkit.py scrape --alles               # alle geconfigureerde organen bijwerken
+
+# Onderzoek
+python3 toolkit.py onderzoek <gemeente>         # bronnencheck + zoekindex + briefing
+python3 index.py <gemeente> "zoekterm"          # zoek direct in de index
 
 # Organen en bronnen instellen
 python3 toolkit.py nieuw-orgaan                 # gemeente, waterschap of GR toevoegen
-python3 scraper_waterschap.py <waterschap>      # waterschapstukken downloaden
-python3 scraper_gr.py <gr>                      # GR-stukken downloaden (vereist API-toegang)
 
 # Monitoring
-python3 toolkit.py nieuw-dossier                # nieuw dossier met trefwoorden
+python3 toolkit.py nieuw-dossier                # dossier met trefwoorden aanmaken
 python3 analyse.py --dossier <naam>             # handmatig alert draaien
-
-# Zoeken (direct, zonder Claude)
-python3 index.py <gemeente> "zoekterm"          # zoek in de index
 
 # Overzicht
 python3 toolkit.py                              # dashboard
 python3 toolkit.py status                       # uitgebreid statusoverzicht
 python3 toolkit.py check                        # installatiecheck
 ```
-
----
-
-## Analyseprompts
-
-De map `prompts/` bevat sjablonen voor gebruik in Claude Code:
-
-| Prompt | Wanneer |
-|---|---|
-| `vrije-vraag.md` | Brede onderzoeksvraag zonder vooraf bekende trefwoorden — **start hier** |
-| `raadsstukken-analyse.md` | Gestructureerde analyse van een bekend dossier |
-| `wederhoor.md` | Gerichte vragen per partij op basis van de stukken |
-| `bronnenbrief.md` | Eerste contactbrief aan een bron of betrokkene |
 
 ---
 
@@ -215,26 +208,21 @@ lokaalbestuur-toolkit/
 ├── toolkit.py              hoofdinterface
 ├── scraper.py              gemeentedocumenten (ORI API)
 ├── scraper_waterschap.py   waterschapstukken (ORI API)
-├── scraper_gr.py           GR-stukken (vereist Notubiz API-sleutel)
+├── scraper_gr.py           GR-stukken
 ├── analyse.py              keyword-alerts
 ├── index.py                zoekindex (SQLite FTS5)
 ├── bronnen/                catalogussen (gemeenten, waterschappen, GRs)
 ├── organen/                configuratie per orgaan
 ├── dossiers/               configuratie per monitoringsdossier
-├── prompts/                Claude-prompts
+├── prompts/                sjablonen voor onderzoeksgesprekken
 └── checklists/             rode-vlagchecklist lokaal bestuur
 
 ~/Documents/notulen/
 ├── rotterdam/
 │   ├── gemeenteraad/2026-01-27/*.pdf
 │   ├── index.db
+│   ├── context.md              ← briefing voor Claude
 │   └── alerts/alert-2026-03-26.md
 ├── waterschappen/hollandse-delta/
 └── regelingen/jeugdhulp-rijnmond/
 ```
-
----
-
-## Databron
-
-Raadsstukken komen van de [Open Raadsinformatie API](https://openraadsinformatie.nl), een initiatief van de Open State Foundation. Gebruik `python3 scraper.py` zonder argument voor de actuele lijst van beschikbare gemeenten.

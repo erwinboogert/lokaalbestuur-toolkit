@@ -1,4 +1,4 @@
-# Prompt: Analyse van raadsstukken over een specifiek dossier
+# Analyse van raadsstukken over een specifiek dossier
 
 Gebruik deze prompt als template voor het analyseren van gemeentelijke raadsstukken over een willekeurig beleidsonderwerp. Vervang de tekst tussen `[rechte haken]` door de specifieke invulling voor het dossier dat je wilt onderzoeken.
 
