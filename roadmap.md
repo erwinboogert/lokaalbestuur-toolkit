@@ -190,20 +190,56 @@ python3 toolkit.py scrape-regelingen  # download nieuwe stukken voor alle actiev
 
 **Beperking:** GRs staan momenteel niet in de ORI API — de API bevat uitsluitend gemeenten (ori_), waterschappen (owi_) en provincies (osi_). De infrastructuur werkt zodra een GR via ORI ontsloten wordt, of wanneer de bron wordt uitgebreid naar Notubiz.
 
+### Juridisch kader: GRs zijn verplicht openbaar
+
+GRs zijn bestuursorganen en vallen onder twee wetten:
+
+- **Wet gemeenschappelijke regelingen (Wgr), artikel 22** — vergaderingen van het Algemeen Bestuur (AB) zijn openbaar. Sluiting achter gesloten deuren vereist een verzoek van een vijfde van de leden of de voorzitter.
+- **Wet open overheid (Woo)** — GRs vallen als bestuursorgaan onder de actieve openbaarmakingsplicht. In theorie moeten ze vergaderstukken, agenda's en notulen proactief publiceren. In de praktijk is naleving wisselend: de Woo-implementatie bij GRs is nog volop in uitrol.
+
+**Praktijkprobleem:** er is geen centraal publicatiekanaal voor GR-documenten zoals ORI voor gemeenten. Veel GRs publiceren via Notubiz (vaak achter login), sommige hebben een eigen website, een deel publiceert nauwelijks iets.
+
 ### Open punt: Notubiz als bron voor GR-documenten
 
-GR-documenten zijn doorgaans vindbaar via Notubiz (notubiz.nl). De Notubiz API bestaat en is deels publiek toegankelijk:
+GR-documenten zijn doorgaans vindbaar via Notubiz (notubiz.nl). De Notubiz API is verkend en deels publiek toegankelijk:
 
-- `api.notubiz.nl/organisations` — werkt zonder authenticatie; geeft 395 organisaties terug als XML, waaronder gemeenten én GRs (o.a. "Gemeenschappelijke regeling Nieuw Reijerwaard", "Samenwerkingsorgaan Hoeksche Waard").
-- `api.notubiz.nl/events` — bestaat maar werkt niet zonder een ongedocumenteerde verplichte parameter, waarschijnlijk een API-sleutel. De officiële documentatie zegt: "Er is nog geen documentatie beschikbaar voor publiek gebruik."
+- `api.notubiz.nl/organisations?format=json` — werkt zonder authenticatie; geeft **526 organisaties** terug als JSON/XML, inclusief GRs (o.a. Nieuw Reijerwaard id 1659, Hoeksche Waard id 937, Meerinzicht id 1982, GGD Zeeland id 3816, Jeugdzorg Rijnmond id 4073, Regio Foodvalley id 3973). Velden: naam, id, logo, coördinaten, `last_change`.
+- `api.notubiz.nl/events` — geeft HTTP 400, met of zonder `organisation_id`. Vereist vrijwel zeker een API-sleutel als verplichte parameter.
+- Subdomein-pages (`organisatie.notubiz.nl`) — HTTP 403, achter authenticatie.
+- De API-documentatiepagina zelf zegt: "Er is nog geen documentatie beschikbaar voor publiek gebruik."
+- HTML-scraping is niet haalbaar: documenten zitten niet op publieke webpagina's maar achter login.
 
 **Drie mogelijke paden:**
 
-1. **API-sleutel aanvragen bij Notubiz** — laagste technische drempel als ze die verstrekken. Onbekend of dat mogelijk is voor derden.
-2. **HTML-scraping van notubiz.nl** — werkt zonder sleutel, maar is fragiel en afhankelijk van hun opmaak.
-3. **Wachten op ORI-uitbreiding** — ORI indexeert al Notubiz-content van gemeenten; mogelijk worden GRs in de toekomst ook opgenomen.
+1. **API-sleutel aanvragen bij Notubiz** — laagste technische drempel als ze die verstrekken. Aanvraag gedaan (april 2025); uitkomst onbekend.
+2. **Wachten op ORI-uitbreiding** — ORI indexeert al Notubiz-content van gemeenten; mogelijk worden GRs in de toekomst ook opgenomen.
+3. **Per GR handmatig een bron hardcoderen** — sommige GRs hebben een eigen website buiten Notubiz. Niet schaalbaar voor generieke scraper, maar bruikbaar als aanvulling in de catalogus.
 
-Een `scraper_gr_notubiz.py` zou pad 1 of 2 kunnen implementeren en de bestaande `scraper_gr.py`-infrastructuur (catalogus, toolkit-integratie) hergebruiken.
+### Nieuwe richting: GR-navigator in plaats van GR-scraper
+
+Omdat een generieke scraper voor GRs voorlopig niet haalbaar is, kiest de toolkit voor een andere benadering: **de journalist zo ver mogelijk begeleiden naar de informatie**, ook als die niet automatisch opgehaald kan worden.
+
+De kern van dit idee: de toolkit weet per GR wat de status is (wel/niet publiek, via welk kanaal, contactadres) en geeft de journalist concrete vervolgstappen — inclusief een WOO-verzoek, het juiste loket, of de juiste vragen.
+
+**Wat de GR-navigator doet:**
+
+- Catalogus per GR met: brontype (`ori`, `notubiz`, `website`, `geen`), URL indien bekend, contactadres AB-secretariaat, status actieve openbaarmaking
+- **Als bron beschikbaar:** automatisch scrapen (zodra API-sleutel of ORI-ontsluiting beschikbaar)
+- **Als bron niet beschikbaar:**
+  - Pre-ingevuld WOO-verzoek voor die specifieke GR (`/wob-verzoek` skill)
+  - Directe verwijzing naar het AB-secretariaat met de juiste vragen ("Waar publiceert u vergaderstukken van het Algemeen Bestuur?")
+  - Toelichting op de wettelijke plicht (Wgr art. 22, Woo) die de journalist kan aanhalen
+  - Eventuele eigen website van de GR als handmatige bron
+
+**Concreet toolkit-commando (te bouwen):**
+```bash
+python3 toolkit.py gr-info drechtsteden     # wat weten we van deze GR, en wat kan de journalist doen?
+```
+
+Output: een Markdown-rapport met bronstatus, contactgegevens, en — indien nodig — een ingevuld WOO-verzoek of mailsjabloon naar het secretariaat.
+
+**Waarom dit beter is dan alleen wachten op de API:**
+GRs zijn wettelijk verplicht openbaar te vergaderen. Een journalist die actief vraagt om de stukken — gewapend met de juiste wettelijke grondslag en een concreet verzoek — heeft een stevige positie. De toolkit kan die positie ondersteunen, ook zonder technische toegang tot de documenten.
 
 ### ✅ Fase 6b — Waterschappen
 
