@@ -1,4 +1,36 @@
 {
-  "_opmerking": "Geconfigureerde gemeenschappelijke regelingen. ori_index = naam zoals die voorkomt in de ORI API (zonder ori_-prefix en tijdstempel). Gebruik 'python3 scraper_gr.py --lijst-ori' om beschikbare GRs in ORI te ontdekken.",
-  "_vergadertypen_standaard": ["algemeen bestuur", "dagelijks bestuur", "portefeuillehoudersoverleg"]
+  "_opmerking": "Geconfigureerde gemeenschappelijke regelingen. Brontype bepaalt hoe documenten worden opgehaald: 'ori' via ORI-API, 'notubiz' via Notubiz API (vereist API-sleutel), 'website' via eigen URL, 'geen' betekent geen publieke digitale bron bekend.",
+  "_vergadertypen_standaard": ["algemeen bestuur", "dagelijks bestuur", "portefeuillehoudersoverleg"],
+  "_toelichting_notubiz": "Notubiz-ID's zijn afkomstig uit api.notubiz.nl/organisations?format=json. De events-endpoint vereist een API-sleutel die momenteel wordt aangevraagd. Scraping is pas mogelijk zodra die beschikbaar is.",
+
+  "nieuw-reijerwaard": {
+    "naam": "Gemeenschappelijke Regeling Nieuw Reijerwaard",
+    "brontype": "notubiz",
+    "notubiz_id": 1659
+  },
+  "hoeksche-waard": {
+    "naam": "Samenwerkingsorgaan Hoeksche Waard",
+    "brontype": "notubiz",
+    "notubiz_id": 937
+  },
+  "meerinzicht": {
+    "naam": "Samenwerkingsverband Meerinzicht",
+    "brontype": "notubiz",
+    "notubiz_id": 1982
+  },
+  "ggd-zeeland": {
+    "naam": "Gemeenschappelijke Regeling GGD Zeeland",
+    "brontype": "notubiz",
+    "notubiz_id": 3816
+  },
+  "jeugdzorg-rijnmond": {
+    "naam": "Gemeenschappelijke Regeling Jeugdzorg Rijnmond",
+    "brontype": "notubiz",
+    "notubiz_id": 4073
+  },
+  "regio-foodvalley": {
+    "naam": "Gemeenschappelijke Regeling Regio Foodvalley",
+    "brontype": "notubiz",
+    "notubiz_id": 3973
+  }
 }
