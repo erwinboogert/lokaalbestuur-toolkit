@@ -634,6 +634,218 @@ def scrape_regelingen():
         print()
 
 
+def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list) -> str:
+    """Genereer een contextbriefing voor Claude Code bij een onderzoekssessie."""
+    regels = []
+    regels.append("## Onderzoekscontext — lokaalbestuur-toolkit")
+    regels.append("")
+    regels.append(
+        f"Je helpt een journalist onderzoek doen naar **gemeente {gemeente.capitalize()}** "
+        "en de bestuursorganen die daarmee samenwerken."
+    )
+    regels.append("")
+
+    if beschikbaar:
+        regels.append("### Beschikbare bronnen")
+        regels.append("")
+        for b in beschikbaar:
+            type_labels = {
+                "gemeente": "Gemeente",
+                "gr": "Gemeenschappelijke regeling",
+                "waterschap": "Waterschap",
+            }
+            label = type_labels.get(b["type"], b["type"])
+            regels.append(f"**{b['naam']}** ({label}) — {b['n_docs']} documenten")
+            regels.append(f"- Pad: `{b['pad']}`")
+            if b["type"] == "gemeente" and b["index"]:
+                regels.append(
+                    f"- Doorzoekbaar via: "
+                    f"`python3 {TOOLKIT_MAP}/index.py {gemeente} \"zoekterm\"`"
+                )
+            else:
+                regels.append("- Lees PDF's direct via Read-tool of Bash")
+            regels.append("")
+
+    regels.append("### Domeinkennis over de bronnen")
+    regels.append("")
+    regels.append(
+        "Gemeenschappelijke regelingen (GRs) zijn samenwerkingsverbanden tussen gemeenten. "
+        "Ze behandelen taken die de gemeente heeft uitbesteed. Relevante domeinen per GR-type:"
+    )
+    regels.append("")
+    regels.append("- **Jeugdhulp / jeugdzorg** → jeugd, opvoeding, gezondheid jongeren, obesitas")
+    regels.append("- **Omgevingsdienst / milieu** → vergunningen, bouwen, luchtkwaliteit, bodem")
+    regels.append("- **Veiligheidsregio** → brandweer, crisisbeheersing, rampenbestrijding")
+    regels.append("- **Sociale dienst / werk** → bijstand, re-integratie, armoede")
+    regels.append("- **GGD** → volksgezondheid, preventie, epidemiologie")
+    regels.append("- **Metropoolregio / regio** → ruimtelijke ordening, mobiliteit, wonen")
+    regels.append("")
+    regels.append(
+        "Waterschappen zijn relevant bij: waterveiligheid, dijken, klimaatadaptatie, "
+        "grondwater, rioolwaterzuivering, stedelijk water."
+    )
+    regels.append("")
+
+    if ontbrekend:
+        regels.append("### Bronnen in catalogus maar niet gedownload")
+        regels.append("")
+        regels.append(
+            "De journalist heeft deze bronnen geconfigureerd maar nog niet gedownload. "
+            "Meld dit als ze relevant zijn voor de onderzoeksvraag:"
+        )
+        regels.append("")
+        for b in ontbrekend:
+            regels.append(f"- {b['naam']} ({b['type']}) — `{b['commando']}`")
+        regels.append("")
+
+    regels.append("### Werkwijze")
+    regels.append("")
+    regels.append(
+        "1. Gebruik `index.py` voor gerichte zoekopdrachten in gemeentedocumenten "
+        "(snel, doorzoekt alle PDF's tegelijk)"
+    )
+    regels.append(
+        "2. Lees PDF's van GRs en waterschappen direct als de onderzoeksvraag "
+        "raakvlakken heeft met hun domein"
+    )
+    regels.append(
+        "3. Raadsstukken bevatten formele besluiten en vergaderverslagen — "
+        "ze vertellen wat er besloten is, niet altijd waarom"
+    )
+    regels.append(
+        "4. Signaleer als je een relevant onderwerp tegenkomt dat niet in de "
+        "beschikbare bronnen zit maar wel in een niet-gedownloade bron kan zitten"
+    )
+    regels.append("")
+    regels.append("---")
+    regels.append("")
+    regels.append("**Onderzoeksvraag van de journalist:**")
+    regels.append("")
+    regels.append("[vul hier je vraag in]")
+
+    return "\n".join(regels)
+
+
+def onderzoek(args: list):
+    """Bereid een onderzoekssessie voor: bronnencheck, index bijwerken, Claude-briefing."""
+    if not args:
+        print("\nGebruik: python3 toolkit.py onderzoek <gemeente>\n")
+        return
+
+    gemeente = args[0].lower()
+    gemeente_map = OUTPUT_BASIS / gemeente
+
+    print()
+    print(f"Onderzoeksomgeving — {gemeente.capitalize()}")
+    print("─" * 50)
+
+    if not gemeente_map.exists() or not any(gemeente_map.rglob("*.pdf")):
+        print(f"\n  ! Geen documenten gevonden voor '{gemeente}'.")
+        print(f"    Download eerst: python3 scraper.py {gemeente}\n")
+        return
+
+    beschikbaar = []
+    ontbrekend = []
+
+    # Gemeente
+    n_docs = sum(1 for _ in gemeente_map.rglob("*.pdf"))
+    print(f"\n  Index bijwerken voor {gemeente}…")
+    subprocess.run(
+        [PYTHON, str(TOOLKIT_MAP / "index.py"), gemeente],
+        capture_output=True,
+    )
+    index_aanwezig = (gemeente_map / "index.db").exists()
+    beschikbaar.append({
+        "naam": f"Gemeente {gemeente.capitalize()}",
+        "type": "gemeente",
+        "n_docs": n_docs,
+        "pad": str(gemeente_map),
+        "index": index_aanwezig,
+        "slug": gemeente,
+    })
+
+    # GRs
+    reg_pad = TOOLKIT_MAP / "bronnen" / "regelingen.json"
+    if reg_pad.exists():
+        try:
+            regelingen = {
+                k: v for k, v in json.loads(reg_pad.read_text(encoding="utf-8")).items()
+                if not k.startswith("_")
+            }
+            for slug, info in regelingen.items():
+                naam = info.get("naam", slug)
+                gr_map = OUTPUT_BASIS / "regelingen" / slug
+                if gr_map.exists() and any(gr_map.rglob("*.pdf")):
+                    n = sum(1 for _ in gr_map.rglob("*.pdf"))
+                    beschikbaar.append({
+                        "naam": naam, "type": "gr", "n_docs": n,
+                        "pad": str(gr_map), "index": False, "slug": slug,
+                    })
+                else:
+                    ontbrekend.append({
+                        "naam": naam, "type": "gr",
+                        "commando": f"python3 scraper_gr.py {slug}",
+                    })
+        except Exception:
+            pass
+
+    # Waterschappen
+    ws_pad = TOOLKIT_MAP / "bronnen" / "waterschappen.json"
+    if ws_pad.exists():
+        try:
+            waterschappen = {
+                k: v for k, v in json.loads(ws_pad.read_text(encoding="utf-8")).items()
+                if not k.startswith("_")
+            }
+            for slug, info in waterschappen.items():
+                naam = info.get("naam", slug)
+                ws_map = OUTPUT_BASIS / "waterschappen" / slug
+                if ws_map.exists() and any(ws_map.rglob("*.pdf")):
+                    n = sum(1 for _ in ws_map.rglob("*.pdf"))
+                    beschikbaar.append({
+                        "naam": naam, "type": "waterschap", "n_docs": n,
+                        "pad": str(ws_map), "index": False, "slug": slug,
+                    })
+                else:
+                    ontbrekend.append({
+                        "naam": naam, "type": "waterschap",
+                        "commando": f"python3 scraper_waterschap.py {slug}",
+                    })
+        except Exception:
+            pass
+
+    # Resultaat tonen
+    print()
+    if beschikbaar:
+        print("  Beschikbare bronnen:\n")
+        for b in beschikbaar:
+            index_label = "  index ✓" if b.get("index") else ""
+            print(f"  ✓  {b['naam']:<42} {b['n_docs']:>4} doc  {index_label}")
+
+    if ontbrekend:
+        print()
+        print("  In catalogus, nog niet gedownload:\n")
+        for b in ontbrekend:
+            print(f"  ○  {b['naam']:<42} → {b['commando']}")
+
+    briefing = _genereer_briefing(gemeente, beschikbaar, ontbrekend)
+
+    print()
+    print("─" * 50)
+    print()
+    print("  Open Claude Code in de documentenmap:")
+    print()
+    print(f"    claude {gemeente_map}")
+    print()
+    print("  Plak dit als context vóór je vraag aan Claude:")
+    print()
+    print("  ┌" + "─" * 48)
+    for regel in briefing.split("\n"):
+        print(f"  │ {regel}")
+    print("  └" + "─" * 48)
+    print()
+
+
 def status():
     """Uitgebreid statusoverzicht per dossier."""
     print()
@@ -923,6 +1135,8 @@ def main():
         scrape_waterschappen()
     elif args[0] == "financien":
         financien(args[1:])
+    elif args[0] == "onderzoek":
+        onderzoek(args[1:])
     elif args[0] == "wikibrain-ingest":
         wikibrain_ingest()
     elif args[0] == "wikibrain-compile":
