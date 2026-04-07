@@ -18,8 +18,10 @@ Gebruik:
 """
 
 import json
+import re
 import subprocess
 import sys
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 
@@ -311,6 +313,48 @@ def nieuw_dossier():
     print()
 
 
+def haal_grs_voor_gemeente(slug: str) -> list[dict]:
+    """Haal de GRs op waaraan een gemeente deelneemt via organisaties.overheid.nl."""
+    mapping_pad = TOOLKIT_MAP / "bronnen" / "gemeenten_overheid.json"
+    try:
+        mapping = json.loads(mapping_pad.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+    info = mapping.get(slug)
+    if not info:
+        return []
+
+    overheid_id = info["overheid_id"]
+    gemeente_naam = info["naam"].replace(" ", "_").replace("'", "")
+    url = f"https://organisaties.overheid.nl/{overheid_id}/Gemeente_{gemeente_naam}"
+
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "lokaalbestuur-toolkit/1.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            html = resp.read().decode("utf-8")
+    except Exception:
+        return []
+
+    # Haal alle GR-links op (/samenwerkingen/ID/Naam/)
+    grs = []
+    for m in re.finditer(
+        r'href="[^"]*?/samenwerkingen/(\d+)/([^/"]+)/"',
+        html
+    ):
+        overheid_gr_id, slug_raw = m.group(1), m.group(2)
+        naam = re.sub(r"_+", " ", slug_raw).strip()
+        naam = re.sub(r"^Gemeenschappelijk[e]?\s+[Rr]egeling\s+", "", naam)
+        naam = naam[0].upper() + naam[1:] if naam else naam
+        gr_slug = re.sub(r"^gemeenschappelijk[e]?-regeling-", "", slug_raw.lower().replace("_", "-"))
+        grs.append({
+            "slug": gr_slug,
+            "naam": naam,
+            "overheid_id": overheid_gr_id,
+        })
+    return grs
+
+
 def nieuwe_gemeente():
     """Gids voor het toevoegen van een nieuw orgaan (gemeente, waterschap of GR)."""
     print()
@@ -385,6 +429,54 @@ def nieuwe_gemeente():
     cron_wb_compile = f"45 9 * * 3 cd {WIKIBRAIN_MAP} && {PYTHON} -m wikibrain.cli compile >> {log_pad_wb} 2>&1"
     voeg_crontabregel_toe(f"WikiBrain ingest — {orgaan}", cron_wb_ingest)
     voeg_crontabregel_toe(f"WikiBrain compile — {orgaan}", cron_wb_compile)
+
+    # GR-suggesties voor gemeenten
+    if orgaan_type == "gemeente":
+        print()
+        print("  GRs opzoeken voor deze gemeente…")
+        grs = haal_grs_voor_gemeente(orgaan)
+        if grs:
+            print(f"  {len(grs)} gemeenschappelijke regelingen gevonden voor {orgaan}:")
+            print()
+            for i, gr in enumerate(grs, 1):
+                print(f"    {i:2}.  {gr['naam']}")
+            print()
+            keuze_grs = input("  Welke wil je toevoegen aan de catalogus? (nummers, kommagescheiden, of leeglaten): ").strip()
+            if keuze_grs:
+                gekozen = []
+                for deel in keuze_grs.split(","):
+                    try:
+                        idx = int(deel.strip()) - 1
+                        if 0 <= idx < len(grs):
+                            gekozen.append(grs[idx])
+                    except ValueError:
+                        pass
+
+                if gekozen:
+                    reg_pad = TOOLKIT_MAP / "bronnen" / "regelingen.json"
+                    try:
+                        reg_config = json.loads(reg_pad.read_text(encoding="utf-8"))
+                    except Exception:
+                        reg_config = {}
+
+                    for gr in gekozen:
+                        reg_config[gr["slug"]] = {
+                            "naam": gr["naam"],
+                            "brontype": "geen",
+                            "_opmerking": f"Deelnemer: {orgaan}. Bron onbekend — controleer of deze GR via Notubiz of eigen website publiceert.",
+                        }
+                    reg_pad.write_text(json.dumps(reg_config, indent=2, ensure_ascii=False), encoding="utf-8")
+                    print()
+                    for gr in gekozen:
+                        print(f"  ✓ Toegevoegd: {gr['naam']} ({gr['slug']})")
+                    print()
+                    print("  Brontype is ingesteld op 'geen' — controleer per GR of er een publieke bron is.")
+                    print("  Zie: python3 toolkit.py gr-info <slug>  (nog te bouwen)")
+        elif orgaan in json.loads((TOOLKIT_MAP / "bronnen" / "gemeenten_overheid.json").read_text(encoding="utf-8")):
+            print("  Geen GRs gevonden (of verbinding mislukt). Voeg later toe via: python3 toolkit.py nieuwe-regeling")
+        else:
+            print(f"  Gemeente '{orgaan}' niet gevonden in de mapping — GR-suggesties niet beschikbaar.")
+            print("  Voeg later handmatig toe via: python3 toolkit.py nieuwe-regeling")
 
     print()
     print(f"  Volgende stap: dossier aanmaken voor {orgaan}")
