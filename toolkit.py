@@ -599,7 +599,7 @@ def scrape_regelingen():
         print()
 
 
-def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list) -> str:
+def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list, gevonden_grs: list | None = None) -> str:
     """Genereer een contextbriefing voor Claude Code bij een onderzoekssessie."""
     regels = []
     regels.append("## Onderzoekscontext — lokaalbestuur-toolkit")
@@ -650,6 +650,18 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list) -> st
         "grondwater, rioolwaterzuivering, stedelijk water."
     )
     regels.append("")
+
+    if gevonden_grs:
+        regels.append(f"### Actieve GRs in {gemeente.capitalize()} (gedetecteerd uit vergaderstukken)")
+        regels.append("")
+        regels.append(
+            "De volgende gemeenschappelijke regelingen komen voor in de beschikbare vergaderstukken. "
+            "Raadpleeg hun documenten als je onderzoeksvraag raakvlakken heeft met hun domein:"
+        )
+        regels.append("")
+        for gr in gevonden_grs:
+            regels.append(f"- **{gr['naam']}** ({gr['vermeldingen']}× vermeld)")
+        regels.append("")
 
     if ontbrekend:
         regels.append("### Bronnen in catalogus maar niet gedownload")
@@ -728,11 +740,103 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list) -> st
     return "\n".join(regels)
 
 
+# ── GR-detectie ───────────────────────────────────────────────────────────────
+
+def detecteer_regelingen_in_index(gemeente_map: Path) -> list[dict]:
+    """Detecteer gemeenschappelijke regelingen via de zoekindex. Geeft [{naam, vermeldingen}]."""
+    import sqlite3 as _sqlite3
+    db_pad = gemeente_map / "index.db"
+    if not db_pad.exists():
+        return []
+    try:
+        con = _sqlite3.connect(str(db_pad))
+        rows = con.execute(
+            "SELECT tekst FROM tekst_fts WHERE tekst MATCH ?",
+            ("gemeenschappelijke regeling",)
+        ).fetchall()
+        con.close()
+    except Exception:
+        return []
+
+    teller: dict[str, int] = {}
+    for (tekst,) in rows:
+        matches = re.findall(
+            r'Gemeenschappelijke\s+[Rr]egeling\s+([A-Z][^\n,(]{2,55}?)(?=\s*[\(,.\n]|\s{2}|$)',
+            tekst
+        )
+        for m in matches:
+            naam = re.sub(r'\s+', ' ', m).strip()
+            # Strip staartwoorden die geen deel zijn van de naam
+            naam = re.sub(r'\s+(van|de|het|en|voor|per|in|op|uit|aan|tot|over|door)\s*$', '', naam, flags=re.IGNORECASE)
+            naam = naam.rstrip(' -–')
+            # Sla over als naam speciale tekens, cijfers of te weinig woorden bevat
+            if len(naam) < 4:
+                continue
+            if re.search(r'[€$%\d]', naam):
+                continue
+            if re.search(r'\d{4}', naam):
+                continue
+            teller[naam] = teller.get(naam, 0) + 1
+
+    def _normaliseer(n: str) -> str:
+        """Verwijder leestekens en lowercase voor vergelijking."""
+        return re.sub(r'[\s\-_]+', ' ', n.lower().strip())
+
+    # Dedupliceer: groepeer namen die na normalisatie op elkaar lijken
+    namen = sorted(teller.keys(), key=lambda n: -teller[n])
+    deduped: list[dict] = []
+    for naam in namen:
+        norm = _normaliseer(naam)
+        vergelijkbaar = any(
+            norm in _normaliseer(b["naam"]) or _normaliseer(b["naam"]) in norm
+            for b in deduped
+        )
+        if not vergelijkbaar:
+            deduped.append({"naam": naam, "vermeldingen": teller[naam]})
+        else:
+            # Tel vermeldingen mee bij de al opgenomen variant
+            for b in deduped:
+                if norm in _normaliseer(b["naam"]) or _normaliseer(b["naam"]) in norm:
+                    b["vermeldingen"] += teller[naam]
+                    break
+
+    return sorted(deduped, key=lambda x: -x["vermeldingen"])
+
+
+def _schrijf_regelingen_md(gemeente: str, gemeente_map: Path, regelingen: list[dict]) -> Path:
+    """Schrijf gevonden GRs naar regelingen.md en geef het pad terug."""
+    datum = datetime.now().strftime("%Y-%m-%d")
+    totaal = sum(r["vermeldingen"] for r in regelingen)
+    regels = [
+        f"# Gemeenschappelijke regelingen — {gemeente.capitalize()}",
+        "",
+        f"Automatisch gedetecteerd op {datum} op basis van {totaal} vermeldingen in de vergaderstukken.",
+        "",
+        "| Naam | Vermeldingen |",
+        "|------|-------------|",
+    ]
+    for r in regelingen:
+        regels.append(f"| {r['naam']} | {r['vermeldingen']} |")
+    regels += [
+        "",
+        "---",
+        "",
+        f"Ververs met: `python3 toolkit.py onderzoek {gemeente} --ververs-regelingen`",
+        "",
+    ]
+    pad = gemeente_map / "regelingen.md"
+    pad.write_text("\n".join(regels), encoding="utf-8")
+    return pad
+
+
 def onderzoek(args: list):
     """Bereid een onderzoekssessie voor: bronnencheck, index bijwerken, Claude-briefing."""
     if not args:
         print("\nGebruik: python3 toolkit.py onderzoek <gemeente>\n")
         return
+
+    ververs_gr = "--ververs-regelingen" in args
+    args = [a for a in args if a != "--ververs-regelingen"]
 
     gemeente = args[0].lower()
     gemeente_map = OUTPUT_BASIS / gemeente
@@ -765,6 +869,25 @@ def onderzoek(args: list):
         "index": index_aanwezig,
         "slug": gemeente,
     })
+
+    # GR-detectie via index
+    regelingen_pad = gemeente_map / "regelingen.md"
+    gevonden_grs: list[dict] = []
+    if index_aanwezig and (not regelingen_pad.exists() or ververs_gr):
+        print(f"  GRs detecteren in vergaderstukken…")
+        gevonden_grs = detecteer_regelingen_in_index(gemeente_map)
+        if gevonden_grs:
+            _schrijf_regelingen_md(gemeente, gemeente_map, gevonden_grs)
+            print(f"  → {len(gevonden_grs)} gemeenschappelijke regelingen gevonden")
+            print(f"    Opgeslagen: {regelingen_pad}")
+        else:
+            print("  → Geen GRs gevonden in de stukken")
+    elif regelingen_pad.exists():
+        # Lees bestaande detectie voor de briefing
+        for regel in regelingen_pad.read_text(encoding="utf-8").splitlines():
+            m = re.match(r'\|\s+(.+?)\s+\|\s+(\d+)\s+\|', regel)
+            if m and m.group(1) != "Naam":
+                gevonden_grs.append({"naam": m.group(1), "vermeldingen": int(m.group(2))})
 
     # GRs
     reg_pad = TOOLKIT_MAP / "bronnen" / "regelingen.json"
@@ -833,7 +956,7 @@ def onderzoek(args: list):
         for b in ontbrekend:
             print(f"  ○  {b['naam']:<42} → {b['commando']}")
 
-    briefing = _genereer_briefing(gemeente, beschikbaar, ontbrekend)
+    briefing = _genereer_briefing(gemeente, beschikbaar, ontbrekend, gevonden_grs)
 
     context_pad = gemeente_map / "context.md"
     context_pad.write_text(briefing, encoding="utf-8")
@@ -1128,37 +1251,128 @@ def _scrape_orgaan(slug: str, orgaan_type: str, droog: bool = False):
 
 # ── Hoofdprogramma ────────────────────────────────────────────────────────────
 
+HELP_ALGEMEEN = """
+Lokaalbestuur Toolkit — download en doorzoek vergaderstukken van Nederlandse overheden
+
+Gebruik:
+  python3 toolkit.py                          toon dashboard (actieve dossiers en alerts)
+  python3 toolkit.py onderzoek <gemeente>     bereid een Claude Code-sessie voor
+  python3 toolkit.py scrape <orgaan>          download nieuwe vergaderstukken
+  python3 toolkit.py scrape --alles           download alle geconfigureerde organen
+  python3 toolkit.py nieuw-orgaan             voeg een gemeente, waterschap of GR toe
+  python3 toolkit.py nieuw-dossier            stel monitoring in met trefwoorden en alerts
+  python3 toolkit.py status                   uitgebreid overzicht van dossiers en alerts
+  python3 toolkit.py check                    controleer installatie en Python-pakketten
+
+Typ 'python3 toolkit.py <commando> --help' voor meer informatie over een commando.
+"""
+
+HELP_PER_COMMANDO = {
+    "onderzoek": """
+onderzoek <gemeente>
+
+  Bereid een Claude Code-sessie voor voor een gemeente.
+  Vereist dat de scraper al gedraaid heeft voor dit orgaan.
+
+  Stappen:
+    1. Zoekindex bijwerken (nieuwe PDF's worden geïndexeerd)
+    2. Gemeenschappelijke regelingen detecteren (eerste keer automatisch)
+    3. Contextbriefing opslaan als context.md in de documentenmap
+
+  Opties:
+    --ververs-regelingen    detecteer GRs opnieuw, ook als regelingen.md al bestaat
+
+  Voorbeelden:
+    python3 toolkit.py onderzoek rotterdam
+    python3 toolkit.py onderzoek rotterdam --ververs-regelingen
+""",
+    "scrape": """
+scrape <orgaan>
+scrape --alles
+
+  Download nieuwe vergaderstukken via de Open Raadsinformatie API.
+  Slaat bestanden op in ~/Documents/notulen/<orgaan>/.
+  Documenten die al aanwezig zijn worden overgeslagen.
+
+  Voorbeelden:
+    python3 toolkit.py scrape rotterdam
+    python3 toolkit.py scrape --alles
+""",
+    "nieuw-orgaan": """
+nieuw-orgaan
+
+  Interactieve wizard om een nieuw orgaan toe te voegen aan de toolkit.
+  Ondersteunt gemeenten, waterschappen en gemeenschappelijke regelingen.
+  Zoekt automatisch het ORI-index op via de API.
+""",
+    "nieuw-dossier": """
+nieuw-dossier
+
+  Interactieve wizard om een monitoringsdossier aan te maken.
+  Stel trefwoorden in en kies een frequentie (wekelijks of maandelijks).
+  Bij een match verschijnt een macOS-melding en wordt een alertrapport opgeslagen.
+""",
+    "status": """
+status
+
+  Toont een overzicht van alle actieve dossiers:
+  trefwoorden, laatste run, aantal documenten, openstaande alerts.
+""",
+    "check": """
+check
+
+  Controleert of de benodigde Python-pakketten aanwezig zijn
+  en of de mappen en configuratiebestanden correct staan.
+""",
+}
+
+
 def main():
     args = sys.argv[1:]
 
     if not args:
         dashboard()
-    elif args[0] == "nieuw-dossier":
+        return
+
+    if args[0] in ("--help", "-h", "?"):
+        print(HELP_ALGEMEEN)
+        return
+
+    commando = args[0]
+    rest = args[1:]
+
+    if "--help" in rest or "-h" in rest:
+        if commando in HELP_PER_COMMANDO:
+            print(HELP_PER_COMMANDO[commando])
+        else:
+            print(HELP_ALGEMEEN)
+        return
+
+    if commando == "nieuw-dossier":
         nieuw_dossier()
-    elif args[0] in ("nieuw-orgaan", "nieuwe-gemeente"):
+    elif commando in ("nieuw-orgaan", "nieuwe-gemeente"):
         nieuwe_gemeente()
-    elif args[0] == "status":
+    elif commando == "status":
         status()
-    elif args[0] == "check":
+    elif commando == "check":
         check()
-    elif args[0] == "nieuw-alert":
-        nieuw_alert(args[1:])
-    elif args[0] == "nieuwe-regeling":
+    elif commando == "nieuw-alert":
+        nieuw_alert(rest)
+    elif commando == "nieuwe-regeling":
         nieuwe_regeling()
-    elif args[0] == "scrape-regelingen":
+    elif commando == "scrape-regelingen":
         scrape_regelingen()
-    elif args[0] == "nieuw-waterschap":
+    elif commando == "nieuw-waterschap":
         nieuw_waterschap()
-    elif args[0] == "scrape-waterschappen":
+    elif commando == "scrape-waterschappen":
         scrape_waterschappen()
-    elif args[0] == "onderzoek":
-        onderzoek(args[1:])
-    elif args[0] == "scrape":
-        scrape(args[1:])
+    elif commando == "onderzoek":
+        onderzoek(rest)
+    elif commando == "scrape":
+        scrape(rest)
     else:
-        print(f"\nOnbekend commando: '{args[0]}'")
-        print("Gebruik: python3 toolkit.py [onderzoek <gemeente> | scrape <orgaan> | scrape --alles |")
-        print("                             nieuw-orgaan | nieuw-dossier | status | check]\n")
+        print(f"\nOnbekend commando: '{commando}'")
+        print(HELP_ALGEMEEN)
         sys.exit(1)
 
 
