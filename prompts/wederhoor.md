@@ -49,3 +49,4 @@ ingang voor een interview.
 2. **Vul de partijen in** — kies de partijen die het meest relevant zijn voor jouw verhaal
 3. **Gebruik na de analyse** — deze prompt werkt het best als Claude de stukken al heeft gelezen
 4. **Combineer met de bronnenbrief** — gebruik `bronnenbrief.md` om het eerste contact te leggen
+

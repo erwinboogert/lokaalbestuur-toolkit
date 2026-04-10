@@ -21,18 +21,17 @@ Deze map bevat configuratiebestanden per orgaan. Elk bestand beschrijft één or
 |---|---|---|
 | `naam` | vrije tekst | Volledige naam voor weergave |
 | `type` | `gemeente`, `waterschap`, `gr` | Type orgaan |
-| `bron` | `ori` | Databron (nu alleen ORI; uitbreidbaar) |
+| `bron` | `ori`, `ibabs`, `notubiz` | Databron — wordt automatisch bepaald op basis van de configuratie in `bronnen/` |
 | `vergadertypen` | lijst van strings | Welke vergadering-namen worden gescraped (hoofdletterongevoelig, gedeeltelijke match) |
 
 ## Naamgeving van bestanden
 
-- Gebruik de naam zoals die voorkomt in de Open Raadsinformatie API-index
 - Alleen kleine letters, cijfers en koppeltekens
 - Gemeente: `rotterdam.json`, `den-haag.json`
 - Waterschap: `hollandse-delta.json`, `rijnland.json`
 - GR: `drechtsteden-gr.json`, `midden-holland-gr.json`
 
-Controleer de beschikbare indices via: `python3 scraper.py` (toont alle beschikbare organen)
+Beschikbare indices: `python3 scraper.py --lijst` (gemeenten), `python3 scraper_waterschap.py --lijst` (waterschappen), `python3 scraper_gr.py --lijst` (GRs)
 
 ## Standaard vergadertypen per type
 
@@ -43,7 +42,7 @@ Controleer de beschikbare indices via: `python3 scraper.py` (toont alle beschikb
 
 **Waterschap**
 ```json
-["algemeen bestuur", "college van dijkgraaf en heemraden"]
+["algemeen bestuur", "college van dijkgraaf en heemraden", "dagelijks bestuur", "verenigde vergadering"]
 ```
 
 **Gemeenschappelijke regeling**

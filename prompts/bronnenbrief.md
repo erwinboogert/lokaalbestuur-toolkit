@@ -47,3 +47,4 @@ de bron hoor-en-wederhoor krijgt voordat publicatie plaatsvindt.
 2. **Beschrijf de bron zo specifiek mogelijk** — functie, rol, betrokkenheid
 3. **Geef de gewenste toon aan** — formeel of toegankelijk
 4. **Combineer met wederhoor** — gebruik `wederhoor.md` om de inhoudelijke vragen voor te bereiden zodra de bron bereid is te praten
+

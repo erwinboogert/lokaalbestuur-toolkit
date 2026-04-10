@@ -78,3 +78,4 @@ Deze repository is publiek. Controleer altijd voor een commit:
 
 Python: `/opt/homebrew/bin/python3`
 Geïnstalleerde bibliotheken: `pdfplumber`
+

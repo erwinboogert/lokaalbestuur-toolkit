@@ -128,3 +128,4 @@ python3 /Users/erwin/Documents/lokaalbestuur-toolkit/toolkit.py nieuw-alert \
 ```
 
 Vervang `<onderwerp>`, `<orgaan>`, `<woord1>` etc. door de werkelijke waarden uit de analyse en het gesprek. Het commando maakt de dossier JSON aan en voegt automatisch de crontabregel toe.
+
