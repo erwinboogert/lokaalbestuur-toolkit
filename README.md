@@ -101,7 +101,7 @@ De briefing wordt rijker naarmate je meer bronnen toevoegt. Gemeenschappelijke r
 
 GRs zijn samenwerkingsverbanden tussen gemeenten — voor jeugdzorg, milieu, veiligheid, sociale diensten. Ze voeren beleid uit dat de gemeente heeft uitbesteed. Als je wilt weten wat er in de praktijk van dat beleid terechtkomt, moet je daar kijken.
 
-Na `toolkit.py onderzoek` detecteert de toolkit automatisch welke GRs in de vergaderstukken voorkomen en slaat die op als `regelingen.md` in de documentenmap. Zo weet je meteen met welke samenwerkingsverbanden de gemeente te maken heeft.
+Na `toolkit.py onderzoek` detecteert de toolkit automatisch welke GRs bij de gemeente horen en slaat die op als `regelingen.md` in de documentenmap. De detectie combineert twee bronnen: tekst uit de vergaderstukken én de officiële deelnemersregistratie van organisaties.overheid.nl. GRs die zelden bij naam in de stukken staan (bijv. veiligheidsregio's, recreatieschappen) verschijnen daardoor toch in de lijst.
 
 Of je die GR-stukken ook kunt downloaden, hangt af van hoe de GR publiceert:
 
@@ -115,12 +115,25 @@ python3 scraper_gr.py <naam>
 
 Of een GR in ORI staat, zie je met `python3 scraper_gr.py --lijst-ori`.
 
-**Via Notubiz of eigen website — handmatig**
-Veel GRs publiceren op een eigen Notubiz-portaal (bijv. grjr.notubiz.nl) of eigen website, maar zijn niet opgenomen in de ORI-API en blokkeren geautomatiseerde toegang. Download de stukken handmatig via de browser en zet ze in `~/Documents/notulen/regelingen/<naam>/`. De zoekindex werkt daarna gewoon.
+**Via Notubiz API — direct scrapebaar**
+De meeste GRs publiceren via Notubiz. De scraper kan die direct benaderen als je het Notubiz-organisatie-ID opgeeft in `bronnen/regelingen.json`:
 
-Je kunt dit handig automatiseren met Claude Code: vraag Claude om de vergaderpagina te bezoeken, de PDF-links te verzamelen en de bestanden te downloaden. Dat scheelt een scraper schrijven voor elke GR apart.
+```bash
+python3 scraper_gr.py --zoek jeugdhulp   # zoek het ID op in Notubiz
+# voeg notubiz_id toe aan bronnen/regelingen.json
+python3 scraper_gr.py jeugdhulp-rijnmond
+```
 
-Voorbeelden: Jeugdhulp Rijnmond, GGD Rotterdam-Rijnmond, MRDH, DCMR Milieudienst Rijnmond.
+Voorbeelden: GGD Rotterdam-Rijnmond, MRDH, Jeugdzorg Rijnmond.
+
+**Via iBabs SOAP — direct scrapebaar**
+GRs die een iBabs-vergaderportaal gebruiken zijn scrapebaar via de SOAP API. Voeg `ibabs_naam` toe in `bronnen/regelingen.json` — de waarde is de Sitename in de portaal-URL (bijv. `dcmr` uit `dcmr.bestuurlijkeinformatie.nl`):
+
+```bash
+python3 scraper_gr.py <naam>   # werkt zodra ibabs_naam is ingevuld
+```
+
+Voorbeelden: DCMR Milieudienst Rijnmond, veiligheidsregio's.
 
 **Geen portaal — WOO-verzoek**
 Een kleine groep GRs publiceert nauwelijks openbaar. Ze zijn wettelijk verplicht dat wel te doen (Wgr art. 22, Woo). Je kunt een formeel verzoek opstellen met:
@@ -188,6 +201,11 @@ python3 toolkit.py scrape --alles               # alle geconfigureerde organen b
 # Onderzoek
 python3 toolkit.py onderzoek <gemeente>         # bronnencheck + zoekindex + briefing
 python3 index.py <gemeente> "zoekterm"          # zoek direct in de index
+
+# GRs ontdekken en instellen
+python3 scraper_gr.py --lijst                   # toon geconfigureerde GRs
+python3 scraper_gr.py --lijst-ori               # ontdek GRs in de ORI API
+python3 scraper_gr.py --zoek <naam>             # zoek GR-organisatie in Notubiz
 
 # Organen en bronnen instellen
 python3 toolkit.py nieuw-orgaan                 # gemeente, waterschap of GR toevoegen
