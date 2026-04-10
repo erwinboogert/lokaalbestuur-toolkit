@@ -803,8 +803,17 @@ def detecteer_regelingen_in_index(gemeente_map: Path) -> list[dict]:
     return sorted(deduped, key=lambda x: -x["vermeldingen"])
 
 
-def _schrijf_regelingen_md(gemeente: str, gemeente_map: Path, regelingen: list[dict]) -> Path:
-    """Schrijf gevonden GRs naar regelingen.md en geef het pad terug."""
+def _schrijf_regelingen_md(
+    gemeente: str,
+    gemeente_map: Path,
+    regelingen: list[dict],
+    officieel: list[dict] | None = None,
+) -> Path:
+    """Schrijf gevonden GRs naar regelingen.md en geef het pad terug.
+
+    regelingen: gedetecteerd via zoekindex (met vermeldingen-telling)
+    officieel:  lijst van overheid.nl ({naam, slug}) — officiële deelname
+    """
     datum = datetime.now().strftime("%Y-%m-%d")
     totaal = sum(r["vermeldingen"] for r in regelingen)
     regels = [
@@ -817,6 +826,26 @@ def _schrijf_regelingen_md(gemeente: str, gemeente_map: Path, regelingen: list[d
     ]
     for r in regelingen:
         regels.append(f"| {r['naam']} | {r['vermeldingen']} |")
+
+    # Voeg officiële GRs toe die niet in de stukken zijn gevonden
+    if officieel:
+        gevonden_namen_lower = {r["naam"].lower() for r in regelingen}
+        niet_gevonden = [
+            o for o in officieel
+            if not any(o["naam"].lower() in gn or gn in o["naam"].lower()
+                       for gn in gevonden_namen_lower)
+        ]
+        if niet_gevonden:
+            regels += [
+                "",
+                "## Officieel deelnemer — niet aangetroffen in vergaderstukken",
+                "",
+                "| Naam |",
+                "|------|",
+            ]
+            for o in niet_gevonden:
+                regels.append(f"| {o['naam']} |")
+
     regels += [
         "",
         "---",
@@ -870,18 +899,22 @@ def onderzoek(args: list):
         "slug": gemeente,
     })
 
-    # GR-detectie via index
+    # GR-detectie via index + officiële deelname via overheid.nl
     regelingen_pad = gemeente_map / "regelingen.md"
     gevonden_grs: list[dict] = []
     if index_aanwezig and (not regelingen_pad.exists() or ververs_gr):
         print(f"  GRs detecteren in vergaderstukken…")
         gevonden_grs = detecteer_regelingen_in_index(gemeente_map)
+        print(f"  Officiële GR-deelname ophalen via overheid.nl…")
+        officieel = haal_grs_voor_gemeente(gemeente)
+        _schrijf_regelingen_md(gemeente, gemeente_map, gevonden_grs, officieel)
         if gevonden_grs:
-            _schrijf_regelingen_md(gemeente, gemeente_map, gevonden_grs)
-            print(f"  → {len(gevonden_grs)} gemeenschappelijke regelingen gevonden")
-            print(f"    Opgeslagen: {regelingen_pad}")
+            print(f"  → {len(gevonden_grs)} gemeenschappelijke regelingen gevonden in stukken")
         else:
             print("  → Geen GRs gevonden in de stukken")
+        if officieel:
+            print(f"  → {len(officieel)} officiële GRs via overheid.nl")
+        print(f"    Opgeslagen: {regelingen_pad}")
     elif regelingen_pad.exists():
         # Lees bestaande detectie voor de briefing
         for regel in regelingen_pad.read_text(encoding="utf-8").splitlines():
