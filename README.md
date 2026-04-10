@@ -105,22 +105,22 @@ Na `toolkit.py onderzoek` detecteert de toolkit automatisch welke GRs in de verg
 
 Of je die GR-stukken ook kunt downloaden, hangt af van hoe de GR publiceert:
 
-**Via Notubiz — direct scrapebaar**
-GRs die via Notubiz publiceren zijn toegankelijk via dezelfde API als gemeenten. Voeg ze toe aan de catalogus en download ze:
+**Via de ORI API — direct scrapebaar**
+Sommige GRs zijn geïndexeerd in de Open Raadsinformatie API, net als gemeenten. Die zijn direct te downloaden:
 
 ```bash
 python3 toolkit.py nieuwe-regeling    # slug en ORI-indexnaam invoeren
-python3 scraper_gr.py jeugdhulp-rijnmond
+python3 scraper_gr.py <naam>
 ```
 
-Voorbeelden: Jeugdhulp Rijnmond, GGD Rotterdam-Rijnmond, MRDH, Nieuw Reijerwaard.
+Of een GR in ORI staat, zie je met `python3 scraper_gr.py --lijst-ori`.
 
-**Via eigen website — handmatig**
-Sommige GRs publiceren vergaderstukken op hun eigen website als PDF, maar zonder API. Download de stukken handmatig en zet ze in `~/Documents/notulen/regelingen/<naam>/`. De zoekindex werkt daarna gewoon.
+**Via Notubiz of eigen website — handmatig**
+Veel GRs publiceren op een eigen Notubiz-portaal (bijv. grjr.notubiz.nl) of eigen website, maar zijn niet opgenomen in de ORI-API en blokkeren geautomatiseerde toegang. Download de stukken handmatig via de browser en zet ze in `~/Documents/notulen/regelingen/<naam>/`. De zoekindex werkt daarna gewoon.
 
-Je kunt dit handig automatiseren met Claude Code: vraag Claude om de vergaderpagina van de GR te bezoeken, de PDF-links te verzamelen en de bestanden te downloaden. Dat scheelt een scraper schrijven voor elke GR apart.
+Je kunt dit handig automatiseren met Claude Code: vraag Claude om de vergaderpagina te bezoeken, de PDF-links te verzamelen en de bestanden te downloaden. Dat scheelt een scraper schrijven voor elke GR apart.
 
-Voorbeelden: DCMR Milieudienst Rijnmond (dcmr.nl/bestuur), De BedrijfsvoeringsPartner.
+Voorbeelden: Jeugdhulp Rijnmond, GGD Rotterdam-Rijnmond, MRDH, DCMR Milieudienst Rijnmond.
 
 **Geen portaal — WOO-verzoek**
 Een kleine groep GRs publiceert nauwelijks openbaar. Ze zijn wettelijk verplicht dat wel te doen (Wgr art. 22, Woo). Je kunt een formeel verzoek opstellen met:
