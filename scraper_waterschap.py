@@ -1,10 +1,11 @@
 """
 Scraper voor vergaderstukken van Nederlandse waterschappen
-Bron: Open Raadsinformatie API (openraadsinformatie.nl)
+Bronnen: Open Raadsinformatie API (openraadsinformatie.nl) en iBabs SOAP API
 
 Waterschappen zijn democratisch gekozen bestuursorganen voor waterveiligheid,
 dijkbeheer en rioolwaterzuivering. Ze vergaderen openbaar maar worden
-nauwelijks journalistiek gevolgd. De ORI API ontsluit ze via de owi_-prefix.
+nauwelijks journalistiek gevolgd. De ORI API ontsluit ze via de owi_-prefix;
+waterschappen zonder ORI-koppeling worden via iBabs benaderd.
 
 Gebruik:
     python3 scraper_waterschap.py hollandse-delta           # download vergaderstukken
@@ -22,8 +23,10 @@ Vereisten: geen externe bibliotheken (alleen standaard Python 3)
 import sys
 import json
 import urllib.request
+import xml.etree.ElementTree as ET
 import re
 import logging
+from datetime import datetime, timedelta
 from pathlib import Path
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -60,6 +63,9 @@ MAX_VERGADERINGEN = 50
 # ══════════════════════════════════════════════════════════════════════════════
 
 API_BASE = "https://api.openraadsinformatie.nl/v1/elastic"
+IBABS_ENDPOINT = "https://wcf.ibabs.eu/api/Public.svc"
+IBABS_NS = "http://tempuri.org/"
+IBABS_TERUGKIJK_DAGEN = 730  # ~2 jaar
 DROOG = "--droog" in sys.argv
 
 
@@ -147,6 +153,122 @@ def laad_waterschap_config(naam: str) -> None:
         pass
 
 
+def ibabs_naam_voor(naam: str) -> str | None:
+    """Lees ibabs_naam uit waterschappen.json voor het opgegeven waterschap."""
+    pad = BRONNEN_MAP / "waterschappen.json"
+    if not pad.exists():
+        return None
+    try:
+        config = json.loads(pad.read_text(encoding="utf-8"))
+        return config.get(naam, {}).get("ibabs_naam")
+    except Exception:
+        return None
+
+
+def ibabs_soap(methode: str, body_xml: str) -> ET.Element:
+    """Doe een SOAP-verzoek naar de iBabs API en geef het root-element terug."""
+    envelope = (
+        '<?xml version="1.0" encoding="utf-8"?>'
+        '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
+        ' xmlns:tns="http://tempuri.org/">'
+        "<soap:Body>"
+        f"<tns:{methode}>"
+        f"{body_xml}"
+        f"</tns:{methode}>"
+        "</soap:Body>"
+        "</soap:Envelope>"
+    )
+    req = urllib.request.Request(
+        IBABS_ENDPOINT,
+        data=envelope.encode("utf-8"),
+        headers={
+            "Content-Type": "text/xml; charset=utf-8",
+            "SOAPAction": f'"http://tempuri.org/IPublic/{methode}"',
+            "User-Agent": "Mozilla/5.0",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return ET.fromstring(r.read())
+
+
+def _ibabs_tekst(el: ET.Element, tag: str) -> str:
+    """Haal tekst op van een direct child-element in de iBabs-namespace."""
+    child = el.find(f"{{{IBABS_NS}}}{tag}")
+    return (child.text or "").strip() if child is not None else ""
+
+
+def haal_vergadertypen_ibabs(sitename: str) -> dict[str, str]:
+    """Geeft {id: naam} voor alle vergadertypen van een iBabs-organisatie."""
+    body = f"<tns:Sitename>{sitename}</tns:Sitename>"
+    try:
+        root = ibabs_soap("GetMeetingtypes", body)
+        result = {}
+        for mt in root.iter(f"{{{IBABS_NS}}}iBabsMeetingtype"):
+            mt_id = _ibabs_tekst(mt, "Id")
+            mt_naam = _ibabs_tekst(mt, "Name")
+            if mt_id:
+                result[mt_id] = mt_naam
+        return result
+    except Exception as e:
+        log(f"  ! GetMeetingtypes mislukt: {e}")
+        return {}
+
+
+def haal_vergaderingen_ibabs(sitename: str) -> list[dict]:
+    """Haal vergaderingen + documenten op via de iBabs SOAP API.
+
+    Geeft [{id, naam, datum, documenten: [{naam, url}]}].
+    """
+    date_from = (datetime.now() - timedelta(days=IBABS_TERUGKIJK_DAGEN)).strftime("%Y-%m-%dT00:00:00")
+    date_to = datetime.now().strftime("%Y-%m-%dT23:59:59")
+
+    vergadertypen_map = haal_vergadertypen_ibabs(sitename)
+
+    body = (
+        f"<tns:Sitename>{sitename}</tns:Sitename>"
+        f"<tns:StartDate>{date_from}</tns:StartDate>"
+        f"<tns:EndDate>{date_to}</tns:EndDate>"
+        "<tns:MetaDataOnly>false</tns:MetaDataOnly>"
+    )
+    root = ibabs_soap("GetMeetingsByDateRange", body)
+
+    vergaderingen = []
+    for meeting in root.iter(f"{{{IBABS_NS}}}iBabsMeeting"):
+        mt_id = _ibabs_tekst(meeting, "MeetingtypeId")
+        mt_naam = vergadertypen_map.get(mt_id, mt_id)
+
+        if not wil_vergadering(mt_naam):
+            continue
+
+        meeting_id = _ibabs_tekst(meeting, "Id")
+        datum_raw = _ibabs_tekst(meeting, "MeetingDate")
+        datum = datum_raw[:10] if datum_raw else ""
+
+        documenten = []
+        for doc in meeting.iter(f"{{{IBABS_NS}}}iBabsDocument"):
+            confidential = _ibabs_tekst(doc, "Confidential")
+            if confidential == "true":
+                continue
+            url = _ibabs_tekst(doc, "PublicDownloadURL")
+            if not url:
+                continue
+            bestandsnaam = _ibabs_tekst(doc, "FileName") or _ibabs_tekst(doc, "DisplayName")
+            if not bestandsnaam:
+                bestandsnaam = f"document-{_ibabs_tekst(doc, 'Id')}.pdf"
+            if not bestandsnaam.lower().endswith(".pdf"):
+                bestandsnaam += ".pdf"
+            documenten.append({"naam": bestandsnaam, "url": url})
+
+        vergaderingen.append({
+            "id": meeting_id,
+            "naam": mt_naam,
+            "datum": datum,
+            "documenten": documenten,
+        })
+
+    return vergaderingen
+
+
 # ── Lijsten ───────────────────────────────────────────────────────────────────
 
 def lijst_waterschappen():
@@ -165,8 +287,12 @@ def lijst_waterschappen():
     print(f"\n{len(waterschappen)} geconfigureerde waterschappen:\n")
     for slug, data in sorted(waterschappen.items()):
         naam = data.get("naam", slug)
-        ori = data.get("ori_index", "?")
-        print(f"  {slug:<30} {naam}  (ori: owi_{ori})")
+        if "ibabs_naam" in data:
+            bron = f"ibabs: {data['ibabs_naam']}.bestuurlijkeinformatie.nl"
+        else:
+            ori = data.get("ori_index", "?")
+            bron = f"ori: owi_{ori}"
+        print(f"  {slug:<30} {naam}  ({bron})")
     print()
 
 
@@ -305,13 +431,72 @@ def main():
     log(f"Waterschap: {naam}  {'(DROOG)' if DROOG else ''}")
     log("=" * 60)
 
+    ibabs_naam = ibabs_naam_voor(naam)
+    if ibabs_naam:
+        log(f"Bron: iBabs ({ibabs_naam}.bestuurlijkeinformatie.nl)")
+        vergaderingen = haal_vergaderingen_ibabs(ibabs_naam)
+        log(f"{len(vergaderingen)} vergaderingen gevonden")
+        if not vergaderingen:
+            log("Geen vergaderingen gevonden met de geconfigureerde vergadertypen.")
+            log(f"Actieve types: {', '.join(k for k, v in VERGADERTYPEN.items() if v)}")
+
+        totaal_nieuw = totaal_overgeslagen = totaal_fout = 0
+
+        for verg in vergaderingen:
+            docs = verg["documenten"]
+            if not docs:
+                continue
+
+            doelmap = vergadering_map(output_map, verg)
+            nieuwe_docs = [d for d in docs
+                           if not (doelmap / veilige_naam(d["naam"])).exists()]
+
+            if not nieuwe_docs:
+                totaal_overgeslagen += len(docs)
+                continue
+
+            log(f"\n  {verg['naam']} ({verg['datum']}) — {len(nieuwe_docs)} nieuw van {len(docs)}")
+
+            if not DROOG:
+                doelmap.mkdir(parents=True, exist_ok=True)
+
+            for doc in docs:
+                bestandsnaam = veilige_naam(doc["naam"])
+                bestemming = doelmap / bestandsnaam
+
+                if bestemming.exists():
+                    totaal_overgeslagen += 1
+                    continue
+
+                if DROOG:
+                    log(f"    [DROOG] {bestandsnaam}")
+                    totaal_nieuw += 1
+                    continue
+
+                try:
+                    grootte = download(doc["url"], bestemming)
+                    log(f"    + {bestandsnaam} ({grootte / 1024:.0f} KB)")
+                    totaal_nieuw += 1
+                except Exception as e:
+                    log(f"    ! FOUT: {bestandsnaam} — {e}")
+                    totaal_fout += 1
+
+        log("")
+        log("─" * 60)
+        log(f"Nieuw gedownload : {totaal_nieuw}")
+        log(f"Al aanwezig      : {totaal_overgeslagen}")
+        log(f"Fouten           : {totaal_fout}")
+        log(f"Opgeslagen in    : {output_map}")
+        log("─" * 60)
+        return
+
     index = find_index(naam)
     if not index:
         log(f"FOUT: geen ORI-index gevonden voor '{naam}'.")
         log("Gebruik --lijst-ori om beschikbare waterschappen te ontdekken.")
         log("Voeg het waterschap toe via: python3 toolkit.py nieuw-waterschap")
         sys.exit(1)
-    log(f"Index: {index}")
+    log(f"Bron: ORI-index {index}")
 
     vergaderingen = haal_vergaderingen(index)
     log(f"{len(vergaderingen)} vergaderingen gevonden")

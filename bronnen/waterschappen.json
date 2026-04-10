@@ -56,5 +56,37 @@
     "naam": "Waterschap Zuiderzeeland",
     "ori_index": "zuiderzeeland",
     "vergadertypen": ["ab beeldvormend", "ab besluitvormend", "college van dijkgraaf en heemraden"]
+  },
+  "drents-overijsselse-delta": {
+    "naam": "Waterschap Drents Overijsselse Delta",
+    "ibabs_naam": "wdodelta"
+  },
+  "rijn-en-ijssel": {
+    "naam": "Waterschap Rijn en IJssel",
+    "ibabs_naam": "wrij"
+  },
+  "rivierenland": {
+    "naam": "Waterschap Rivierenland",
+    "ibabs_naam": "rivierenland"
+  },
+  "schieland-en-de-krimpenerwaard": {
+    "naam": "Hoogheemraadschap van Schieland en de Krimpenerwaard",
+    "ibabs_naam": "hhsk"
+  },
+  "stichtse-rijnlanden": {
+    "naam": "Hoogheemraadschap De Stichtse Rijnlanden",
+    "ibabs_naam": "hdsr"
+  },
+  "vallei-en-veluwe": {
+    "naam": "Waterschap Vallei en Veluwe",
+    "ibabs_naam": "vallei-veluwe"
+  },
+  "rijnland": {
+    "naam": "Hoogheemraadschap van Rijnland",
+    "ibabs_naam": "rijnland"
+  },
+  "noorderzijlvest": {
+    "naam": "Waterschap Noorderzijlvest",
+    "ibabs_naam": "noorderzijlvest"
   }
 }
