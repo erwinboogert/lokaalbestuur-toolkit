@@ -144,7 +144,7 @@ Een kleine groep GRs publiceert nauwelijks openbaar. Ze zijn wettelijk verplicht
 
 ### Waterschappen
 
-Alle 21 Nederlandse waterschappen die via de ORI API beschikbaar zijn staan vooraf geconfigureerd. Downloaden:
+Alle 21 Nederlandse waterschappen staan vooraf geconfigureerd (13 via ORI API, 8 via iBabs SOAP). Downloaden:
 
 ```bash
 python3 toolkit.py scrape hollandse-delta
@@ -238,7 +238,7 @@ python3 toolkit.py check                        # installatiecheck
 lokaalbestuur-toolkit/
 ├── toolkit.py              hoofdinterface
 ├── scraper.py              gemeentedocumenten (ORI API)
-├── scraper_waterschap.py   waterschapstukken (ORI API)
+├── scraper_waterschap.py   waterschapstukken (ORI API + iBabs)
 ├── scraper_gr.py           GR-stukken
 ├── analyse.py              keyword-alerts
 ├── index.py                zoekindex (SQLite FTS5)
