@@ -101,20 +101,33 @@ De briefing wordt rijker naarmate je meer bronnen toevoegt. Gemeenschappelijke r
 
 GRs zijn samenwerkingsverbanden tussen gemeenten — voor jeugdzorg, milieu, veiligheid, sociale diensten. Ze voeren beleid uit dat de gemeente heeft uitbesteed. Als je wilt weten wat er in de praktijk van dat beleid terechtkomt, moet je daar kijken.
 
-Bij het aanmaken van een gemeente toont de toolkit automatisch welke GRs erbij horen:
+Na `toolkit.py onderzoek` detecteert de toolkit automatisch welke GRs in de vergaderstukken voorkomen en slaat die op als `regelingen.md` in de documentenmap. Zo weet je meteen met welke samenwerkingsverbanden de gemeente te maken heeft.
+
+Of je die GR-stukken ook kunt downloaden, hangt af van hoe de GR publiceert:
+
+**Via Notubiz — direct scrapebaar**
+GRs die via Notubiz publiceren zijn toegankelijk via dezelfde API als gemeenten. Voeg ze toe aan de catalogus en download ze:
+
+```bash
+python3 toolkit.py nieuwe-regeling    # slug en ORI-indexnaam invoeren
+python3 scraper_gr.py jeugdhulp-rijnmond
+```
+
+Voorbeelden: Jeugdhulp Rijnmond, GGD Rotterdam-Rijnmond, MRDH, Nieuw Reijerwaard.
+
+**Via eigen website — handmatig**
+Sommige GRs publiceren vergaderstukken op hun eigen website als PDF, maar zonder API. Download de stukken handmatig en zet ze in `~/Documents/notulen/regelingen/<naam>/`. De zoekindex werkt daarna gewoon.
+
+Je kunt dit handig automatiseren met Claude Code: vraag Claude om de vergaderpagina van de GR te bezoeken, de PDF-links te verzamelen en de bestanden te downloaden. Dat scheelt een scraper schrijven voor elke GR apart.
+
+Voorbeelden: DCMR Milieudienst Rijnmond (dcmr.nl/bestuur), De BedrijfsvoeringsPartner.
+
+**Geen portaal — WOO-verzoek**
+Een kleine groep GRs publiceert nauwelijks openbaar. Ze zijn wettelijk verplicht dat wel te doen (Wgr art. 22, Woo). Je kunt een formeel verzoek opstellen met:
 
 ```
-  12 gemeenschappelijke regelingen gevonden voor rotterdam:
-
-    1.  Beschermd wonen regio Rotterdam
-    2.  DCMR Milieudienst Rijnmond 2015
-    3.  Jeugdhulp Rijnmond
-    ...
-
-  Welke wil je toevoegen aan de catalogus?
+/wob-verzoek <onderwerp>
 ```
-
-GRs zijn wettelijk verplicht hun stukken openbaar te maken (Wgr art. 22, Woo). Scraping is beschikbaar zodra API-toegang is geregeld; in de tussentijd kun je via Claude Code een WOO-verzoek opstellen met `/wob-verzoek`.
 
 ### Waterschappen
 
