@@ -1,18 +1,22 @@
 """
 Scraper voor vergaderstukken van gemeenschappelijke regelingen (GRs)
-Bronnen: Open Raadsinformatie API (ORI) of Notubiz API direct
+Bronnen: Open Raadsinformatie API (ORI), Notubiz API direct, of iBabs SOAP API
 
 Gemeenschappelijke regelingen zijn samenwerkingsverbanden tussen gemeenten:
 veiligheidsregio's, sociale diensten, omgevingsdiensten, jeugdhulpregio's.
 Ze vergaderen openbaar maar worden nauwelijks journalistiek gevolgd.
 
-De scraper ondersteunt twee bronnen:
+De scraper ondersteunt drie bronnen:
   - ORI API: GRs die als gemeente-index in ORI staan (ori_-prefix)
   - Notubiz API direct: elke GR met een notubiz_id in bronnen/regelingen.json
+  - iBabs SOAP API: elke GR met een ibabs_naam in bronnen/regelingen.json
 
 De Notubiz API is volledig openbaar. Elk Notubiz-portaal van een GR heeft
 een organisatie-ID dat je kunt opzoeken via:
     python3 scraper_gr.py --zoek <naam>
+
+De iBabs Sitename vind je in de URL van het vergaderportaal van de GR,
+bijv. https://dcmr.bestuurlijkeinformatie.nl → ibabs_naam: "dcmr"
 
 Gebruik:
     python3 scraper_gr.py nieuw-reijerwaard      # download vergaderstukken
@@ -32,6 +36,7 @@ import json
 import urllib.request
 import re
 import logging
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -76,6 +81,11 @@ API_BASE = "https://api.openraadsinformatie.nl/v1/elastic"
 NOTUBIZ_API = "https://api.notubiz.nl"
 NOTUBIZ_VERSION = "1.17.0"
 NOTUBIZ_TERUGKIJK_DAGEN = 730  # ~2 jaar
+
+IBABS_ENDPOINT = "https://wcf.ibabs.eu/api/Public.svc"
+IBABS_NS = "http://tempuri.org/"
+IBABS_TERUGKIJK_DAGEN = 730  # ~2 jaar
+
 DROOG = "--droog" in sys.argv
 
 
@@ -272,6 +282,125 @@ def haal_documenten_notubiz(meeting_id: str) -> list[dict]:
     return documenten
 
 
+# ── iBabs SOAP API ────────────────────────────────────────────────────────────
+
+def ibabs_naam_voor(naam: str) -> str | None:
+    """Lees ibabs_naam uit regelingen.json voor de opgegeven GR."""
+    pad = BRONNEN_MAP / "regelingen.json"
+    if not pad.exists():
+        return None
+    try:
+        config = json.loads(pad.read_text(encoding="utf-8"))
+        return config.get(naam, {}).get("ibabs_naam")
+    except Exception:
+        return None
+
+
+def ibabs_soap(methode: str, body_xml: str) -> ET.Element:
+    """Doe een SOAP-verzoek naar de iBabs API en geef het root-element terug."""
+    envelope = (
+        '<?xml version="1.0" encoding="utf-8"?>'
+        '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
+        ' xmlns:tns="http://tempuri.org/">'
+        "<soap:Body>"
+        f"<tns:{methode}>"
+        f"{body_xml}"
+        f"</tns:{methode}>"
+        "</soap:Body>"
+        "</soap:Envelope>"
+    )
+    req = urllib.request.Request(
+        IBABS_ENDPOINT,
+        data=envelope.encode("utf-8"),
+        headers={
+            "Content-Type": "text/xml; charset=utf-8",
+            "SOAPAction": f'"http://tempuri.org/IPublic/{methode}"',
+            "User-Agent": "Mozilla/5.0",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return ET.fromstring(r.read())
+
+
+def _ibabs_tekst(el: ET.Element, tag: str) -> str:
+    """Haal tekst op van een direct child-element in de iBabs-namespace."""
+    child = el.find(f"{{{IBABS_NS}}}{tag}")
+    return (child.text or "").strip() if child is not None else ""
+
+
+def haal_vergadertypen_ibabs(sitename: str) -> dict[str, str]:
+    """Geeft {id: naam} voor alle vergadertypen van een iBabs-organisatie."""
+    body = f"<tns:Sitename>{sitename}</tns:Sitename>"
+    try:
+        root = ibabs_soap("GetMeetingtypes", body)
+        result = {}
+        for mt in root.iter(f"{{{IBABS_NS}}}iBabsMeetingtype"):
+            mt_id = _ibabs_tekst(mt, "Id")
+            mt_naam = _ibabs_tekst(mt, "Name")
+            if mt_id:
+                result[mt_id] = mt_naam
+        return result
+    except Exception as e:
+        log(f"  ! GetMeetingtypes mislukt: {e}")
+        return {}
+
+
+def haal_vergaderingen_ibabs(sitename: str) -> list[dict]:
+    """Haal vergaderingen + documenten op via de iBabs SOAP API.
+
+    Geeft [{id, naam, datum, documenten: [{naam, url}]}].
+    """
+    date_from = (datetime.now() - timedelta(days=IBABS_TERUGKIJK_DAGEN)).strftime("%Y-%m-%dT00:00:00")
+    date_to = datetime.now().strftime("%Y-%m-%dT23:59:59")
+
+    vergadertypen_map = haal_vergadertypen_ibabs(sitename)
+
+    body = (
+        f"<tns:Sitename>{sitename}</tns:Sitename>"
+        f"<tns:StartDate>{date_from}</tns:StartDate>"
+        f"<tns:EndDate>{date_to}</tns:EndDate>"
+        "<tns:MetaDataOnly>false</tns:MetaDataOnly>"
+    )
+    root = ibabs_soap("GetMeetingsByDateRange", body)
+
+    vergaderingen = []
+    for meeting in root.iter(f"{{{IBABS_NS}}}iBabsMeeting"):
+        mt_id = _ibabs_tekst(meeting, "MeetingtypeId")
+        mt_naam = vergadertypen_map.get(mt_id, mt_id)
+
+        if not wil_vergadering(mt_naam):
+            continue
+
+        meeting_id = _ibabs_tekst(meeting, "Id")
+        datum_raw = _ibabs_tekst(meeting, "MeetingDate")
+        datum = datum_raw[:10] if datum_raw else ""
+
+        # Verzamel alle documenten (meeting-niveau én agenda-items) recursief
+        documenten = []
+        for doc in meeting.iter(f"{{{IBABS_NS}}}iBabsDocument"):
+            confidential = _ibabs_tekst(doc, "Confidential")
+            if confidential == "true":
+                continue
+            url = _ibabs_tekst(doc, "PublicDownloadURL")
+            if not url:
+                continue
+            bestandsnaam = _ibabs_tekst(doc, "FileName") or _ibabs_tekst(doc, "DisplayName")
+            if not bestandsnaam:
+                bestandsnaam = f"document-{_ibabs_tekst(doc, 'Id')}.pdf"
+            if not bestandsnaam.lower().endswith(".pdf"):
+                bestandsnaam += ".pdf"
+            documenten.append({"naam": bestandsnaam, "url": url})
+
+        vergaderingen.append({
+            "id": meeting_id,
+            "naam": mt_naam,
+            "datum": datum,
+            "documenten": documenten,
+        })
+
+    return vergaderingen
+
+
 def laad_regeling_config(naam: str) -> None:
     """Laad vergadertypen uit regelingen.json voor de opgegeven GR."""
     global VERGADERTYPEN
@@ -306,6 +435,8 @@ def lijst_regelingen():
         naam = data.get("naam", slug)
         if data.get("notubiz_id"):
             bron = f"notubiz:{data['notubiz_id']}"
+        elif data.get("ibabs_naam"):
+            bron = f"ibabs:{data['ibabs_naam']}"
         elif data.get("ori_index"):
             bron = f"ori:{data['ori_index']}"
         else:
@@ -477,6 +608,7 @@ def main():
     log("=" * 60)
 
     notubiz_id = notubiz_id_voor(naam)
+    ibabs_naam = ibabs_naam_voor(naam)
 
     if notubiz_id:
         # ── Notubiz direct ────────────────────────────────────────────
@@ -520,11 +652,53 @@ def main():
                     log(f"    ! FOUT: {doc['naam']} — {e}")
                     totaal_fout += 1
 
+    elif ibabs_naam:
+        # ── iBabs SOAP API ────────────────────────────────────────────
+        log(f"Bron: iBabs API (sitename={ibabs_naam})")
+        vergaderingen = haal_vergaderingen_ibabs(ibabs_naam)
+        log(f"{len(vergaderingen)} vergaderingen gevonden")
+
+        totaal_nieuw = totaal_overgeslagen = totaal_fout = 0
+
+        for verg in vergaderingen:
+            docs = verg["documenten"]
+            if not docs:
+                continue
+
+            doelmap = vergadering_map(output_map, verg)
+            nieuwe_docs = [d for d in docs if not (doelmap / d["naam"]).exists()]
+
+            if not nieuwe_docs:
+                totaal_overgeslagen += len(docs)
+                continue
+
+            log(f"\n  {verg['naam']} ({verg['datum']}) — {len(nieuwe_docs)} nieuw van {len(docs)}")
+
+            if not DROOG:
+                doelmap.mkdir(parents=True, exist_ok=True)
+
+            for doc in docs:
+                bestemming = doelmap / doc["naam"]
+                if bestemming.exists():
+                    totaal_overgeslagen += 1
+                    continue
+                if DROOG:
+                    log(f"    [DROOG] {doc['naam']}")
+                    totaal_nieuw += 1
+                    continue
+                try:
+                    grootte = download(doc["url"], bestemming)
+                    log(f"    + {doc['naam']} ({grootte / 1024:.0f} KB)")
+                    totaal_nieuw += 1
+                except Exception as e:
+                    log(f"    ! FOUT: {doc['naam']} — {e}")
+                    totaal_fout += 1
+
     else:
         # ── ORI API ───────────────────────────────────────────────────
         index = find_index(naam)
         if not index:
-            log(f"FOUT: geen ORI-index of notubiz_id gevonden voor '{naam}'.")
+            log(f"FOUT: geen ORI-index, notubiz_id of ibabs_naam gevonden voor '{naam}'.")
             log("Gebruik --lijst-ori om beschikbare GRs in ORI te ontdekken.")
             log("Gebruik --zoek <naam> om een Notubiz-organisatie op te zoeken.")
             log("Voeg de GR toe via: python3 toolkit.py nieuwe-regeling")

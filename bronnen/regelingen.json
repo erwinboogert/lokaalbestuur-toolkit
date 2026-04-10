@@ -1,5 +1,5 @@
 {
-  "_opmerking": "Geconfigureerde gemeenschappelijke regelingen. Veld 'notubiz_id' activeert directe Notubiz-scraping (geen API-sleutel nodig). Zoek het ID van een nieuwe GR met: python3 scraper_gr.py --zoek <naam>",
+  "_opmerking": "Geconfigureerde gemeenschappelijke regelingen. Veld 'notubiz_id' activeert Notubiz-scraping. Veld 'ibabs_naam' activeert iBabs SOAP-scraping (sitename = subdomein van het vergaderportaal, bijv. dcmr.bestuurlijkeinformatie.nl → 'dcmr'). Zonder beide velden wordt ORI geprobeerd.",
   "_vergadertypen_standaard": ["algemeen bestuur", "dagelijks bestuur", "portefeuillehoudersoverleg"],
 
   "nieuw-reijerwaard": {
