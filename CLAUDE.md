@@ -19,8 +19,8 @@ Een journalistiek onderzoekstool waarmee je openbare vergaderstukken van Nederla
   - `rode-vlaggen.md` — rode-vlaggen toets na een onderzoekssessie (7 categorieën)
   - `wederhoor.md` — gerichte vragen per partij op basis van de stukken
   - `bronnenbrief.md` — eerste contactbrief aan een bron of betrokkene
-- `skills/` — systeembrede Claude Code skills (kopieer naar `~/.claude/skills/` voor gebruik)
-- `.claude/skills/` — toolkit-specifieke skills, automatisch beschikbaar in dit project
+- `skills/` — systeembrede Claude Code skills (kopieer naar `~/.claude/commands/` voor gebruik)
+- `.claude/commands/` — toolkit-specifieke slash commands, automatisch beschikbaar in dit project
 - `checklists/` — rode-vlagchecklist voor lokaal bestuurlijk onderzoek
 
 ## Beschikbare skills in dit project
@@ -28,7 +28,7 @@ Een journalistiek onderzoekstool waarmee je openbare vergaderstukken van Nederla
 - `/rapport-opslaan` — sla de analyse op als rapport en bied de alert-instelling aan
 - `/alert-beoordelen` — beoordeel een binnengekomen alert op urgentie en vervolgactie
 - `/trefwoorden-verfijnen` — analyseer en verbeter de trefwoorden van een bestaand dossier
-- `/wob-verzoek` — genereer een formeel WOO/WOB-verzoek op basis van een gevonden onderwerp
+- `/woo-verzoek` — genereer een formeel Woo-verzoek op basis van een gevonden onderwerp
 
 ## Documenten staan hier
 
@@ -46,6 +46,15 @@ claude ~/Documents/notulen/<gemeente>       # Claude Code openen
 
 Plak de gegenereerde briefing vóór je onderzoeksvraag. Claude weet dan welke bronnen er zijn (gemeente, GRs, waterschappen), hoe de zoekindex te gebruiken, en welk type organisatie relevant is voor welk onderwerp.
 
+## Werkwijze voor Claude na het downloaden
+
+Na een succesvolle scraper-run altijd automatisch:
+1. `python3 toolkit.py onderzoek <gemeente>` draaien (bijwerkt de zoekindex en genereert de bronnencheck)
+2. De gevonden gemeenschappelijke regelingen en het relevante waterschap tonen
+3. Aanbieden om de GRs en/of het waterschap ook te downloaden — de gebruiker beslist
+
+Dit geldt ook na het downloaden van een waterschap of GR. Niet wachten tot de gebruiker erom vraagt.
+
 ## Optioneel: automatische monitoring
 
 ```
@@ -61,7 +70,7 @@ Bij een match verschijnt een macOS-melding en staat een alertrapport klaar in `~
 - Gestructureerde analyse: gebruik `prompts/raadsstukken-analyse.md`
 - Rapport opslaan: `/rapport-opslaan <onderwerp> <orgaan>`
 - Alert beoordelen: `/alert-beoordelen <orgaan> <dossier>`
-- WOB-verzoek opstellen: `/wob-verzoek <onderwerp>`
+- Woo-verzoek opstellen: `/woo-verzoek <onderwerp>`
 - Rode vlaggen beoordelen: verwijs naar `checklists/red-flag-lokale-overheid.md`
 - Wederhoor voorbereiden: gebruik `prompts/wederhoor.md`
 - Bronnen contacteren: gebruik `prompts/bronnenbrief.md`
@@ -73,6 +82,8 @@ Deze repository is publiek. Controleer altijd voor een commit:
 - Geen dossier- of orgaan-configs met echte namen (tenzij meegeleverde voorbeeldbestanden)
 - Geen alertrapporten, analyseresultaten of scraper-output
 - Geen paden of bestandsnamen herleidbaar naar een specifieke gebruiker of gemeente
+
+**Orgaan-configs horen niet in de projectmap.** Configs voor echte organen (zoals `veere.json`) worden aangemaakt in `~/Documents/notulen/organen/` — dat is de map die de toolkit daadwerkelijk leest. De `organen/`-map in de projectmap bevat alleen voorbeeldbestanden.
 
 ## Python-omgeving
 

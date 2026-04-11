@@ -1,11 +1,11 @@
 ---
-description: Genereer een formeel WOO/WOB-verzoek op basis van een gevonden onderwerp
+description: Genereer een formeel Woo-verzoek op basis van een gevonden onderwerp
 argument-hint: <onderwerp of beschrijving van wat je wilt opvragen>
 ---
 
-# WOO/WOB-verzoek opstellen
+# Woo-verzoek opstellen
 
-De gebruiker wil een formeel verzoek indienen op grond van de Wet open overheid (Woo), voorheen de Wet openbaarheid van bestuur (WOB).
+De gebruiker wil een formeel verzoek indienen op grond van de Wet open overheid (Woo).
 
 Onderwerp van het verzoek: $ARGUMENTS
 
