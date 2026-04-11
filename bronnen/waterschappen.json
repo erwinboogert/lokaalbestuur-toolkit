@@ -38,7 +38,8 @@
   },
   "scheldestromen": {
     "naam": "Waterschap Scheldestromen",
-    "ori_index": "scheldestromen"
+    "ori_index": "scheldestromen",
+    "vergadertypen": ["algemene vergadering", "av ", "commissie"]
   },
   "vechtstromen": {
     "naam": "Waterschap Vechtstromen",
