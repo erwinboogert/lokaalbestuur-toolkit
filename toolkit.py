@@ -278,6 +278,114 @@ def nieuw_dossier():
     print()
 
 
+# ── Notubiz-catalogus ─────────────────────────────────────────────────────────
+
+_NOTUBIZ_PREFIXES = re.compile(
+    r"^(gemeenschappelijke?\s+regeling\s*[-–]?\s*"
+    r"|samenwerkingsverband\s+"
+    r"|samenwerkingsorgaan\s+"
+    r"|uitvoeringsorganisatie\s+)",
+    re.IGNORECASE,
+)
+
+_NOTUBIZ_RUIS = re.compile(
+    r"\b(demo|test|pilot|zzz|zz|sales|circle|poc|screencasts|presentatie)\b",
+    re.IGNORECASE,
+)
+
+
+def _normaliseer_gr_naam(naam: str) -> str:
+    """Strip bekende prefixen en normaliseer voor vergelijking."""
+    naam = _NOTUBIZ_PREFIXES.sub("", naam.strip())
+    return re.sub(r"[\s\-_]+", " ", naam.lower()).strip()
+
+
+def laad_notubiz_catalogus() -> dict[str, dict]:
+    """Laad de Notubiz-organisatiecatalogus; bouw opnieuw als ouder dan 30 dagen.
+
+    Geeft {genormaliseerde_naam: {"id": int, "naam": str}}.
+    """
+    pad = TOOLKIT_MAP / "bronnen" / "notubiz_catalogus.json"
+    if pad.exists():
+        try:
+            data = json.loads(pad.read_text(encoding="utf-8"))
+            if data.get("_gebouwd"):
+                from datetime import timezone
+                gebouwd = datetime.fromisoformat(data["_gebouwd"])
+                if gebouwd.tzinfo is None:
+                    gebouwd = gebouwd.replace(tzinfo=timezone.utc)
+                if (datetime.now(tz=timezone.utc) - gebouwd).days < 30:
+                    return {k: v for k, v in data.items() if not k.startswith("_")}
+        except Exception:
+            pass
+
+    return _bouw_notubiz_catalogus(pad)
+
+
+def _bouw_notubiz_catalogus(pad: Path) -> dict[str, dict]:
+    """Haal alle Notubiz-organisaties op en sla op als lookup-tabel."""
+    try:
+        url = "https://api.notubiz.nl/organisations?format=json&version=1.17.0"
+        req = urllib.request.Request(
+            url, headers={"Accept": "application/json", "User-Agent": "Mozilla/5.0"}
+        )
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = json.loads(r.read())
+        orgs = data["organisations"]["organisation"]
+    except Exception:
+        return {}
+
+    catalogus: dict[str, dict] = {}
+    for org in orgs:
+        naam = org.get("name", "").strip()
+        org_id = org.get("@attributes", {}).get("id")
+        if not naam or not org_id:
+            continue
+        if _NOTUBIZ_RUIS.search(naam):
+            continue
+        norm = _normaliseer_gr_naam(naam)
+        if len(norm) < 3:
+            continue
+        catalogus[norm] = {"id": org_id, "naam": naam}
+
+    from datetime import timezone
+    catalogus["_gebouwd"] = datetime.now(tz=timezone.utc).isoformat()
+    pad.write_text(json.dumps(catalogus, indent=2, ensure_ascii=False), encoding="utf-8")
+    return {k: v for k, v in catalogus.items() if not k.startswith("_")}
+
+
+def zoek_notubiz_id(naam: str) -> dict | None:
+    """Zoek een Notubiz-organisatie op naam. Geeft {"id", "naam"} of None."""
+    catalogus = laad_notubiz_catalogus()
+    if not catalogus:
+        return None
+    zoek = _normaliseer_gr_naam(naam)
+    # Exacte match
+    if zoek in catalogus:
+        return catalogus[zoek]
+    # Substring-match: zoekterm bevat catalogusnaam of omgekeerd
+    for norm, entry in catalogus.items():
+        if len(norm) < 4:
+            continue
+        if norm in zoek or zoek in norm:
+            return entry
+    return None
+
+
+def ververs_notubiz_catalogus():
+    """Forceer verversing van de Notubiz-organisatiecatalogus."""
+    pad = TOOLKIT_MAP / "bronnen" / "notubiz_catalogus.json"
+    print("\n  Notubiz-catalogus ophalen…")
+    resultaat = _bouw_notubiz_catalogus(pad)
+    if resultaat:
+        print(f"  ✓ {len(resultaat)} organisaties opgeslagen in bronnen/notubiz_catalogus.json")
+    else:
+        print("  Mislukt — controleer je internetverbinding.")
+    print()
+
+
+# ── GR-detectie via overheid.nl ───────────────────────────────────────────────
+
 def haal_grs_voor_gemeente(slug: str) -> list[dict]:
     """Haal de GRs op waaraan een gemeente deelneemt via organisaties.overheid.nl."""
     mapping_pad = TOOLKIT_MAP / "bronnen" / "gemeenten_overheid.json"
@@ -418,25 +526,39 @@ def nieuwe_gemeente():
                     except Exception:
                         reg_config = {}
 
+                    print()
+                    handmatig = []
                     for gr in gekozen:
                         bestaand = reg_config.get(gr["slug"], {})
                         deelnemers = bestaand.get("deelnemers", [])
                         if orgaan not in deelnemers:
                             deelnemers.append(orgaan)
-                        reg_config[gr["slug"]] = {
-                            **bestaand,
-                            "naam": gr["naam"],
-                            "brontype": bestaand.get("brontype", "geen"),
-                            "deelnemers": deelnemers,
-                            "_opmerking": f"Bron onbekend — controleer of deze GR via Notubiz of eigen website publiceert.",
-                        }
+
+                        notubiz = zoek_notubiz_id(gr["naam"]) if not bestaand.get("notubiz_id") else None
+                        if notubiz:
+                            reg_config[gr["slug"]] = {
+                                **bestaand,
+                                "naam": gr["naam"],
+                                "notubiz_id": notubiz["id"],
+                                "deelnemers": deelnemers,
+                            }
+                            print(f"  ✓ {gr['naam']} — Notubiz-ID {notubiz['id']} automatisch gevonden")
+                        else:
+                            reg_config[gr["slug"]] = {
+                                **bestaand,
+                                "naam": gr["naam"],
+                                "brontype": bestaand.get("brontype", "geen"),
+                                "deelnemers": deelnemers,
+                            }
+                            print(f"  ✓ {gr['naam']} — brontype onbekend (niet gevonden in Notubiz)")
+                            handmatig.append(gr["naam"])
+
                     reg_pad.write_text(json.dumps(reg_config, indent=2, ensure_ascii=False), encoding="utf-8")
-                    print()
-                    for gr in gekozen:
-                        print(f"  ✓ Toegevoegd: {gr['naam']} ({gr['slug']})")
-                    print()
-                    print("  Brontype is ingesteld op 'geen' — controleer per GR of er een publieke bron is.")
-                    print("  Zie: python3 toolkit.py gr-info <slug>  (nog te bouwen)")
+                    if handmatig:
+                        print()
+                        print("  Controleer voor deze GRs handmatig of ze via iBabs of een eigen portaal publiceren:")
+                        for naam in handmatig:
+                            print(f"    - {naam}")
         elif orgaan in json.loads((TOOLKIT_MAP / "bronnen" / "gemeenten_overheid.json").read_text(encoding="utf-8")):
             print("  Geen GRs gevonden (of verbinding mislukt). Voeg later toe via: python3 toolkit.py nieuwe-regeling")
         else:
@@ -719,7 +841,7 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list, gevon
     regels.append("")
     regels.append("**Skills** — typ de opdracht in dit gesprek:")
     regels.append("")
-    skills_map = TOOLKIT_MAP / ".claude" / "skills"
+    skills_map = TOOLKIT_MAP / ".claude" / "commands"
     for pad in sorted(skills_map.glob("*.md")):
         naam = pad.stem
         beschrijving = naam
@@ -1403,6 +1525,8 @@ def main():
         onderzoek(rest)
     elif commando == "scrape":
         scrape(rest)
+    elif commando == "ververs-notubiz-catalogus":
+        ververs_notubiz_catalogus()
     else:
         print(f"\nOnbekend commando: '{commando}'")
         print(HELP_ALGEMEEN)
