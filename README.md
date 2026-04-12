@@ -34,22 +34,36 @@ python3 toolkit.py check    # controleert of alles klopt
 
 ## Aan de slag — in drie stappen
 
-### Stap 1 — Gemeente instellen en documenten downloaden
+### Stap 1 — Verkennen
+
+Voordat je iets downloadt, laat de toolkit zien welke bronnen beschikbaar zijn voor een gemeente: de bijbehorende veiligheidsregio, relevante gemeenschappelijke regelingen en het waterschap.
 
 ```bash
-python3 toolkit.py nieuw-orgaan
+python3 toolkit.py verkennen rotterdam
 ```
 
-Een wizard vraagt naar naam en type. Voor gemeenten zoekt de toolkit daarna automatisch op welke gemeenschappelijke regelingen (GRs) erbij horen en stelt die voor om toe te voegen. Daarna download je de documenten:
+Je hoeft nu geen keuze te maken. Alles wat hier verschijnt kun je later alsnog downloaden als het relevant wordt voor je onderzoek.
+
+### Stap 2 — Documenten downloaden
 
 ```bash
-python3 toolkit.py scrape rotterdam
+python3 scraper.py rotterdam
 ```
 
-Documenten komen in `~/Documents/notulen/rotterdam/`. Wil je eerst zien wat er gedownload wordt zonder iets op te slaan:
+Documenten komen in `~/Documents/notulen/rotterdam/`. Je kunt de periode beperken:
 
 ```bash
-python3 toolkit.py scrape rotterdam --droog
+python3 scraper.py rotterdam --jaren 1        # alleen het afgelopen jaar
+python3 scraper.py rotterdam --vanaf 2024-01-01   # vanaf een specifieke datum
+python3 scraper.py rotterdam --droog          # eerst zien wat er gedownload wordt
+```
+
+Wil je ook de veiligheidsregio, een GR of een waterschap downloaden:
+
+```bash
+python3 scraper_vr.py rotterdam-rijnmond
+python3 scraper_gr.py jeugdhulp-rijnmond
+python3 scraper_waterschap.py hollandse-delta
 ```
 
 ### Stap 2 — Onderzoeksomgeving voorbereiden
@@ -144,13 +158,25 @@ Een kleine groep GRs publiceert nauwelijks openbaar. Ze zijn wettelijk verplicht
 
 ### Waterschappen
 
-Alle 21 Nederlandse waterschappen staan vooraf geconfigureerd (13 via ORI API, 8 via iBabs SOAP). Downloaden:
+Alle 21 Nederlandse waterschappen staan vooraf geconfigureerd (13 via ORI API, 8 via iBabs SOAP). De toolkit weet welk waterschap bij welke gemeente hoort en toont dat automatisch bij `verkennen`. Downloaden:
 
 ```bash
-python3 toolkit.py scrape hollandse-delta
+python3 scraper_waterschap.py hollandse-delta
 ```
 
 Relevant bij onderwerpen als waterveiligheid, klimaatadaptatie, grondwater en rioolwaterzuivering.
+
+### Veiligheidsregio's
+
+Alle 25 Nederlandse veiligheidsregio's zijn opgenomen in de toolkit. De bijbehorende regio wordt automatisch getoond bij `verkennen`. Downloaden:
+
+```bash
+python3 scraper_vr.py rotterdam-rijnmond
+python3 scraper_vr.py --lijst              # toon alle 25 regio's
+python3 scraper_vr.py --welke rotterdam    # welke VR hoort bij een gemeente?
+```
+
+De scraper ondersteunt alle publicatievormen: eigen websites (22 regio's), iBabs (Brabant-Noord), en Notubiz (Zeeland). Relevant bij onderwerpen als brandweer, crisisbeheersing en rampenbestrijding.
 
 ---
 
@@ -193,13 +219,23 @@ Je hebt dit niet nodig voor een eerste onderzoek — het is aanvullend op de pri
 ## Alle commando's
 
 ```bash
-# Documenten
-python3 toolkit.py scrape <orgaan>              # download nieuwe stukken
-python3 toolkit.py scrape <orgaan> --droog      # droog uitvoeren (geen downloads)
+# Verkennen (altijd als eerste stap bij een nieuwe gemeente)
+python3 toolkit.py verkennen <gemeente>         # toon VR, GRs en waterschap
+
+# Documenten downloaden
+python3 scraper.py <gemeente>                   # raadsdocumenten gemeente
+python3 scraper.py <gemeente> --jaren 1         # alleen het afgelopen jaar
+python3 scraper.py <gemeente> --vanaf 2024-01-01  # vanaf een specifieke datum
+python3 scraper.py <gemeente> --droog           # droog uitvoeren (geen downloads)
+python3 scraper_vr.py <slug>                    # veiligheidsregio
+python3 scraper_vr.py --lijst                   # toon alle 25 veiligheidsregio's
+python3 scraper_vr.py --welke <gemeente>        # welke VR hoort bij gemeente?
+python3 scraper_waterschap.py <slug>            # waterschap
+python3 scraper_gr.py <slug>                    # gemeenschappelijke regeling
 python3 toolkit.py scrape --alles               # alle geconfigureerde organen bijwerken
 
 # Onderzoek
-python3 toolkit.py onderzoek <gemeente>         # bronnencheck + zoekindex + briefing
+python3 toolkit.py onderzoek <gemeente>         # zoekindex + Claude-briefing
 python3 index.py <gemeente> "zoekterm"          # zoek direct in de index
 
 # GRs ontdekken en instellen
@@ -239,10 +275,11 @@ lokaalbestuur-toolkit/
 ├── toolkit.py              hoofdinterface
 ├── scraper.py              gemeentedocumenten (ORI API)
 ├── scraper_waterschap.py   waterschapstukken (ORI API + iBabs)
-├── scraper_gr.py           GR-stukken
+├── scraper_gr.py           GR-stukken (ORI / Notubiz / iBabs)
+├── scraper_vr.py           veiligheidsregio's (website / Notubiz / iBabs)
 ├── analyse.py              keyword-alerts
 ├── index.py                zoekindex (SQLite FTS5)
-├── bronnen/                catalogussen (gemeenten, waterschappen, GRs)
+├── bronnen/                catalogussen (gemeenten, waterschappen, GRs, veiligheidsregio's)
 ├── organen/                configuratie per orgaan
 ├── dossiers/               configuratie per monitoringsdossier
 ├── prompts/                sjablonen voor onderzoeksgesprekken
@@ -255,5 +292,6 @@ lokaalbestuur-toolkit/
 │   ├── context.md              ← briefing voor Claude
 │   └── alerts/alert-2026-03-26.md
 ├── waterschappen/hollandse-delta/
-└── regelingen/jeugdhulp-rijnmond/
+├── regelingen/jeugdhulp-rijnmond/
+└── veiligheidsregios/rotterdam-rijnmond/
 ```

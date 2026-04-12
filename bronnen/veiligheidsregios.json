@@ -1,0 +1,156 @@
+{
+  "_opmerking": "Catalogus van alle 25 Nederlandse veiligheidsregio's. type=website: generieke PDF-scraper; type=notubiz: Notubiz API; type=ibabs: iBabs SOAP API. docs_url: pagina met downloadbare vergaderstukken.",
+  "amsterdam-amstelland": {
+    "naam": "Veiligheidsregio Amsterdam-Amstelland",
+    "type": "website",
+    "docs_url": "https://www.veiligheidsregioaa.nl/over-ons/bestuur/vergaderingen/",
+    "gemeenten": ["amsterdam", "aalsmeer", "amstelveen", "diemen", "ouder-amstel", "uithoorn"]
+  },
+  "brabant-noord": {
+    "naam": "Veiligheidsregio Brabant-Noord",
+    "type": "ibabs",
+    "ibabs_naam": "vrbn",
+    "docs_url": "https://vrbn.bestuurlijkeinformatie.nl/",
+    "gemeenten": ["s-hertogenbosch", "bernheze", "boekel", "boxtel", "heusden", "land-van-cuijk", "maashorst", "meierijstad", "oss", "sint-michielsgestel", "vught"]
+  },
+  "brabant-zuidoost": {
+    "naam": "Veiligheidsregio Brabant-Zuidoost",
+    "type": "website",
+    "docs_url": "https://www.vrbzo.nl/vergaderstukken-bestuur/",
+    "gemeenten": ["asten", "best", "bladel", "bergeijk", "cranendonck", "deurne", "eersel", "eindhoven", "geldrop-mierlo", "gemert-bakel", "heeze-leende", "helmond", "laarbeek", "nuenen", "oirschot", "reusel-de-mierden", "someren", "son-en-breugel", "valkenswaard", "veldhoven", "waalre"]
+  },
+  "drenthe": {
+    "naam": "Veiligheidsregio Drenthe",
+    "type": "website",
+    "docs_url": "https://www.vrd.nl/wat-wij-doen/bestuur/vergaderingen-algemeen-bestuur/",
+    "gemeenten": ["aa-en-hunze", "assen", "borger-odoorn", "coevorden", "de-wolden", "emmen", "hoogeveen", "meppel", "midden-drenthe", "noordenveld", "tynaarlo", "westerveld"]
+  },
+  "flevoland": {
+    "naam": "Veiligheidsregio Flevoland",
+    "type": "website",
+    "docs_url": "https://www.veiligheidsregioflevoland.nl/informatiecentrum/vergaderstukken/",
+    "gemeenten": ["almere", "dronten", "lelystad", "noordoostpolder", "urk", "zeewolde"]
+  },
+  "fryslan": {
+    "naam": "Veiligheidsregio Fryslân",
+    "type": "website",
+    "docs_url": "https://www.veiligheidsregiofryslan.nl/bestuurlijk/algemeen-en-dagelijks-bestuur/",
+    "gemeenten": ["achtkarspelen", "ameland", "dantumadiel", "de-fryske-marren", "harlingen", "heerenveen", "leeuwarden", "noardeast-fryslan", "ooststellingwerf", "opsterland", "schiermonnikoog", "smallingerland", "sudwest-fryslan", "terschelling", "tytsjerksteradiel", "vlieland", "waadhoeke", "weststellingwerf"]
+  },
+  "gelderland-midden": {
+    "naam": "Veiligheidsregio Gelderland-Midden",
+    "type": "website",
+    "docs_url": "https://vggm.nl/bestuurlijk/ons-bestuur/vergaderstukken",
+    "gemeenten": ["arnhem", "barneveld", "duiven", "ede", "lingewaard", "nijkerk", "overbetuwe", "renkum", "rheden", "rozendaal", "scherpenzeel", "wageningen", "zevenaar"]
+  },
+  "gelderland-zuid": {
+    "naam": "Veiligheidsregio Gelderland-Zuid",
+    "type": "website",
+    "docs_url": "https://vrgz.nl/bestuurlijk/vergaderstukken/",
+    "gemeenten": ["beuningen", "berg-en-dal", "buren", "culemborg", "druten", "heumen", "maasdriel", "neder-betuwe", "nijmegen", "tiel", "west-betuwe", "west-maas-en-waal", "wijchen", "zaltbommel"]
+  },
+  "gooi-en-vechtstreek": {
+    "naam": "Veiligheidsregio Gooi en Vechtstreek",
+    "type": "website",
+    "docs_url": "https://www.vrgooienvechtstreek.nl/agendas-en-verslagen-vergaderingen-algemeen-bestuur/",
+    "gemeenten": ["blaricum", "eemnes", "gooise-meren", "hilversum", "huizen", "laren", "wijdemeren"]
+  },
+  "groningen": {
+    "naam": "Veiligheidsregio Groningen",
+    "type": "website",
+    "docs_url": "https://veiligheidsregiogroningen.nl/over-ons/bestuur-vrg/overzicht-bestuurlijke-stukken/",
+    "gemeenten": ["eemsdelta", "groningen", "het-hogeland", "midden-groningen", "oldambt", "pekela", "stadskanaal", "veendam", "westerkwartier", "westerwolde"]
+  },
+  "haaglanden": {
+    "naam": "Veiligheidsregio Haaglanden",
+    "type": "website",
+    "docs_url": "https://www.vrh.nl/over-de-vrh/documenten/vergaderstukken",
+    "gemeenten": ["delft", "den-haag", "leidschendam-voorburg", "midden-delfland", "pijnacker-nootdorp", "rijswijk", "wassenaar", "westland", "zoetermeer"]
+  },
+  "hollands-midden": {
+    "naam": "Veiligheidsregio Hollands Midden",
+    "type": "website",
+    "docs_url": "https://www.vrhm.nl/documenten",
+    "gemeenten": ["alphen-aan-den-rijn", "bodegraven-reeuwijk", "gouda", "hillegom", "kaag-en-braassem", "katwijk", "krimpenerwaard", "leiden", "leiderdorp", "lisse", "nieuwkoop", "noordwijk", "oegstgeest", "teylingen", "voorschoten", "waddinxveen", "zoeterwoude"]
+  },
+  "ijsselland": {
+    "naam": "Veiligheidsregio IJsselland",
+    "type": "website",
+    "docs_url": "https://www.vrijsselland.nl/over-veiligheidsregio-ijsselland/bestuur-vergaderstukken/",
+    "gemeenten": ["dalfsen", "deventer", "hardenberg", "kampen", "olst-wijhe", "ommen", "raalte", "staphorst", "steenwijkerland", "zwartewaterland", "zwolle"]
+  },
+  "kennemerland": {
+    "naam": "Veiligheidsregio Kennemerland",
+    "type": "website",
+    "docs_url": "https://bestuursinformatie.vrk.nl/vergaderingen",
+    "gemeenten": ["beverwijk", "bloemendaal", "haarlem", "haarlemmermeer", "heemskerk", "heemstede", "uitgeest", "velsen", "zandvoort"]
+  },
+  "limburg-noord": {
+    "naam": "Veiligheidsregio Limburg-Noord",
+    "type": "website",
+    "docs_url": "https://www.vrln.nl/over-ons/bestuur-en-organisatie/algemeen-bestuur-ab",
+    "gemeenten": ["beesel", "bergen-l", "gennep", "horst-aan-de-maas", "leudal", "maasgouw", "mook-en-middelaar", "peel-en-maas", "roerdalen", "roermond", "venlo", "venray", "weert"]
+  },
+  "limburg-zuid": {
+    "naam": "Veiligheidsregio Zuid-Limburg",
+    "type": "website",
+    "docs_url": "https://www.vrzl.nl/over-ons/bestuur/vergaderstukken/",
+    "gemeenten": ["brunssum", "eijsden-margraten", "gulpen-wittem", "heerlen", "kerkrade", "landgraaf", "maastricht", "meerssen", "simpelveld", "sittard-geleen", "stein", "vaals", "valkenburg-aan-de-geul", "voerendaal"]
+  },
+  "midden-en-west-brabant": {
+    "naam": "Veiligheidsregio Midden- en West-Brabant",
+    "type": "website",
+    "docs_url": "https://www.vrmwb.nl/organisatie/besluiten-algemeen-bestuur",
+    "opmerking": "Bijlagen alleen op aanvraag — agenda's en besluitenlijsten wel online",
+    "gemeenten": ["alphen-chaam", "altena", "baarle-nassau", "bergen-op-zoom", "breda", "dongen", "drimmelen", "etten-leur", "geertruidenberg", "gilze-en-rijen", "goirle", "halderberge", "hilvarenbeek", "loon-op-zand", "moerdijk", "oosterhout", "roosendaal", "rucphen", "steenbergen", "tilburg", "waalwijk", "woensdrecht", "zundert"]
+  },
+  "noord-en-oost-gelderland": {
+    "naam": "Veiligheidsregio Noord- en Oost-Gelderland",
+    "type": "website",
+    "docs_url": "https://www.vnog.nl/vergaderstukken-algemeen-bestuur",
+    "gemeenten": ["aalten", "apeldoorn", "berkelland", "bronckhorst", "brummen", "doesburg", "doetinchem", "elburg", "epe", "ermelo", "harderwijk", "hattem", "heerde", "lochem", "montferland", "nunspeet", "oldebroek", "oost-gelre", "oude-ijsselstreek", "putten", "voorst", "winterswijk", "zutphen"]
+  },
+  "noord-holland-noord": {
+    "naam": "Veiligheidsregio Noord-Holland Noord",
+    "type": "website",
+    "docs_url": "https://www.vrnhn.nl/over-ons/algemeen-bestuur",
+    "gemeenten": ["alkmaar", "bergen-nh", "castricum", "den-helder", "dijk-en-waard", "drechterland", "enkhuizen", "heiloo", "hollands-kroon", "hoorn", "koggenland", "medemblik", "opmeer", "schagen", "stede-broec", "texel"]
+  },
+  "rotterdam-rijnmond": {
+    "naam": "Veiligheidsregio Rotterdam-Rijnmond",
+    "type": "website",
+    "docs_url": "https://vr-rr.nl/over/bestuur-directie/",
+    "gemeenten": ["albrandswaard", "barendrecht", "capelle-aan-den-ijssel", "goeree-overflakkee", "krimpen-aan-den-ijssel", "lansingerland", "maassluis", "nissewaard", "ridderkerk", "rotterdam", "schiedam", "vlaardingen", "voorne-aan-zee"]
+  },
+  "twente": {
+    "naam": "Veiligheidsregio Twente",
+    "type": "website",
+    "docs_url": "https://www.vrtwente.nl/documenten/vergaderstukken/vergaderstukken-algemeen-bestuur",
+    "gemeenten": ["almelo", "borne", "dinkelland", "enschede", "haaksbergen", "hellendoorn", "hengelo", "hof-van-twente", "losser", "oldenzaal", "rijssen-holten", "tubbergen", "twenterand", "wierden"]
+  },
+  "utrecht": {
+    "naam": "Veiligheidsregio Utrecht",
+    "type": "website",
+    "docs_url": "https://vru.nl/wij-zijn-de-vru/bestuur/vergaderingen-en-vergaderstukken/",
+    "gemeenten": ["amersfoort", "baarn", "bunnik", "bunschoten", "de-bilt", "de-ronde-venen", "houten", "ijsselstein", "leusden", "lopik", "montfoort", "nieuwegein", "oudewater", "renswoude", "rhenen", "soest", "stichtse-vecht", "utrecht", "utrechtse-heuvelrug", "veenendaal", "vijfheerenlanden", "wijk-bij-duurstede", "woerden", "woudenberg", "zeist"]
+  },
+  "zaanstreek-waterland": {
+    "naam": "Veiligheidsregio Zaanstreek-Waterland",
+    "type": "website",
+    "docs_url": "https://www.veiligheidsregiozaanstreekwaterland.nl/organisatie/bestuur/agendas-vergaderstukken-en-verslagen",
+    "gemeenten": ["edam-volendam", "landsmeer", "oostzaan", "purmerend", "waterland", "wormerland", "zaanstad"]
+  },
+  "zeeland": {
+    "naam": "Veiligheidsregio Zeeland",
+    "type": "notubiz",
+    "notubiz_id": 2481,
+    "docs_url": "https://www.veiligheidsregiozeeland.nl/documentatie/ab-vergaderstukken",
+    "gemeenten": ["borsele", "goes", "hulst", "kapelle", "middelburg", "noord-beveland", "reimerswaal", "schouwen-duiveland", "sluis", "terneuzen", "tholen", "veere", "vlissingen"]
+  },
+  "zuid-holland-zuid": {
+    "naam": "Veiligheidsregio Zuid-Holland Zuid",
+    "type": "website",
+    "docs_url": "https://www.zhzveilig.nl/bestuur/vergaderingen",
+    "gemeenten": ["alblasserdam", "dordrecht", "hardinxveld-giessendam", "hendrik-ido-ambacht", "hoeksche-waard", "molenlanden", "papendrecht", "sliedrecht", "zwijndrecht"]
+  }
+}

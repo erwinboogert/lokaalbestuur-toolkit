@@ -202,6 +202,22 @@ def _toon_bronnen_status():
         except Exception:
             pass
 
+    # Veiligheidsregio's
+    vr_pad = TOOLKIT_MAP / "bronnen" / "veiligheidsregios.json"
+    if vr_pad.exists():
+        try:
+            vr_cfg = json.loads(vr_pad.read_text(encoding="utf-8"))
+            n_vr = sum(
+                1 for k, v in vr_cfg.items()
+                if not k.startswith("_")
+                and (OUTPUT_BASIS / "veiligheidsregios" / k).exists()
+                and any((OUTPUT_BASIS / "veiligheidsregios" / k).rglob("*.pdf"))
+            )
+            if n_vr:
+                regels.append(f"  Veiligheidsregio's  {n_vr} gedownload")
+        except Exception:
+            pass
+
     if regels:
         print()
         print("Actieve bronnen:")
@@ -740,6 +756,7 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list, gevon
                 "gemeente": "Gemeente",
                 "gr": "Gemeenschappelijke regeling",
                 "waterschap": "Waterschap",
+                "veiligheidsregio": "Veiligheidsregio",
             }
             label = type_labels.get(b["type"], b["type"])
             regels.append(f"**{b['naam']}** ({label}) — {b['n_docs']} documenten")
@@ -1097,6 +1114,33 @@ def onderzoek(args: list):
         except Exception:
             pass
 
+    # Veiligheidsregio's
+    vr_pad = TOOLKIT_MAP / "bronnen" / "veiligheidsregios.json"
+    if vr_pad.exists():
+        try:
+            vr_config = {
+                k: v for k, v in json.loads(vr_pad.read_text(encoding="utf-8")).items()
+                if not k.startswith("_")
+            }
+            for slug, info in vr_config.items():
+                if gemeente not in info.get("gemeenten", []):
+                    continue
+                naam = info.get("naam", slug)
+                vr_map = OUTPUT_BASIS / "veiligheidsregios" / slug
+                if vr_map.exists() and any(vr_map.rglob("*.pdf")):
+                    n = sum(1 for _ in vr_map.rglob("*.pdf"))
+                    beschikbaar.append({
+                        "naam": naam, "type": "veiligheidsregio", "n_docs": n,
+                        "pad": str(vr_map), "index": False, "slug": slug,
+                    })
+                else:
+                    ontbrekend.append({
+                        "naam": naam, "type": "veiligheidsregio",
+                        "commando": f"python3 scraper_vr.py {slug}",
+                    })
+        except Exception:
+            pass
+
     # Resultaat tonen
     print()
     if beschikbaar:
@@ -1404,25 +1448,158 @@ def _scrape_orgaan(slug: str, orgaan_type: str, droog: bool = False):
     print()
 
 
+def verkennen(args: list):
+    """Toon welke GRs, veiligheidsregio en waterschap horen bij een gemeente — zonder te downloaden."""
+    if not args:
+        print("\nGebruik: python3 toolkit.py verkennen <gemeente>\n")
+        return
+
+    gemeente = args[0].lower()
+    naam = gemeente.capitalize()
+
+    print()
+    print(f"  We gaan de raadsdocumenten van gemeente {naam} downloaden.")
+    print(f"  Start hiervoor het volgende commando:")
+    print()
+    print(f"    python3 scraper.py {gemeente}")
+    print()
+    print("─" * 50)
+
+    # Verzamel achtergrondinfo — stil, dan pas tonen
+    print(f"\n  Vooronderzoek voor {naam}…")
+
+    # Veiligheidsregio
+    gevonden_vr = []
+    vr_pad = TOOLKIT_MAP / "bronnen" / "veiligheidsregios.json"
+    if vr_pad.exists():
+        try:
+            vr_config = {k: v for k, v in json.loads(vr_pad.read_text(encoding="utf-8")).items()
+                         if not k.startswith("_")}
+            gevonden_vr = [(slug, info) for slug, info in vr_config.items()
+                           if gemeente in info.get("gemeenten", [])]
+        except Exception:
+            pass
+
+    # GRs
+    grs = haal_grs_voor_gemeente(gemeente)
+
+    # Waterschappen — gefilterd op gemeente
+    ws_pad = TOOLKIT_MAP / "bronnen" / "waterschappen.json"
+    relevante_ws = []
+    if ws_pad.exists():
+        try:
+            for slug, info in json.loads(ws_pad.read_text(encoding="utf-8")).items():
+                if slug.startswith("_"):
+                    continue
+                if gemeente not in info.get("gemeenten", []):
+                    continue
+                ws_map = OUTPUT_BASIS / "waterschappen" / slug
+                al = ws_map.exists() and any(ws_map.rglob("*.pdf"))
+                relevante_ws.append((slug, info, al))
+        except Exception:
+            pass
+
+    # Tonen
+    print()
+    print("─" * 50)
+    print(f"\n  Uit het vooronderzoek voor {naam}:\n")
+
+    if gevonden_vr:
+        for slug, info in gevonden_vr:
+            vr_map = OUTPUT_BASIS / "veiligheidsregios" / slug
+            al = vr_map.exists() and any(vr_map.rglob("*.pdf"))
+            label = "al gedownload" if al else "nog niet gedownload"
+            print(f"  Veiligheidsregio  {info['naam']} ({label})")
+    else:
+        print(f"  Veiligheidsregio  niet gevonden in catalogus")
+
+    print()
+
+    if grs:
+        print(f"  Gemeenschappelijke regelingen ({len(grs)}):")
+        for gr in grs:
+            gr_map = OUTPUT_BASIS / "regelingen" / gr["slug"]
+            al = gr_map.exists() and any(gr_map.rglob("*.pdf"))
+            label = " ✓" if al else ""
+            print(f"    • {gr['naam']}{label}")
+    else:
+        print("  Gemeenschappelijke regelingen: geen gevonden")
+
+    if relevante_ws:
+        print()
+        print(f"  Waterschap{'pen' if len(relevante_ws) > 1 else ''}:")
+        for slug, info, al in relevante_ws:
+            label = "al gedownload" if al else "nog niet gedownload"
+            print(f"    • {info.get('naam', slug)} ({label})")
+
+    # Afsluiting
+    print()
+    print("─" * 50)
+    print()
+    print(f"  De raadsdocumenten van {naam} worden sowieso opgehaald.")
+    print(f"  Wil je ook stukken van de veiligheidsregio, een van de")
+    print(f"  gemeenschappelijke regelingen of een waterschap downloaden?")
+    print(f"  Laat het weten.")
+    print()
+    print(f"  Je hoeft nu geen keuze te maken. Alles wat je hier ziet")
+    print(f"  kun je op elk later moment alsnog ophalen, zodra het")
+    print(f"  relevant wordt voor je onderzoek.")
+    print()
+
+
 # ── Hoofdprogramma ────────────────────────────────────────────────────────────
 
 HELP_ALGEMEEN = """
 Lokaalbestuur Toolkit — download en doorzoek vergaderstukken van Nederlandse overheden
 
-Gebruik:
-  python3 toolkit.py                          toon dashboard (actieve dossiers en alerts)
-  python3 toolkit.py onderzoek <gemeente>     bereid een Claude Code-sessie voor
+Werkwijze voor een nieuwe gemeente:
+  1. python3 toolkit.py verkennen <gemeente>   toon VR, GRs en waterschap
+  2. python3 scraper.py <gemeente>             raadsdocumenten downloaden
+  3. python3 scraper_vr.py <slug>              optioneel: veiligheidsregio
+     python3 scraper_gr.py <slug>              optioneel: gemeenschappelijke regeling
+     python3 scraper_waterschap.py <slug>      optioneel: waterschap
+  4. python3 toolkit.py onderzoek <gemeente>   zoekindex + Claude-briefing
+  5. claude ~/Documents/notulen/<gemeente>     Claude Code openen
+
+Alle commando's:
+  python3 toolkit.py                          dashboard (actieve dossiers en alerts)
+  python3 toolkit.py verkennen <gemeente>     vooronderzoek vóór het downloaden
+  python3 toolkit.py onderzoek <gemeente>     zoekindex bijwerken + Claude-briefing
   python3 toolkit.py scrape <orgaan>          download nieuwe vergaderstukken
-  python3 toolkit.py scrape --alles           download alle geconfigureerde organen
-  python3 toolkit.py nieuw-orgaan             voeg een gemeente, waterschap of GR toe
-  python3 toolkit.py nieuw-dossier            stel monitoring in met trefwoorden en alerts
-  python3 toolkit.py status                   uitgebreid overzicht van dossiers en alerts
-  python3 toolkit.py check                    controleer installatie en Python-pakketten
+  python3 toolkit.py scrape --alles           alle geconfigureerde organen bijwerken
+  python3 toolkit.py nieuw-orgaan             gemeente, waterschap of GR toevoegen
+  python3 toolkit.py nieuw-dossier            monitoring instellen met trefwoorden
+  python3 toolkit.py status                   uitgebreid overzicht dossiers en alerts
+  python3 toolkit.py check                    installatiecheck
+
+Downloaden met tijdsbegrenzing (scraper.py):
+  python3 scraper.py <gemeente> --jaren 1          alleen het afgelopen jaar
+  python3 scraper.py <gemeente> --jaren 2          de afgelopen 2 jaar
+  python3 scraper.py <gemeente> --vanaf 2024-01-01 vanaf een specifieke datum
+
+Veiligheidsregio's (scraper_vr.py):
+  python3 scraper_vr.py --lijst               toon alle 25 veiligheidsregio's
+  python3 scraper_vr.py --welke <gemeente>    welke VR hoort bij deze gemeente?
+  python3 scraper_vr.py <slug>                download vergaderstukken
 
 Typ 'python3 toolkit.py <commando> --help' voor meer informatie over een commando.
 """
 
 HELP_PER_COMMANDO = {
+    "verkennen": """
+verkennen <gemeente>
+
+  Toon welke veiligheidsregio, gemeenschappelijke regelingen en waterschap
+  horen bij een gemeente — zonder iets te downloaden.
+
+  Dit is altijd de eerste stap bij een nieuwe gemeente. Je ziet meteen
+  wat er beschikbaar is en kunt daarna zelf beslissen wat je wilt ophalen.
+  Alles wat hier verschijnt kun je later alsnog downloaden.
+
+  Voorbeeld:
+    python3 toolkit.py verkennen rotterdam
+    python3 toolkit.py verkennen groningen
+""",
     "onderzoek": """
 onderzoek <gemeente>
 
@@ -1448,6 +1625,10 @@ scrape --alles
   Download nieuwe vergaderstukken via de Open Raadsinformatie API.
   Slaat bestanden op in ~/Documents/notulen/<orgaan>/.
   Documenten die al aanwezig zijn worden overgeslagen.
+
+  Gebruik scraper.py direct voor tijdsbegrenzing:
+    python3 scraper.py rotterdam --jaren 1
+    python3 scraper.py rotterdam --vanaf 2024-01-01
 
   Voorbeelden:
     python3 toolkit.py scrape rotterdam
@@ -1489,7 +1670,7 @@ def main():
         dashboard()
         return
 
-    if args[0] in ("--help", "-h", "?"):
+    if args[0] in ("--help", "-h", "-?", "?", "help"):
         print(HELP_ALGEMEEN)
         return
 
@@ -1503,7 +1684,9 @@ def main():
             print(HELP_ALGEMEEN)
         return
 
-    if commando == "nieuw-dossier":
+    if commando == "verkennen":
+        verkennen(rest)
+    elif commando == "nieuw-dossier":
         nieuw_dossier()
     elif commando in ("nieuw-orgaan", "nieuwe-gemeente"):
         nieuwe_gemeente()

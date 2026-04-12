@@ -3,10 +3,12 @@ Scraper voor openbare raadsdocumenten van Nederlandse gemeenten
 Bron: Open Raadsinformatie API (openraadsinformatie.nl)
 
 Gebruik:
-    python3 scraper.py arnhem                # download documenten van Arnhem
-    python3 scraper.py amsterdam             # download documenten van Amsterdam
-    python3 scraper.py arnhem --droog        # laat zien wat er nieuw is, download niets
-    python3 scraper.py                       # toon lijst van beschikbare gemeenten
+    python3 scraper.py arnhem                        # download documenten van Arnhem
+    python3 scraper.py arnhem --jaren 1              # alleen het afgelopen jaar
+    python3 scraper.py arnhem --jaren 2              # de afgelopen 2 jaar
+    python3 scraper.py arnhem --vanaf 2023-01-01     # vanaf een specifieke datum
+    python3 scraper.py arnhem --droog                # laat zien wat er nieuw is, download niets
+    python3 scraper.py                               # toon lijst van beschikbare gemeenten
 
 Vergadertypen worden automatisch geladen uit organen/<naam>.json als dat bestand aanwezig is.
 Zonder orgaan-config worden de standaard vergadertypen gebruikt (zie CONFIGURATIE hieronder).
@@ -141,11 +143,25 @@ def wil_vergadering(naam: str) -> bool:
     return False
 
 
-def haal_vergaderingen(index: str) -> list[dict]:
+def haal_vergaderingen(index: str, vanaf: str | None = None) -> list[dict]:
+    if vanaf:
+        query = {
+            "bool": {
+                "must": [
+                    {"term": {"@type": "Meeting"}},
+                    {"range": {"start_date": {"gte": vanaf}}},
+                ]
+            }
+        }
+        size = 500
+    else:
+        query = {"term": {"@type": "Meeting"}}
+        size = MAX_VERGADERINGEN
+
     hits = api_search(index, {
-        "query": {"term": {"@type": "Meeting"}},
+        "query": query,
         "sort": [{"start_date": {"order": "desc"}}],
-        "size": MAX_VERGADERINGEN,
+        "size": size,
         "_source": ["name", "start_date"],
     })
     return [
@@ -194,9 +210,12 @@ def notubiz_verzoek(endpoint: str) -> dict:
         return json.loads(r.read())
 
 
-def haal_vergaderingen_notubiz(org_id: int) -> list[dict]:
+def haal_vergaderingen_notubiz(org_id: int, vanaf: str | None = None) -> list[dict]:
     date_to = datetime.now().strftime("%Y-%m-%d 23:59:59")
-    date_from = (datetime.now() - timedelta(days=NOTUBIZ_TERUGKIJK_DAGEN)).strftime("%Y-%m-%d 00:00:00")
+    if vanaf:
+        date_from = f"{vanaf} 00:00:00"
+    else:
+        date_from = (datetime.now() - timedelta(days=NOTUBIZ_TERUGKIJK_DAGEN)).strftime("%Y-%m-%d 00:00:00")
 
     vergaderingen = []
     page = 1
@@ -319,12 +338,36 @@ def laad_orgaan_config(orgaan_naam: str) -> int | None:
     return config.get("notubiz_id")
 
 
+def _parse_vanaf() -> str | None:
+    """Lees --vanaf DATUM of --jaren N uit sys.argv en geef een ISO-datumstring terug."""
+    argv = sys.argv[1:]
+    if "--vanaf" in argv:
+        idx = argv.index("--vanaf")
+        if idx + 1 < len(argv):
+            waarde = argv[idx + 1]
+            if re.match(r"^\d{4}-\d{2}-\d{2}$", waarde):
+                return waarde
+            print(f"Ongeldige datum bij --vanaf: '{waarde}'. Verwacht formaat: YYYY-MM-DD")
+            sys.exit(1)
+    if "--jaren" in argv:
+        idx = argv.index("--jaren")
+        if idx + 1 < len(argv):
+            try:
+                jaren = float(argv[idx + 1])
+                return (datetime.now() - timedelta(days=int(jaren * 365))).strftime("%Y-%m-%d")
+            except ValueError:
+                print(f"Ongeldige waarde bij --jaren: '{argv[idx + 1]}'. Verwacht een getal.")
+                sys.exit(1)
+    return None
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
 
-    if not args:
+    if not args or args[0] in ("-h", "--help", "-?", "help"):
         print(__doc__)
-        lijst_gemeenten()
+        if not args:
+            lijst_gemeenten()
         sys.exit(0)
 
     gemeente = args[0].lower()
@@ -332,12 +375,15 @@ def main():
         print(f"Ongeldige gemeentenaam: '{gemeente}'. Gebruik alleen letters, cijfers en koppeltekens.")
         sys.exit(1)
 
+    vanaf = _parse_vanaf()
     notubiz_id = laad_orgaan_config(gemeente)
 
     output_map = setup(gemeente)
 
     log("=" * 60)
     log(f"Gemeente: {gemeente.capitalize()}  {'(DROOG)' if DROOG else ''}")
+    if vanaf:
+        log(f"Periode:  vanaf {vanaf}")
     log("=" * 60)
 
     index = find_index(gemeente)
@@ -356,9 +402,9 @@ def main():
         log(f"Index: {index}")
 
     if gebruik_notubiz:
-        vergaderingen = haal_vergaderingen_notubiz(notubiz_id)
+        vergaderingen = haal_vergaderingen_notubiz(notubiz_id, vanaf=vanaf)
     else:
-        vergaderingen = haal_vergaderingen(index)
+        vergaderingen = haal_vergaderingen(index, vanaf=vanaf)
     log(f"{len(vergaderingen)} vergaderingen gevonden")
 
     totaal_nieuw = totaal_overgeslagen = totaal_fout = 0

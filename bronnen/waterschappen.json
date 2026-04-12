@@ -4,90 +4,111 @@
   "_toelichting_vergadertypen": "Waterschappen gebruiken sterk uiteenlopende vergadernamen. Per waterschap kan 'vergadertypen' worden ingesteld om alleen specifieke typen op te halen. Zonder override worden de standaardtypes gebruikt (substring-match, hoofdletterongevoelig).",
   "aa-en-maas": {
     "naam": "Waterschap Aa en Maas",
-    "ori_index": "aa-en-maas"
+    "ori_index": "aa-en-maas",
+    "gemeenten": ["oss", "maashorst", "land-van-cuijk", "gennep", "mook-en-middelaar", "bernheze", "boekel", "boxtel", "meierijstad", "s-hertogenbosch", "sint-michielsgestel"]
   },
   "brabantse-delta": {
     "naam": "Waterschap Brabantse Delta",
-    "ori_index": "brabantse_delta"
+    "ori_index": "brabantse_delta",
+    "gemeenten": ["bergen-op-zoom", "breda", "roosendaal", "woensdrecht", "steenbergen", "moerdijk", "halderberge", "rucphen", "zundert", "etten-leur", "drimmelen", "geertruidenberg", "oosterhout", "dongen", "baarle-nassau", "altena", "alphen-chaam"]
   },
   "de-dommel": {
     "naam": "Waterschap De Dommel",
-    "ori_index": "de-dommel"
+    "ori_index": "de-dommel",
+    "gemeenten": ["eindhoven", "best", "son-en-breugel", "nuenen", "geldrop-mierlo", "waalre", "valkenswaard", "heeze-leende", "cranendonck", "bladel", "eersel", "bergeijk", "reusel-de-mierden", "oirschot", "veldhoven", "tilburg", "hilvarenbeek", "loon-op-zand", "oisterwijk", "goirle", "vught", "sint-michielsgestel"]
   },
   "hollandse-delta": {
     "naam": "Waterschap Hollandse Delta",
     "ori_index": "hollandse_delta",
-    "vergadertypen": ["besluitvormende vv", "commissie water", "commissie mbh", "commissie wwv"]
+    "vergadertypen": ["besluitvormende vv", "commissie water", "commissie mbh", "commissie wwv"],
+    "gemeenten": ["barendrecht", "albrandswaard", "ridderkerk", "hendrik-ido-ambacht", "zwijndrecht", "dordrecht", "alblasserdam", "papendrecht", "sliedrecht", "hardinxveld-giessendam", "hoeksche-waard", "molenlanden", "nissewaard", "goeree-overflakkee", "voorne-aan-zee", "capelle-aan-den-ijssel", "krimpen-aan-den-ijssel"]
   },
   "hollands-noorderkwartier": {
     "naam": "Hoogheemraadschap Hollands Noorderkwartier",
-    "ori_index": "hoogheemraadschap_hollands_noorderkwartier"
+    "ori_index": "hoogheemraadschap_hollands_noorderkwartier",
+    "gemeenten": ["alkmaar", "bergen-nh", "castricum", "heiloo", "dijk-en-waard", "hollands-kroon", "schagen", "texel", "medemblik", "hoorn", "enkhuizen", "stede-broec", "koggenland", "opmeer", "drechterland", "den-helder"]
   },
   "delfland": {
     "naam": "Hoogheemraadschap van Delfland",
     "ori_index": "hoogheemraadschap_van_delfland",
-    "vergadertypen": ["verenigde vergadering", "commissie bestuur", "commissie waterkwantiteit", "commissie waterveiligheid"]
+    "vergadertypen": ["verenigde vergadering", "commissie bestuur", "commissie waterkwantiteit", "commissie waterveiligheid"],
+    "gemeenten": ["delft", "den-haag", "rijswijk", "westland", "midden-delfland", "pijnacker-nootdorp", "leidschendam-voorburg", "wassenaar", "zoetermeer", "maassluis", "schiedam", "vlaardingen"]
   },
   "hunze-en-aas": {
     "naam": "Waterschap Hunze en Aa's",
-    "ori_index": "hunze-en-aa"
+    "ori_index": "hunze-en-aa",
+    "gemeenten": ["groningen", "eemsdelta", "midden-groningen", "oldambt", "pekela", "stadskanaal", "veendam", "westerwolde", "aa-en-hunze", "borger-odoorn", "tynaarlo"]
   },
   "limburg": {
     "naam": "Waterschap Limburg",
-    "ori_index": "limburg"
+    "ori_index": "limburg",
+    "gemeenten": ["maastricht", "heerlen", "sittard-geleen", "venlo", "roermond", "weert", "kerkrade", "brunssum", "landgraaf", "valkenburg-aan-de-geul", "gulpen-wittem", "vaals", "eijsden-margraten", "meerssen", "simpelveld", "voerendaal", "beesel", "bergen-l", "horst-aan-de-maas", "leudal", "maasgouw", "peel-en-maas", "roerdalen", "venray", "echt-susteren", "nederweert", "gennep", "mook-en-middelaar"]
   },
   "scheldestromen": {
     "naam": "Waterschap Scheldestromen",
     "ori_index": "scheldestromen",
-    "vergadertypen": ["algemene vergadering", "av ", "commissie"]
+    "vergadertypen": ["algemene vergadering", "av ", "commissie"],
+    "gemeenten": ["middelburg", "vlissingen", "veere", "goes", "kapelle", "borsele", "reimerswaal", "tholen", "noord-beveland", "schouwen-duiveland", "sluis", "terneuzen", "hulst"]
   },
   "vechtstromen": {
     "naam": "Waterschap Vechtstromen",
-    "ori_index": "vechtstromen"
+    "ori_index": "vechtstromen",
+    "gemeenten": ["enschede", "hengelo", "almelo", "borne", "hof-van-twente", "twenterand", "rijssen-holten", "hellendoorn", "wierden", "tubbergen", "dinkelland", "losser", "oldenzaal", "hardenberg", "ommen", "dalfsen", "coevorden", "emmen", "borger-odoorn"]
   },
   "amstel-gooi-en-vecht": {
     "naam": "Waterschap Amstel, Gooi en Vecht",
-    "ori_index": "waterschap_amstel_gooi_en_vecht"
+    "ori_index": "waterschap_amstel_gooi_en_vecht",
+    "gemeenten": ["amsterdam", "aalsmeer", "amstelveen", "diemen", "ouder-amstel", "uithoorn", "de-ronde-venen", "stichtse-vecht", "wijdemeren", "gooise-meren", "hilversum", "huizen", "blaricum", "laren", "eemnes"]
   },
   "wetterskip-fryslan": {
     "naam": "Wetterskip Fryslân",
-    "ori_index": "wetterskip_fryslan"
+    "ori_index": "wetterskip_fryslan",
+    "gemeenten": ["leeuwarden", "achtkarspelen", "ameland", "dantumadiel", "de-fryske-marren", "harlingen", "heerenveen", "noardeast-fryslan", "ooststellingwerf", "opsterland", "schiermonnikoog", "smallingerland", "sudwest-fryslan", "terschelling", "tytsjerksteradiel", "vlieland", "waadhoeke", "weststellingwerf"]
   },
   "zuiderzeeland": {
     "naam": "Waterschap Zuiderzeeland",
     "ori_index": "zuiderzeeland",
-    "vergadertypen": ["ab beeldvormend", "ab besluitvormend", "college van dijkgraaf en heemraden"]
+    "vergadertypen": ["ab beeldvormend", "ab besluitvormend", "college van dijkgraaf en heemraden"],
+    "gemeenten": ["almere", "dronten", "lelystad", "noordoostpolder", "urk", "zeewolde"]
   },
   "drents-overijsselse-delta": {
     "naam": "Waterschap Drents Overijsselse Delta",
-    "ibabs_naam": "wdodelta"
+    "ibabs_naam": "wdodelta",
+    "gemeenten": ["zwolle", "kampen", "zwartewaterland", "staphorst", "steenwijkerland", "meppel", "westerveld", "de-wolden", "hoogeveen", "midden-drenthe", "noordenveld", "raalte", "olst-wijhe", "dalfsen", "deventer"]
   },
   "rijn-en-ijssel": {
     "naam": "Waterschap Rijn en IJssel",
-    "ibabs_naam": "wrij"
+    "ibabs_naam": "wrij",
+    "gemeenten": ["doetinchem", "aalten", "berkelland", "bronckhorst", "lochem", "oost-gelre", "oude-ijsselstreek", "winterswijk", "montferland", "doesburg", "zevenaar", "zutphen", "brummen", "hengelo", "deventer"]
   },
   "rivierenland": {
     "naam": "Waterschap Rivierenland",
-    "ibabs_naam": "rivierenland"
+    "ibabs_naam": "rivierenland",
+    "gemeenten": ["tiel", "buren", "neder-betuwe", "west-betuwe", "zaltbommel", "maasdriel", "druten", "west-maas-en-waal", "culemborg", "gorinchem", "molenlanden", "vijfheerenlanden", "hardinxveld-giessendam"]
   },
   "schieland-en-de-krimpenerwaard": {
     "naam": "Hoogheemraadschap van Schieland en de Krimpenerwaard",
-    "ibabs_naam": "hhsk"
+    "ibabs_naam": "hhsk",
+    "gemeenten": ["rotterdam", "capelle-aan-den-ijssel", "krimpen-aan-den-ijssel", "krimpenerwaard", "lansingerland", "zuidplas", "schiedam", "gouda", "waddinxveen"]
   },
   "stichtse-rijnlanden": {
     "naam": "Hoogheemraadschap De Stichtse Rijnlanden",
-    "ibabs_naam": "hdsr"
+    "ibabs_naam": "hdsr",
+    "gemeenten": ["utrecht", "houten", "nieuwegein", "ijsselstein", "lopik", "oudewater", "woerden", "montfoort", "bodegraven-reeuwijk", "alphen-aan-den-rijn", "kaag-en-braassem", "vijfheerenlanden", "bunnik", "wijk-bij-duurstede", "rhenen", "leusden", "utrechtse-heuvelrug"]
   },
   "vallei-en-veluwe": {
     "naam": "Waterschap Vallei en Veluwe",
-    "ibabs_naam": "vallei-veluwe"
+    "ibabs_naam": "vallei-veluwe",
+    "gemeenten": ["amersfoort", "baarn", "bunschoten", "de-bilt", "eemnes", "leusden", "nijkerk", "putten", "soest", "woudenberg", "scherpenzeel", "barneveld", "ede", "wageningen", "renswoude", "veenendaal", "rhenen", "ermelo", "harderwijk", "nunspeet", "elburg", "oldebroek", "hattem", "heerde", "epe", "apeldoorn", "voorst"]
   },
   "rijnland": {
     "naam": "Hoogheemraadschap van Rijnland",
-    "ibabs_naam": "rijnland"
+    "ibabs_naam": "rijnland",
+    "gemeenten": ["leiden", "leiderdorp", "oegstgeest", "voorschoten", "wassenaar", "katwijk", "noordwijk", "teylingen", "hillegom", "lisse", "kaag-en-braassem", "alphen-aan-den-rijn", "nieuwkoop", "zoeterwoude", "haarlemmermeer", "bloemendaal", "heemstede"]
   },
   "noorderzijlvest": {
     "naam": "Waterschap Noorderzijlvest",
-    "ibabs_naam": "noorderzijlvest"
+    "ibabs_naam": "noorderzijlvest",
+    "gemeenten": ["groningen", "het-hogeland", "westerkwartier", "midden-groningen", "noordenveld", "assen", "tynaarlo"]
   }
 }
