@@ -42,9 +42,11 @@ Destilleer 8 tot 12 trefwoorden uit de taal die de gemeente zelf gebruikt in de 
 Voer dit commando uit vanuit de toolkit-map:
 
 ```bash
-python3 /Users/erwin/Documents/lokaalbestuur-toolkit/toolkit.py nieuw-alert \
+python3 <toolkit-map>/toolkit.py nieuw-alert \
   --dossier <onderwerp> \
   --orgaan <orgaan> \
   --trefwoorden "<woord1>,<woord2>,<woord3>" \
   --frequentie <wekelijks|maandelijks>
 ```
+
+Gebruik voor `<toolkit-map>` het pad waar dit project staat. Controleer `config.local.json` in de toolkit-map als je twijfelt over de juiste locatie.
