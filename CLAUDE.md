@@ -143,3 +143,7 @@ niet tot er genoeg gevonden is.
 Fouten in eigen werk direct erkennen en herstellen — niet afwachten tot
 de gebruiker ze signaleert.
 
+Geef geen advies over bestanden of projectstructuur zonder eerst te
+controleren wat vergelijkbare bestanden in hetzelfde project doen.
+Niet redeneren vanuit een algemene vuistregel, maar vanuit de concrete situatie.
+
