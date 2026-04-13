@@ -1,0 +1,1375 @@
+{
+  "gemeente vlaardingen": {
+    "id": 262,
+    "naam": "Gemeente Vlaardingen"
+  },
+  "gemeente veere": {
+    "id": 264,
+    "naam": "Gemeente Veere"
+  },
+  "gemeente tilburg": {
+    "id": 266,
+    "naam": "Gemeente Tilburg"
+  },
+  "gemeente maassluis": {
+    "id": 269,
+    "naam": "Gemeente Maassluis"
+  },
+  "gemeente leiden": {
+    "id": 271,
+    "naam": "Gemeente Leiden"
+  },
+  "deelgemeente ijsselmonde": {
+    "id": 272,
+    "naam": "Deelgemeente IJsselmonde"
+  },
+  "gemeente horst aan de maas": {
+    "id": 273,
+    "naam": "Gemeente Horst aan de Maas"
+  },
+  "gemeente haaksbergen": {
+    "id": 275,
+    "naam": "Gemeente Haaksbergen"
+  },
+  "gemeente oost gelre": {
+    "id": 341,
+    "naam": "Gemeente Oost Gelre"
+  },
+  "gemeente goes": {
+    "id": 276,
+    "naam": "Gemeente Goes"
+  },
+  "gemeente amsterdam": {
+    "id": 281,
+    "naam": "Gemeente Amsterdam"
+  },
+  "gemeente den haag": {
+    "id": 318,
+    "naam": "Gemeente Den Haag"
+  },
+  "gemeente leeuwarden": {
+    "id": 330,
+    "naam": "Gemeente Leeuwarden"
+  },
+  "gemeente montferland": {
+    "id": 343,
+    "naam": "Gemeente Montferland"
+  },
+  "deelgemeente hoek van holland": {
+    "id": 424,
+    "naam": "Deelgemeente Hoek van Holland"
+  },
+  "gemeente epe": {
+    "id": 429,
+    "naam": "Gemeente Epe"
+  },
+  "gemeente ommen": {
+    "id": 434,
+    "naam": "Gemeente Ommen"
+  },
+  "gemeente arnhem": {
+    "id": 370,
+    "naam": "Gemeente Arnhem"
+  },
+  "gemeente son en breugel": {
+    "id": 436,
+    "naam": "Gemeente Son en Breugel"
+  },
+  "gemeente zwartewaterland": {
+    "id": 438,
+    "naam": "Gemeente Zwartewaterland"
+  },
+  "gemeente baarle nassau": {
+    "id": 483,
+    "naam": "Gemeente Baarle-Nassau"
+  },
+  "deelgemeente prins alexander": {
+    "id": 490,
+    "naam": "Deelgemeente Prins Alexander"
+  },
+  "gemeente dongen": {
+    "id": 503,
+    "naam": "Gemeente Dongen"
+  },
+  "gemeente bunschoten": {
+    "id": 505,
+    "naam": "Gemeente Bunschoten"
+  },
+  "gemeente oldenzaal": {
+    "id": 523,
+    "naam": "Gemeente Oldenzaal"
+  },
+  "wetterskip fryslan": {
+    "id": 535,
+    "naam": "Wetterskip Fryslan"
+  },
+  "gemeente haarlem": {
+    "id": 544,
+    "naam": "Gemeente Haarlem"
+  },
+  "gemeente wierden": {
+    "id": 514,
+    "naam": "Gemeente Wierden"
+  },
+  "gemeente veldhoven": {
+    "id": 528,
+    "naam": "Gemeente Veldhoven"
+  },
+  "gemeente oisterwijk": {
+    "id": 531,
+    "naam": "Gemeente Oisterwijk"
+  },
+  "gemeente sint michielsgestel": {
+    "id": 536,
+    "naam": "Gemeente Sint-Michielsgestel"
+  },
+  "stadsdeelcommissie centrum amsterdam": {
+    "id": 547,
+    "naam": "Stadsdeelcommissie Centrum Amsterdam"
+  },
+  "gemeente delft": {
+    "id": 550,
+    "naam": "Gemeente Delft"
+  },
+  "gemeente hoogeveen": {
+    "id": 572,
+    "naam": "Gemeente Hoogeveen"
+  },
+  "gemeente noordwijk": {
+    "id": 574,
+    "naam": "Gemeente Noordwijk"
+  },
+  "gemeente hilvarenbeek": {
+    "id": 545,
+    "naam": "Gemeente Hilvarenbeek"
+  },
+  "provincie noord brabant": {
+    "id": 576,
+    "naam": "Provincie Noord-Brabant"
+  },
+  "gemeente halderberge": {
+    "id": 577,
+    "naam": "Gemeente Halderberge"
+  },
+  "gemeente dongeradeel": {
+    "id": 578,
+    "naam": "Gemeente Dongeradeel"
+  },
+  "gemeente kapelle": {
+    "id": 597,
+    "naam": "Gemeente Kapelle"
+  },
+  "gemeente zwolle": {
+    "id": 575,
+    "naam": "Gemeente Zwolle"
+  },
+  "gemeente middelburg": {
+    "id": 603,
+    "naam": "Gemeente Middelburg"
+  },
+  "gemeente groningen": {
+    "id": 655,
+    "naam": "Gemeente Groningen"
+  },
+  "gemeente hillegom": {
+    "id": 671,
+    "naam": "Gemeente Hillegom"
+  },
+  "gemeente hardinxveld giessendam": {
+    "id": 676,
+    "naam": "Gemeente Hardinxveld-Giessendam"
+  },
+  "vvg": {
+    "id": 682,
+    "naam": "VvG"
+  },
+  "provincie noord holland": {
+    "id": 684,
+    "naam": "Provincie  Noord-Holland"
+  },
+  "gemeente doesburg": {
+    "id": 687,
+    "naam": "Gemeente Doesburg"
+  },
+  "bergveld n.g.": {
+    "id": 709,
+    "naam": "Bergveld n.g."
+  },
+  "gemeente lisse": {
+    "id": 729,
+    "naam": "Gemeente Lisse"
+  },
+  "gemeente terneuzen": {
+    "id": 679,
+    "naam": "Gemeente Terneuzen"
+  },
+  "gemeente eindhoven": {
+    "id": 686,
+    "naam": "Gemeente Eindhoven"
+  },
+  "gemeente rotterdam": {
+    "id": 726,
+    "naam": "Gemeente Rotterdam"
+  },
+  "gemeente voorst": {
+    "id": 742,
+    "naam": "Gemeente Voorst"
+  },
+  "stad leuven": {
+    "id": 743,
+    "naam": "Stad Leuven"
+  },
+  "gemeente roermond": {
+    "id": 775,
+    "naam": "Gemeente Roermond"
+  },
+  "gemeente hardenberg": {
+    "id": 793,
+    "naam": "Gemeente Hardenberg"
+  },
+  "gemeente strijen": {
+    "id": 803,
+    "naam": "Gemeente Strijen"
+  },
+  "gemeente enkhuizen": {
+    "id": 735,
+    "naam": "Gemeente Enkhuizen"
+  },
+  "deelgemeente feijenoord": {
+    "id": 751,
+    "naam": "Deelgemeente Feijenoord"
+  },
+  "gemeente breda": {
+    "id": 774,
+    "naam": "Gemeente Breda"
+  },
+  "gemeente binnenmaas": {
+    "id": 823,
+    "naam": "Gemeente Binnenmaas"
+  },
+  "gemeente veghel": {
+    "id": 825,
+    "naam": "Gemeente Veghel"
+  },
+  "gemeente baarn. (old)": {
+    "id": 830,
+    "naam": "Gemeente  Baarn. (OLD)"
+  },
+  "gemeente hulst": {
+    "id": 885,
+    "naam": "Gemeente Hulst"
+  },
+  "gemeente barendrecht": {
+    "id": 791,
+    "naam": "Gemeente Barendrecht"
+  },
+  "gemeente ede": {
+    "id": 794,
+    "naam": "Gemeente Ede"
+  },
+  "gemeente zaanstad": {
+    "id": 801,
+    "naam": "Gemeente Zaanstad"
+  },
+  "provincie fryslan": {
+    "id": 822,
+    "naam": "Provincie Fryslan"
+  },
+  "stadsdeel de baarsjes": {
+    "id": 896,
+    "naam": "Stadsdeel De Baarsjes"
+  },
+  "gemeente bergen op zoom": {
+    "id": 927,
+    "naam": "Gemeente Bergen op Zoom"
+  },
+  "hoeksche waard": {
+    "id": 937,
+    "naam": "Samenwerkingsorgaan Hoeksche Waard"
+  },
+  "gemeente almere": {
+    "id": 952,
+    "naam": "Gemeente Almere"
+  },
+  "gemeente korendijk": {
+    "id": 970,
+    "naam": "Gemeente Korendijk"
+  },
+  "gemeente amersfoort": {
+    "id": 867,
+    "naam": "Gemeente Amersfoort"
+  },
+  "gemeente zundert": {
+    "id": 881,
+    "naam": "Gemeente Zundert"
+  },
+  "gemeente zandvoort": {
+    "id": 924,
+    "naam": "Gemeente Zandvoort"
+  },
+  "stadsdeelcommissie noord amsterdam": {
+    "id": 977,
+    "naam": "Stadsdeelcommissie Noord Amsterdam"
+  },
+  "gemeente alkmaar": {
+    "id": 987,
+    "naam": "Gemeente Alkmaar"
+  },
+  "gemeente heemstede": {
+    "id": 991,
+    "naam": "Gemeente Heemstede"
+  },
+  "gemeente reimerswaal": {
+    "id": 998,
+    "naam": "Gemeente Reimerswaal"
+  },
+  "gemeente brummen": {
+    "id": 999,
+    "naam": "Gemeente Brummen"
+  },
+  "gemeente schouwen duiveland": {
+    "id": 989,
+    "naam": "Gemeente Schouwen-Duiveland"
+  },
+  "gemeente veenendaal": {
+    "id": 1000,
+    "naam": "Gemeente Veenendaal"
+  },
+  "gemeente uithoorn": {
+    "id": 1025,
+    "naam": "Gemeente Uithoorn"
+  },
+  "gemeente brielle": {
+    "id": 1047,
+    "naam": "Gemeente Brielle"
+  },
+  "hoogheemraadschap van schieland en krimpenerwaard": {
+    "id": 1053,
+    "naam": "Hoogheemraadschap van Schieland en Krimpenerwaard"
+  },
+  "gemeente schiedam": {
+    "id": 1062,
+    "naam": "Gemeente Schiedam"
+  },
+  "gemeente oud beijerland": {
+    "id": 1100,
+    "naam": "Gemeente Oud Beijerland"
+  },
+  "gemeente purmerend": {
+    "id": 1118,
+    "naam": "Gemeente Purmerend"
+  },
+  "gemeente staphorst": {
+    "id": 1132,
+    "naam": "Gemeente Staphorst"
+  },
+  "gemeente heerlen b&o": {
+    "id": 1195,
+    "naam": "Gemeente Heerlen B&O"
+  },
+  "waterschap velt en vecht": {
+    "id": 1227,
+    "naam": "Waterschap Velt en Vecht"
+  },
+  "gemeente wijdemeren": {
+    "id": 1243,
+    "naam": "Gemeente Wijdemeren"
+  },
+  "gemeente wijk bij duurstede": {
+    "id": 1263,
+    "naam": "Gemeente Wijk bij Duurstede"
+  },
+  "gemeente rhenen": {
+    "id": 1266,
+    "naam": "Gemeente Rhenen"
+  },
+  "gemeente krimpen aan den ijssel": {
+    "id": 1273,
+    "naam": "Gemeente Krimpen aan den IJssel"
+  },
+  "waterschap hollandse delta": {
+    "id": 1291,
+    "naam": "Waterschap Hollandse Delta"
+  },
+  "deelgemeente charlois": {
+    "id": 1304,
+    "naam": "Deelgemeente Charlois"
+  },
+  "gemeente de wolden": {
+    "id": 1317,
+    "naam": "Gemeente De Wolden"
+  },
+  "hoogheemraadschap hollands noorderkwartier": {
+    "id": 3517,
+    "naam": "Hoogheemraadschap  Hollands-Noorderkwartier"
+  },
+  "gemeente papendrecht": {
+    "id": 1335,
+    "naam": "Gemeente Papendrecht"
+  },
+  "gemeente rucphen": {
+    "id": 1357,
+    "naam": "Gemeente Rucphen"
+  },
+  "provincie groningen": {
+    "id": 1396,
+    "naam": "Provincie Groningen"
+  },
+  "gemeente kaag en braassem": {
+    "id": 1397,
+    "naam": "Gemeente Kaag en Braassem"
+  },
+  "stadsdeelcommissie west amsterdam": {
+    "id": 1413,
+    "naam": "Stadsdeelcommissie West Amsterdam"
+  },
+  "stadsdeelcommissie zuid amsterdam": {
+    "id": 1424,
+    "naam": "Stadsdeelcommissie Zuid Amsterdam"
+  },
+  "stadsdeelcommissie oost amsterdam": {
+    "id": 1425,
+    "naam": "Stadsdeelcommissie Oost Amsterdam"
+  },
+  "gemeente waalwijk": {
+    "id": 1429,
+    "naam": "Gemeente Waalwijk"
+  },
+  "gemeente westvoorne": {
+    "id": 1435,
+    "naam": "Gemeente Westvoorne"
+  },
+  "gemeente wageningen": {
+    "id": 1451,
+    "naam": "Gemeente Wageningen"
+  },
+  "deelgemeente hoogvliet": {
+    "id": 1455,
+    "naam": "Deelgemeente Hoogvliet"
+  },
+  "deelgemeente rotterdam delfshaven": {
+    "id": 1492,
+    "naam": "Deelgemeente Rotterdam  Delfshaven"
+  },
+  "gemeente nissewaard": {
+    "id": 1480,
+    "naam": "Gemeente Nissewaard"
+  },
+  "gemeente kampen": {
+    "id": 1499,
+    "naam": "Gemeente Kampen"
+  },
+  "gemeente capelle aan den ijssel": {
+    "id": 1517,
+    "naam": "Gemeente Capelle aan den IJssel"
+  },
+  "waterschap scheldestromen": {
+    "id": 1521,
+    "naam": "Waterschap Scheldestromen"
+  },
+  "gemeente de ronde venen": {
+    "id": 1524,
+    "naam": "Gemeente De Ronde Venen"
+  },
+  "gemeente ermelo": {
+    "id": 1550,
+    "naam": "Gemeente Ermelo"
+  },
+  "gemeente zuidplas": {
+    "id": 1589,
+    "naam": "Gemeente Zuidplas"
+  },
+  "gemeente vlissingen": {
+    "id": 1631,
+    "naam": "Gemeente Vlissingen"
+  },
+  "gemeente culemborg": {
+    "id": 1643,
+    "naam": "Gemeente Culemborg"
+  },
+  "gemeente 's hertogenbosch": {
+    "id": 1581,
+    "naam": "Gemeente 's-Hertogenbosch"
+  },
+  "gemeente venray": {
+    "id": 1587,
+    "naam": "Gemeente Venray"
+  },
+  "gemeente apeldoorn": {
+    "id": 1620,
+    "naam": "Gemeente Apeldoorn"
+  },
+  "gemeente heumen": {
+    "id": 1644,
+    "naam": "Gemeente Heumen"
+  },
+  "gemeente weert": {
+    "id": 1645,
+    "naam": "Gemeente  Weert"
+  },
+  "gemeente edam volendam": {
+    "id": 1654,
+    "naam": "Gemeente Edam-Volendam"
+  },
+  "gemeente pijnacker nootdorp": {
+    "id": 1655,
+    "naam": "Gemeente Pijnacker-Nootdorp"
+  },
+  "gemeente drechterland": {
+    "id": 1657,
+    "naam": "Gemeente Drechterland"
+  },
+  "nieuw reijerwaard": {
+    "id": 1659,
+    "naam": "Gemeenschappelijke regeling Nieuw Reijerwaard"
+  },
+  "gemeente heiloo": {
+    "id": 1663,
+    "naam": "Gemeente Heiloo"
+  },
+  "gemeente katwijk": {
+    "id": 1660,
+    "naam": "Gemeente Katwijk"
+  },
+  "gemeente soest": {
+    "id": 1674,
+    "naam": "Gemeente Soest"
+  },
+  "waterschap rivierenland": {
+    "id": 1684,
+    "naam": "Waterschap Rivierenland"
+  },
+  "gemeente hoorn": {
+    "id": 1686,
+    "naam": "Gemeente Hoorn"
+  },
+  "gemeente best": {
+    "id": 1688,
+    "naam": "Gemeente Best"
+  },
+  "waterschap limburg": {
+    "id": 1692,
+    "naam": "Waterschap Limburg"
+  },
+  "gemeente zeist": {
+    "id": 1696,
+    "naam": "Gemeente Zeist"
+  },
+  "waterschap amstel, gooi en vecht": {
+    "id": 1707,
+    "naam": "Waterschap Amstel, Gooi en Vecht"
+  },
+  "gemeente druten": {
+    "id": 1713,
+    "naam": "Gemeente Druten"
+  },
+  "gemeente putten": {
+    "id": 1704,
+    "naam": "Gemeente Putten"
+  },
+  "gemeente cromstrijen": {
+    "id": 1716,
+    "naam": "Gemeente Cromstrijen"
+  },
+  "deelgemeente hillegersberg schiebroek": {
+    "id": 1721,
+    "naam": "Deelgemeente Hillegersberg-Schiebroek"
+  },
+  "gemeente groningen (college)": {
+    "id": 1722,
+    "naam": "Gemeente Groningen  (college)"
+  },
+  "gemeente waddinxveen": {
+    "id": 1723,
+    "naam": "Gemeente Waddinxveen"
+  },
+  "deelgemeente rozenburg": {
+    "id": 1728,
+    "naam": "Deelgemeente Rozenburg"
+  },
+  "gemeente leeuwarderadeel": {
+    "id": 1731,
+    "naam": "Gemeente Leeuwarderadeel"
+  },
+  "gemeente voorst (college)": {
+    "id": 1733,
+    "naam": "Gemeente Voorst (college)"
+  },
+  "gemeente veendam": {
+    "id": 1732,
+    "naam": "Gemeente Veendam"
+  },
+  "gemeente hengelo": {
+    "id": 1734,
+    "naam": "Gemeente Hengelo"
+  },
+  "gemeente maastricht college": {
+    "id": 1741,
+    "naam": "Gemeente Maastricht college"
+  },
+  "gemeente baarn": {
+    "id": 1742,
+    "naam": "Gemeente Baarn"
+  },
+  "gemeente zaltbommel": {
+    "id": 1745,
+    "naam": "Gemeente Zaltbommel"
+  },
+  "gemeente stede broec": {
+    "id": 1746,
+    "naam": "Gemeente Stede Broec"
+  },
+  "gemeente nuenen": {
+    "id": 1747,
+    "naam": "Gemeente Nuenen"
+  },
+  "gemeente west maas en waal": {
+    "id": 1752,
+    "naam": "Gemeente West Maas en Waal"
+  },
+  "gemeente huizen": {
+    "id": 1757,
+    "naam": "Gemeente Huizen"
+  },
+  "provincie overijssel": {
+    "id": 1750,
+    "naam": "Provincie Overijssel"
+  },
+  "gemeente lochem": {
+    "id": 1761,
+    "naam": "Gemeente Lochem"
+  },
+  "gemeente nunspeet": {
+    "id": 1762,
+    "naam": "Gemeente Nunspeet"
+  },
+  "gemeente smallingerland": {
+    "id": 1764,
+    "naam": "Gemeente Smallingerland"
+  },
+  "gemeente het bildt": {
+    "id": 1766,
+    "naam": "Gemeente Het Bildt"
+  },
+  "gemeente oosterhout": {
+    "id": 1767,
+    "naam": "Gemeente Oosterhout"
+  },
+  "gemeente amsterdam college b&w": {
+    "id": 1768,
+    "naam": "Gemeente Amsterdam College B&W"
+  },
+  "gemeente stichtse vecht": {
+    "id": 1770,
+    "naam": "Gemeente Stichtse Vecht"
+  },
+  "gemeente hendrik ido ambacht": {
+    "id": 1781,
+    "naam": "Gemeente Hendrik-Ido-Ambacht"
+  },
+  "gemeente dantumadiel": {
+    "id": 1802,
+    "naam": "Gemeente Dantumadiel"
+  },
+  "provincie gelderland": {
+    "id": 1769,
+    "naam": "Provincie Gelderland"
+  },
+  "gemeente neder betuwe": {
+    "id": 1810,
+    "naam": "Gemeente Neder-Betuwe"
+  },
+  "gemeente pekela": {
+    "id": 1811,
+    "naam": "Gemeente Pekela"
+  },
+  "gemeente castricum": {
+    "id": 1812,
+    "naam": "Gemeente Castricum"
+  },
+  "gemeente renswoude": {
+    "id": 1813,
+    "naam": "Gemeente Renswoude"
+  },
+  "gemeente goeree overflakkee": {
+    "id": 1828,
+    "naam": "Gemeente Goeree-Overflakkee"
+  },
+  "gemeente schagen": {
+    "id": 1834,
+    "naam": "Gemeente Schagen"
+  },
+  "gemeente lanaken": {
+    "id": 1845,
+    "naam": "Gemeente Lanaken"
+  },
+  "gemeente lopik": {
+    "id": 1855,
+    "naam": "Gemeente Lopik"
+  },
+  "gemeente oegstgeest": {
+    "id": 1856,
+    "naam": "Gemeente Oegstgeest"
+  },
+  "gemeente landsmeer": {
+    "id": 1859,
+    "naam": "Gemeente Landsmeer"
+  },
+  "gemeente amsterdam migratie test": {
+    "id": 1877,
+    "naam": "Gemeente Amsterdam_migratie_test"
+  },
+  "gemeente harderwijk": {
+    "id": 1898,
+    "naam": "Gemeente Harderwijk"
+  },
+  "testomgeving verseon nx": {
+    "id": 1911,
+    "naam": "Testomgeving Verseon-NX"
+  },
+  "gemeente gulpen wittem": {
+    "id": 1912,
+    "naam": "Gemeente Gulpen-Wittem"
+  },
+  "foutief": {
+    "id": 1923,
+    "naam": "Foutief"
+  },
+  "gemeente kollumerland": {
+    "id": 1927,
+    "naam": "Gemeente Kollumerland"
+  },
+  "gemeente meerssen": {
+    "id": 1906,
+    "naam": "Gemeente Meerssen"
+  },
+  "gemeente vianen": {
+    "id": 1928,
+    "naam": "Gemeente Vianen"
+  },
+  "gemeente boxtel": {
+    "id": 1948,
+    "naam": "Gemeente  Boxtel"
+  },
+  "gemeente helmond": {
+    "id": 1949,
+    "naam": "Gemeente Helmond"
+  },
+  "gemeente echt susteren": {
+    "id": 1976,
+    "naam": "Gemeente Echt-Susteren"
+  },
+  "meerinzicht": {
+    "id": 1982,
+    "naam": "Samenwerkingsverband Meerinzicht"
+  },
+  "gemeente weesp": {
+    "id": 1987,
+    "naam": "Gemeente Weesp"
+  },
+  "gemeente leek": {
+    "id": 1988,
+    "naam": "Gemeente Leek"
+  },
+  "gemeente waalre": {
+    "id": 2003,
+    "naam": "Gemeente Waalre"
+  },
+  "gemeente deurne": {
+    "id": 2021,
+    "naam": "Gemeente Deurne"
+  },
+  "gemeente heemskerk": {
+    "id": 2026,
+    "naam": "Gemeente Heemskerk"
+  },
+  "gemeente alphen chaam": {
+    "id": 2030,
+    "naam": "Gemeente Alphen-Chaam"
+  },
+  "gemeente someren": {
+    "id": 2043,
+    "naam": "Gemeente Someren"
+  },
+  "gemeente bergen (lb)": {
+    "id": 2062,
+    "naam": "Gemeente Bergen (LB)"
+  },
+  "gemeente utrechtse heuvelrug": {
+    "id": 2048,
+    "naam": "Gemeente Utrechtse Heuvelrug"
+  },
+  "gemeente ferwerderadiel": {
+    "id": 2072,
+    "naam": "Gemeente Ferwerderadiel"
+  },
+  "gemeente gilze en rijen": {
+    "id": 2075,
+    "naam": "Gemeente Gilze en Rijen"
+  },
+  "gemeente berg en dal": {
+    "id": 2076,
+    "naam": "Gemeente Berg en Dal"
+  },
+  "gemeente leusden": {
+    "id": 2090,
+    "naam": "Gemeente Leusden"
+  },
+  "stad geel": {
+    "id": 2094,
+    "naam": "Stad Geel"
+  },
+  "gemeente montfoort": {
+    "id": 2098,
+    "naam": "Gemeente Montfoort"
+  },
+  "gemeente mook en middelaar": {
+    "id": 2099,
+    "naam": "Gemeente Mook en Middelaar"
+  },
+  "gemeente noord beveland": {
+    "id": 2102,
+    "naam": "Gemeente Noord-Beveland"
+  },
+  "rotterdam gebiedscommissies": {
+    "id": 2104,
+    "naam": "Rotterdam Gebiedscommissies"
+  },
+  "waterschap rijn en ijssel": {
+    "id": 2111,
+    "naam": "Waterschap  Rijn en IJssel"
+  },
+  "gemeente zeewolde": {
+    "id": 2132,
+    "naam": "Gemeente Zeewolde"
+  },
+  "raadslid.nu": {
+    "id": 2152,
+    "naam": "Raadslid.nu"
+  },
+  "stadsdeelcommissie zuidoost amsterdam": {
+    "id": 2122,
+    "naam": "Stadsdeelcommissie Zuidoost Amsterdam"
+  },
+  "gemeente uitgeest": {
+    "id": 2127,
+    "naam": "Gemeente Uitgeest"
+  },
+  "provincie flevoland": {
+    "id": 2163,
+    "naam": "Provincie   Flevoland"
+  },
+  "provincie overijssel gs": {
+    "id": 2175,
+    "naam": "Provincie Overijssel - GS"
+  },
+  "gemeente lopik bzc": {
+    "id": 2192,
+    "naam": "Gemeente Lopik BZC"
+  },
+  "veghel fracties": {
+    "id": 2217,
+    "naam": "Veghel-Fracties"
+  },
+  "politiek portaal": {
+    "id": 2254,
+    "naam": "Politiek Portaal"
+  },
+  "stad mortsel": {
+    "id": 2263,
+    "naam": "Stad Mortsel"
+  },
+  "gemeente de ronde venen afdeling or": {
+    "id": 2273,
+    "naam": "Gemeente de Ronde Venen - afdeling OR"
+  },
+  "gemeente putten bzc": {
+    "id": 2313,
+    "naam": "Gemeente Putten BZC"
+  },
+  "stadsdeelcommissie nieuw west amsterdam": {
+    "id": 2328,
+    "naam": "Stadsdeelcommissie Nieuw-West Amsterdam"
+  },
+  "ddfk gemeenten": {
+    "id": 2330,
+    "naam": "DDFK-gemeenten"
+  },
+  "ris midden brabant": {
+    "id": 2333,
+    "naam": "RIS Midden Brabant"
+  },
+  "stroomopwaarts mvs": {
+    "id": 2359,
+    "naam": "Stroomopwaarts MVS"
+  },
+  "stad turnhout": {
+    "id": 2407,
+    "naam": "Stad Turnhout"
+  },
+  "gemeente wevelgem": {
+    "id": 2414,
+    "naam": "Gemeente  Wevelgem"
+  },
+  "gemeente heist op den berg": {
+    "id": 2431,
+    "naam": "Gemeente Heist-op-den-Berg"
+  },
+  "veiligheidsregio zeeland": {
+    "id": 2481,
+    "naam": "Veiligheidsregio Zeeland"
+  },
+  "gemeente ijsselstein": {
+    "id": 2542,
+    "naam": "Gemeente IJsselstein"
+  },
+  "gemeente de bilt": {
+    "id": 2546,
+    "naam": "Gemeente De Bilt"
+  },
+  "pvda tweede kamer fractie": {
+    "id": 2551,
+    "naam": "PvdA Tweede Kamer Fractie"
+  },
+  "alkmaar or": {
+    "id": 2576,
+    "naam": "Alkmaar OR"
+  },
+  "gemeente beerse": {
+    "id": 2668,
+    "naam": "Gemeente Beerse"
+  },
+  "gemeente wetteren": {
+    "id": 2829,
+    "naam": "Gemeente  Wetteren"
+  },
+  "gemeente kruibeke": {
+    "id": 3559,
+    "naam": "Gemeente Kruibeke"
+  },
+  "bergen (nh)": {
+    "id": 2938,
+    "naam": "Bergen (NH)"
+  },
+  "gemeente borsele": {
+    "id": 2941,
+    "naam": "Gemeente Borsele"
+  },
+  "verbonden partijen west brabant": {
+    "id": 2577,
+    "naam": "Verbonden partijen West Brabant"
+  },
+  "goirle": {
+    "id": 2948,
+    "naam": "Goirle"
+  },
+  "gemeente hellendoorn": {
+    "id": 2952,
+    "naam": "Gemeente Hellendoorn"
+  },
+  "kerkrade": {
+    "id": 2954,
+    "naam": "Kerkrade"
+  },
+  "gemeente maasdriel": {
+    "id": 2962,
+    "naam": "Gemeente Maasdriel"
+  },
+  "orionis walcheren": {
+    "id": 2993,
+    "naam": "Orionis Walcheren"
+  },
+  "rotterdam bis modules": {
+    "id": 3005,
+    "naam": "Rotterdam BIS Modules"
+  },
+  "regio rivierenland": {
+    "id": 3016,
+    "naam": "Regio Rivierenland"
+  },
+  "gemeente lubbeek": {
+    "id": 3017,
+    "naam": "Gemeente Lubbeek"
+  },
+  "ergon": {
+    "id": 3032,
+    "naam": "Ergon"
+  },
+  "stad tielt": {
+    "id": 3044,
+    "naam": "Stad Tielt"
+  },
+  "den bosch testomgeving": {
+    "id": 3059,
+    "naam": "Den Bosch testomgeving"
+  },
+  "waadhoeke": {
+    "id": 3081,
+    "naam": "Waadhoeke"
+  },
+  "regio noordoost brabant": {
+    "id": 3082,
+    "naam": "Regio Noordoost Brabant"
+  },
+  "gr de bevelanden": {
+    "id": 3084,
+    "naam": "GR de Bevelanden"
+  },
+  "vereniging van zeeuwse gemeenten vzg": {
+    "id": 3096,
+    "naam": "Vereniging van Zeeuwse Gemeenten VZG"
+  },
+  "public support": {
+    "id": 3116,
+    "naam": "Public Support"
+  },
+  "laakdal": {
+    "id": 3125,
+    "naam": "Laakdal"
+  },
+  "rogplus": {
+    "id": 3136,
+    "naam": "ROGplus"
+  },
+  "gemeenteraad west betuwe": {
+    "id": 3221,
+    "naam": "Gemeenteraad West Betuwe"
+  },
+  "gemeente sint katelijne waver": {
+    "id": 3244,
+    "naam": "Gemeente Sint-Katelijne-Waver"
+  },
+  "herenthout": {
+    "id": 3315,
+    "naam": "Herenthout"
+  },
+  "zwevegem": {
+    "id": 3316,
+    "naam": "Zwevegem"
+  },
+  "gemeente zemst": {
+    "id": 3328,
+    "naam": "Gemeente Zemst"
+  },
+  "metropoolregio rotterdam den haag": {
+    "id": 3341,
+    "naam": "Metropoolregio Rotterdam Den Haag -"
+  },
+  "vijfheerenlanden": {
+    "id": 3342,
+    "naam": "Vijfheerenlanden"
+  },
+  "putte": {
+    "id": 3374,
+    "naam": "Putte"
+  },
+  "gemeente beveren kruibeke zwijndrecht": {
+    "id": 3381,
+    "naam": "Gemeente Beveren-Kruibeke-Zwijndrecht"
+  },
+  "enserve": {
+    "id": 3403,
+    "naam": "Enserve"
+  },
+  "gemeente steenokkerzeel": {
+    "id": 3404,
+    "naam": "Gemeente Steenokkerzeel"
+  },
+  "gemeente laarne": {
+    "id": 3405,
+    "naam": "Gemeente Laarne"
+  },
+  "gemeente hoeksche waard": {
+    "id": 3398,
+    "naam": "Gemeente Hoeksche Waard"
+  },
+  "stad ieper": {
+    "id": 3406,
+    "naam": "Stad Ieper"
+  },
+  "gemeente machelen": {
+    "id": 3407,
+    "naam": "Gemeente Machelen"
+  },
+  "gemeente kortenberg": {
+    "id": 3408,
+    "naam": "Gemeente Kortenberg"
+  },
+  "gemeente puurs sint amands": {
+    "id": 3410,
+    "naam": "Gemeente Puurs-Sint-Amands"
+  },
+  "gemeente altena": {
+    "id": 3423,
+    "naam": "Gemeente Altena"
+  },
+  "gemeente tervuren": {
+    "id": 3445,
+    "naam": "Gemeente Tervuren"
+  },
+  "stad deinze": {
+    "id": 3446,
+    "naam": "Stad  Deinze"
+  },
+  "gemeente niel": {
+    "id": 3461,
+    "naam": "Gemeente Niel"
+  },
+  "gemeente kapelle op den bos": {
+    "id": 3491,
+    "naam": "Gemeente Kapelle-op-den-Bos"
+  },
+  "gemeente aartselaar": {
+    "id": 3494,
+    "naam": "Gemeente  Aartselaar"
+  },
+  "gemeente wervik": {
+    "id": 3504,
+    "naam": "Gemeente Wervik"
+  },
+  "stad nieuwpoort": {
+    "id": 3513,
+    "naam": "Stad Nieuwpoort"
+  },
+  "gemeente huldenberg": {
+    "id": 3516,
+    "naam": "Gemeente Huldenberg"
+  },
+  "gemeente rotselaar": {
+    "id": 3522,
+    "naam": "Gemeente Rotselaar"
+  },
+  "gemeente kontich": {
+    "id": 3523,
+    "naam": "Gemeente Kontich"
+  },
+  "gemeentebestuur grimbergen": {
+    "id": 3526,
+    "naam": "Gemeentebestuur Grimbergen"
+  },
+  "gemeente overijse": {
+    "id": 3527,
+    "naam": "Gemeente Overijse"
+  },
+  "bunschoten bzc": {
+    "id": 3528,
+    "naam": "Bunschoten BZC"
+  },
+  "stad dilsen stokkem": {
+    "id": 3530,
+    "naam": "Stad Dilsen-Stokkem"
+  },
+  "gemeente kruisem": {
+    "id": 3538,
+    "naam": "Gemeente Kruisem"
+  },
+  "gemeente meise secretariaat": {
+    "id": 3541,
+    "naam": "Gemeente Meise Secretariaat"
+  },
+  "griffierskring gelderland zuid": {
+    "id": 3543,
+    "naam": "Griffierskring Gelderland-Zuid"
+  },
+  "gemeente lille": {
+    "id": 3545,
+    "naam": "Gemeente Lille"
+  },
+  "gemeente ternat": {
+    "id": 3546,
+    "naam": "Gemeente Ternat"
+  },
+  "gemeente lint": {
+    "id": 3547,
+    "naam": "Gemeente Lint"
+  },
+  "gemeente zaventem": {
+    "id": 3555,
+    "naam": "Gemeente Zaventem"
+  },
+  "gemeente wijnegem": {
+    "id": 3557,
+    "naam": "Gemeente Wijnegem"
+  },
+  "regionaal archief rivierenland": {
+    "id": 3567,
+    "naam": "Regionaal Archief Rivierenland"
+  },
+  "de goede woning": {
+    "id": 3569,
+    "naam": "De Goede Woning"
+  },
+  "gemeente boom": {
+    "id": 3599,
+    "naam": "Gemeente Boom"
+  },
+  "gemeente anzegem": {
+    "id": 3611,
+    "naam": "Gemeente Anzegem"
+  },
+  "gemeente schoten": {
+    "id": 3616,
+    "naam": "Gemeente  Schoten"
+  },
+  "olaz (openbaar lichaam afvalstoffenverwerking zeel": {
+    "id": 3617,
+    "naam": "OLAZ (Openbaar Lichaam Afvalstoffenverwerking Zeel"
+  },
+  "gemeente buggenhout": {
+    "id": 3669,
+    "naam": "Gemeente Buggenhout"
+  },
+  "stad beringen": {
+    "id": 3671,
+    "naam": "Stad Beringen"
+  },
+  "gemeente merelbeke melle": {
+    "id": 3701,
+    "naam": "Gemeente  Merelbeke-Melle"
+  },
+  "abg organisatie": {
+    "id": 3720,
+    "naam": "ABG-organisatie"
+  },
+  "gemeente bornem": {
+    "id": 3809,
+    "naam": "Gemeente Bornem"
+  },
+  "gemeente sint martens latem": {
+    "id": 3815,
+    "naam": "Gemeente Sint-Martens-Latem"
+  },
+  "ggd zeeland": {
+    "id": 3816,
+    "naam": "Gemeenschappelijke regeling GGD Zeeland"
+  },
+  "consultancy": {
+    "id": 3824,
+    "naam": "Consultancy"
+  },
+  "rivierenland": {
+    "id": 3825,
+    "naam": "Uitvoeringsorganisatie Rivierenland"
+  },
+  "urgentiecommissie woonverdeling noord veluwe": {
+    "id": 3841,
+    "naam": "Urgentiecommissie woonverdeling Noord Veluwe"
+  },
+  "sed organisatie": {
+    "id": 3844,
+    "naam": "SED-organisatie"
+  },
+  "capaciteitsorgaan utrecht": {
+    "id": 3864,
+    "naam": "Capaciteitsorgaan Utrecht"
+  },
+  "provincie zuid holland (pzh)": {
+    "id": 3868,
+    "naam": "Provincie Zuid-Holland (PZH)"
+  },
+  "regio foodvalley": {
+    "id": 3973,
+    "naam": "Gemeenschappelijke regeling Regio Foodvalley"
+  },
+  "overleg zeeuwse overheden (ozo)": {
+    "id": 4017,
+    "naam": "Overleg Zeeuwse Overheden (OZO)"
+  },
+  "ggd hollands noorden": {
+    "id": 4025,
+    "naam": "GGD Hollands Noorden"
+  },
+  "oudsbergen": {
+    "id": 4046,
+    "naam": "Oudsbergen"
+  },
+  "ggd rotterdam rijnmond": {
+    "id": 4049,
+    "naam": "GGD Rotterdam-Rijnmond"
+  },
+  "gemeente zoersel": {
+    "id": 4064,
+    "naam": "Gemeente Zoersel"
+  },
+  "jeugdzorg rijnmond (g": {
+    "id": 4073,
+    "naam": "Gemeenschappelijke Regeling Jeugdzorg Rijnmond (G"
+  },
+  "accessibility": {
+    "id": 4080,
+    "naam": "accessibility"
+  },
+  "hlt samen": {
+    "id": 4103,
+    "naam": "HLT-samen"
+  },
+  "zeeuws platform integrale veiligheid (zpiv)": {
+    "id": 4136,
+    "naam": "Zeeuws Platform Integrale Veiligheid (ZPIV)"
+  },
+  "gemeente velsen": {
+    "id": 4176,
+    "naam": "Gemeente Velsen"
+  },
+  "bestuurscommissie weesp": {
+    "id": 4187,
+    "naam": "Bestuurscommissie Weesp"
+  },
+  "gemeente bilzen hoeselt": {
+    "id": 4195,
+    "naam": "Gemeente Bilzen-Hoeselt"
+  },
+  "gemeente herent": {
+    "id": 4216,
+    "naam": "Gemeente Herent"
+  },
+  "jeugdhulpregio foodvalley": {
+    "id": 4225,
+    "naam": "Jeugdhulpregio FoodValley"
+  },
+  "gemeente voorne aan zee": {
+    "id": 4236,
+    "naam": "Gemeente Voorne aan Zee"
+  },
+  "gemeente horst aan de maas bzc": {
+    "id": 4266,
+    "naam": "Gemeente Horst aan de Maas BZC"
+  },
+  "gemeente midden groningen": {
+    "id": 4275,
+    "naam": "Gemeente Midden-Groningen"
+  },
+  "woo alphen chaam": {
+    "id": 4352,
+    "naam": "WOO Alphen-Chaam"
+  },
+  "woo baarle nassau": {
+    "id": 4353,
+    "naam": "WOO Baarle-Nassau"
+  },
+  "woo abg organisatie": {
+    "id": 4354,
+    "naam": "WOO ABG-organisatie"
+  },
+  "woo gilze en rijen": {
+    "id": 4355,
+    "naam": "WOO Gilze en Rijen"
+  },
+  "notuleerservice": {
+    "id": 4366,
+    "naam": "Notuleerservice"
+  },
+  "gemeente veldhoven niet gebruiken": {
+    "id": 4400,
+    "naam": "Gemeente Veldhoven NIET GEBRUIKEN"
+  },
+  "bergveld": {
+    "id": 4440,
+    "naam": "Bergveld"
+  },
+  "gemeente noordenveld": {
+    "id": 4472,
+    "naam": "Gemeente Noordenveld"
+  },
+  "_gebouwd": "2026-04-12T07:15:36.294919+00:00"
+}

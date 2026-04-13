@@ -264,9 +264,16 @@ def main():
 
     docs_map = OUTPUT_BASIS / orgaan
     if not docs_map.exists():
-        print(f"Archiefmap niet gevonden: {docs_map}")
-        print("Zorg dat de scraper al heeft gedraaid voor dit orgaan.")
-        sys.exit(1)
+        # Probeer ook submappen voor regelingen, waterschappen en veiligheidsregio's
+        for submap in ("regelingen", "waterschappen", "veiligheidsregios"):
+            kandidaat = OUTPUT_BASIS / submap / orgaan
+            if kandidaat.exists():
+                docs_map = kandidaat
+                break
+        else:
+            print(f"Archiefmap niet gevonden: {docs_map}")
+            print("Zorg dat de scraper al heeft gedraaid voor dit orgaan.")
+            sys.exit(1)
 
     con = open_db(docs_map)
 

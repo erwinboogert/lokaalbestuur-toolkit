@@ -123,6 +123,23 @@ Deze repository is publiek. Controleer altijd voor een commit:
 
 ## Python-omgeving
 
-Python: `/opt/homebrew/bin/python3`
+Python: `sys.executable` (niet hardcoden)
 Geïnstalleerde bibliotheken: `pdfplumber`
+
+## Werkdiscipline bij code schrijven
+
+Lees altijd eerst de volledige relevante code voordat je iets schrijft.
+Schrijf geen regel totdat je de volgende vragen hebt beantwoord:
+
+- Staan alle imports bovenaan, of zijn er lokale imports verstopt in functies?
+- Zijn er hardcoded waarden die portabel moeten zijn (paden, versies)?
+- Is er duplicatie die al bestaat en die ik herhaal?
+- Wat zegt de instructie precies — en wat zegt hij *niet*?
+  Generaliseer een instructie nooit stilzwijgend naar een bredere context.
+
+Bij een code-review: doorlezen tot er niets meer te vinden is,
+niet tot er genoeg gevonden is.
+
+Fouten in eigen werk direct erkennen en herstellen — niet afwachten tot
+de gebruiker ze signaleert.
 

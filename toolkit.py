@@ -14,14 +14,15 @@ Gebruik:
 
 import json
 import re
+import sqlite3
 import subprocess
 import sys
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 TOOLKIT_MAP = Path(__file__).parent
-PYTHON = "/opt/homebrew/bin/python3"
+PYTHON = sys.executable
 
 
 def _lees_config() -> dict:
@@ -109,23 +110,15 @@ def vraag(prompt: str, standaard: str = "") -> str:
 
 
 def voeg_crontabregel_toe(commentaar: str, regel: str):
-    """Voeg een regel toe aan de crontab na bevestiging."""
-    print()
-    print("  Voeg dit toe aan je crontab voor automatische wekelijkse uitvoering:")
-    print()
-    print(f"    # {commentaar}")
-    print(f"    {regel}")
-    print()
-    keuze = input("  Automatisch toevoegen aan crontab? (j/n): ").strip().lower()
-    if keuze == "j":
-        result = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
-        bestaand = result.stdout if result.returncode == 0 else ""
-        if regel in bestaand:
-            print("  (regel stond al in crontab, niets gewijzigd)")
-            return
-        nieuw = bestaand.rstrip() + f"\n\n# {commentaar}\n{regel}\n"
-        subprocess.run(["crontab", "-"], input=nieuw, text=True, check=True)
-        print("  ✓ Crontabregel toegevoegd.")
+    """Voeg een crontabregel toe als die er nog niet in staat. Geen bevestiging: wordt
+    alleen aangeroepen vanuit setup-wizards waar de gebruiker dit gedrag verwacht."""
+    result = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
+    bestaand = result.stdout if result.returncode == 0 else ""
+    if regel in bestaand:
+        return
+    nieuw = bestaand.rstrip() + f"\n\n# {commentaar}\n{regel}\n"
+    subprocess.run(["crontab", "-"], input=nieuw, text=True, check=True)
+    print(f"  ✓ Crontabregel toegevoegd: {commentaar}")
 
 
 # ── Commando's ────────────────────────────────────────────────────────────────
@@ -326,7 +319,6 @@ def laad_notubiz_catalogus() -> dict[str, dict]:
         try:
             data = json.loads(pad.read_text(encoding="utf-8"))
             if data.get("_gebouwd"):
-                from datetime import timezone
                 gebouwd = datetime.fromisoformat(data["_gebouwd"])
                 if gebouwd.tzinfo is None:
                     gebouwd = gebouwd.replace(tzinfo=timezone.utc)
@@ -364,7 +356,6 @@ def _bouw_notubiz_catalogus(pad: Path) -> dict[str, dict]:
             continue
         catalogus[norm] = {"id": org_id, "naam": naam}
 
-    from datetime import timezone
     catalogus["_gebouwd"] = datetime.now(tz=timezone.utc).isoformat()
     pad.write_text(json.dumps(catalogus, indent=2, ensure_ascii=False), encoding="utf-8")
     return {k: v for k, v in catalogus.items() if not k.startswith("_")}
@@ -510,8 +501,11 @@ def nieuwe_gemeente():
     subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper.py"), orgaan])
 
     log_pad = OUTPUT_BASIS / orgaan / "logs" / "scraper.log"
-    cron_scraper = f"0 9 * * 3 {PYTHON} {TOOLKIT_MAP / 'scraper.py'} {orgaan} >> {log_pad} 2>&1"
-    voeg_crontabregel_toe(f"Scraper — {orgaan}", cron_scraper)
+    cron_scraper = (
+        f"0 9 * * 3 {PYTHON} {TOOLKIT_MAP / 'scraper.py'} {orgaan} >> {log_pad} 2>&1"
+        f" && {PYTHON} {TOOLKIT_MAP / 'index.py'} {orgaan} >> {log_pad} 2>&1"
+    )
+    voeg_crontabregel_toe(f"Scraper + index — {orgaan}", cron_scraper)
 
     # GR-suggesties voor gemeenten
     if orgaan_type == "gemeente":
@@ -883,12 +877,11 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list, gevon
 
 def detecteer_regelingen_in_index(gemeente_map: Path) -> list[dict]:
     """Detecteer gemeenschappelijke regelingen via de zoekindex. Geeft [{naam, vermeldingen}]."""
-    import sqlite3 as _sqlite3
     db_pad = gemeente_map / "index.db"
     if not db_pad.exists():
         return []
     try:
-        con = _sqlite3.connect(str(db_pad))
+        con = sqlite3.connect(str(db_pad))
         rows = con.execute(
             "SELECT tekst FROM tekst_fts WHERE tekst MATCH ?",
             ("gemeenschappelijke regeling",)
@@ -1296,8 +1289,6 @@ def nieuw_alert(args: list):
 
 def check():
     """Controleer of de toolkit correct is geïnstalleerd en klaar voor gebruik."""
-    import urllib.request
-
     print()
     print("Installatiecheck — Lokaalbestuur Toolkit")
     print("─" * 50)
@@ -1358,7 +1349,14 @@ def check():
     result = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
     crontab = result.stdout
     if "scraper.py" in crontab:
-        print("  ✓ Crontab scraper aanwezig")
+        scraper_zonder_index = [
+            r for r in crontab.splitlines()
+            if "scraper.py" in r and "index.py" not in r and not r.startswith("#")
+        ]
+        if scraper_zonder_index:
+            print("  ! Scraper-crontab aanwezig maar zonder zoekindex-stap — herstel met: python3 toolkit.py fix-cron")
+        else:
+            print("  ✓ Crontab scraper + index aanwezig")
     else:
         print("  ! Geen scraper-crontab — gebruik: python3 toolkit.py nieuw-orgaan")
     if "analyse.py" in crontab:
@@ -1547,6 +1545,70 @@ def verkennen(args: list):
     print()
 
 
+# ── Cron-migratie ─────────────────────────────────────────────────────────────
+
+def fix_cron():
+    """Voeg index.py toe aan alle scraper.py-crontabregels die dat nog missen."""
+    print()
+    print("fix-cron — zoekindex koppelen aan wekelijkse scraper")
+    print("─" * 55)
+
+    result = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
+    if result.returncode != 0 or not result.stdout.strip():
+        print()
+        print("  Geen crontab gevonden. Voeg eerst een orgaan toe via nieuw-orgaan.")
+        return
+
+    huidige_regels = result.stdout.splitlines(keepends=True)
+
+    te_updaten = []  # lijst van (regelindex, oude_regel, nieuwe_regel)
+    for i, regel in enumerate(huidige_regels):
+        stripped = regel.rstrip("\n")
+        if "scraper.py" in stripped and "index.py" not in stripped and not stripped.startswith("#"):
+            # Orgaannaam extraheren: het eerste argument ná scraper.py
+            delen = stripped.split()
+            try:
+                scraper_pos = next(j for j, d in enumerate(delen) if d.endswith("scraper.py"))
+                orgaan = delen[scraper_pos + 1]
+            except (StopIteration, IndexError):
+                orgaan = None
+
+            if orgaan:
+                index_toevoeging = f" && {PYTHON} {TOOLKIT_MAP / 'index.py'} {orgaan}"
+                # Toevoegen vóór eventuele output-redirectie (>>)
+                if ">>" in stripped:
+                    redirect_pos = stripped.index(">>")
+                    log_deel = stripped[redirect_pos:]
+                    basis = stripped[:redirect_pos].rstrip()
+                    nieuwe_regel = basis + index_toevoeging + " " + log_deel
+                else:
+                    nieuwe_regel = stripped + index_toevoeging
+                te_updaten.append((i, stripped, nieuwe_regel))
+
+    if not te_updaten:
+        print()
+        print("  Alle scraper-crontabregels bevatten al een index-stap. Niets te doen.")
+        return
+
+    print()
+    print(f"  Zoekindex wordt gekoppeld aan {len(te_updaten)} orgaan(en):")
+    print()
+    for _, oud, _ in te_updaten:
+        delen = oud.split()
+        scraper_pos = next(j for j, d in enumerate(delen) if d.endswith("scraper.py"))
+        print(f"    • {delen[scraper_pos + 1]}")
+    print()
+
+    nieuwe_regels = list(huidige_regels)
+    for i, _, nieuwe_regel in te_updaten:
+        nieuwe_regels[i] = nieuwe_regel + "\n"
+
+    nieuwe_crontab = "".join(nieuwe_regels)
+    subprocess.run(["crontab", "-"], input=nieuwe_crontab, text=True, check=True)
+    print(f"  ✓ Klaar. Nieuwe documenten worden voortaan automatisch geïndexeerd.")
+    print()
+
+
 # ── Hoofdprogramma ────────────────────────────────────────────────────────────
 
 HELP_ALGEMEEN = """
@@ -1571,6 +1633,7 @@ Alle commando's:
   python3 toolkit.py nieuw-dossier            monitoring instellen met trefwoorden
   python3 toolkit.py status                   uitgebreid overzicht dossiers en alerts
   python3 toolkit.py check                    installatiecheck
+  python3 toolkit.py fix-cron                 zoekindex koppelen aan bestaande scraper-crontabs
 
 Downloaden met tijdsbegrenzing (scraper.py):
   python3 scraper.py <gemeente> --jaren 1          alleen het afgelopen jaar
@@ -1633,6 +1696,15 @@ scrape --alles
   Voorbeelden:
     python3 toolkit.py scrape rotterdam
     python3 toolkit.py scrape --alles
+""",
+    "fix-cron": """
+fix-cron
+
+  Zoekt alle scraper-crontabregels die nog geen zoekindex-stap bevatten
+  en voegt die stap automatisch toe.
+
+  Gebruik dit eenmalig als je de toolkit al had draaien voordat de
+  automatische indexering werd toegevoegd.
 """,
     "nieuw-orgaan": """
 nieuw-orgaan
@@ -1710,6 +1782,8 @@ def main():
         scrape(rest)
     elif commando == "ververs-notubiz-catalogus":
         ververs_notubiz_catalogus()
+    elif commando == "fix-cron":
+        fix_cron()
     else:
         print(f"\nOnbekend commando: '{commando}'")
         print(HELP_ALGEMEEN)
