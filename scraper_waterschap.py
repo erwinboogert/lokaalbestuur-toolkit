@@ -449,7 +449,7 @@ def main():
 
             doelmap = vergadering_map(output_map, verg)
             nieuwe_docs = [d for d in docs
-                           if not (doelmap / veilige_naam(d["naam"])).exists()]
+                           if not (doelmap / (veilige_naam(d["naam"]) + ".pdf")).exists()]
 
             if not nieuwe_docs:
                 totaal_overgeslagen += len(docs)
@@ -461,7 +461,7 @@ def main():
                 doelmap.mkdir(parents=True, exist_ok=True)
 
             for doc in docs:
-                bestandsnaam = veilige_naam(doc["naam"])
+                bestandsnaam = veilige_naam(doc["naam"]) + ".pdf"
                 bestemming = doelmap / bestandsnaam
 
                 if bestemming.exists():

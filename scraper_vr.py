@@ -249,7 +249,11 @@ def scrape_notubiz(slug: str, info: dict, output_map: Path) -> tuple[int, int, i
         log(f"Notubiz API fout: {e}")
         return 0, 0, 0
 
-    vergaderingen = data.get("events", {}).get("results", [])
+    events_raw = data.get("events", [])
+    if isinstance(events_raw, dict):
+        vergaderingen = events_raw.get("results", [])
+    else:
+        vergaderingen = events_raw
     log(f"  {len(vergaderingen)} vergaderingen gevonden")
 
     nieuw = aanwezig = fouten = 0
@@ -312,7 +316,7 @@ def _ibabs_soap(actie: str, body_xml: str) -> ET.Element:
         data=envelope.encode("utf-8"),
         headers={
             "Content-Type": "text/xml; charset=utf-8",
-            "SOAPAction": f'"{IBABS_NS}{actie}"',
+            "SOAPAction": f'"{IBABS_NS}IPublic/{actie}"',
         },
     )
     with urllib.request.urlopen(req, timeout=30) as r:

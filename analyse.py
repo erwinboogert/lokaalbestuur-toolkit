@@ -207,6 +207,8 @@ def extraheer_fragmenten(tekst: str, trefwoorden: list[str]) -> str:
 
 
 def stuur_macos_melding(titel: str, bericht: str):
+    titel = titel.replace('\\', '\\\\').replace('"', '\\"')
+    bericht = bericht.replace('\\', '\\\\').replace('"', '\\"')
     script = f'display notification "{bericht}" with title "{titel}" sound name "Glass"'
     subprocess.run(["osascript", "-e", script], check=False)
 

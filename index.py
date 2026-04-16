@@ -31,7 +31,19 @@ from pathlib import Path
 
 import pdfplumber
 
-OUTPUT_BASIS = Path.home() / "Documents" / "notulen"
+_toolkit_map = Path(__file__).parent
+_config_pad = _toolkit_map / "config.local.json"
+_data_map: Path | None = None
+if _config_pad.exists():
+    try:
+        _cfg = json.loads(_config_pad.read_text(encoding="utf-8"))
+        if "data_map" in _cfg:
+            _data_map = Path(_cfg["data_map"]).expanduser()
+    except Exception:
+        pass
+
+OUTPUT_BASIS = _data_map if _data_map else (Path.home() / "Documents" / "notulen")
+_DOSSIERS_MAP = (_data_map / "dossiers") if _data_map else (_toolkit_map / "dossiers")
 
 
 # ── Argumenten ────────────────────────────────────────────────────────────────
@@ -57,7 +69,7 @@ def parse_args():
 
 
 def laad_orgaan_uit_dossier(dossier_naam: str) -> str:
-    pad = Path(__file__).parent / "dossiers" / f"{dossier_naam}.json"
+    pad = _DOSSIERS_MAP / f"{dossier_naam}.json"
     if not pad.exists():
         print(f"Dossier niet gevonden: {pad}")
         sys.exit(1)
