@@ -16,72 +16,30 @@ Configuratie: bronnen/veiligheidsregios.json
 Output:       ~/Documents/notulen/veiligheidsregios/<naam>/
 """
 
-import sys
 import json
 import re
-import logging
-import urllib.request
+import sys
 import urllib.parse
-import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
+import urllib.request
+from datetime import datetime, timedelta
 from html.parser import HTMLParser
+from pathlib import Path
+
+from api import (
+    OUTPUT_BASIS, BRONNEN_MAP,
+    setup_logging, log, log_samenvatting,
+    download,
+    notubiz_verzoek,
+    ibabs_soap, ibabs_tekst, IBABS_NS,
+)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # CONFIGURATIE
 # ══════════════════════════════════════════════════════════════════════════════
 
-_toolkit_map = Path(__file__).parent
-_config_pad = _toolkit_map / "config.local.json"
-_data_map: Path | None = None
-if _config_pad.exists():
-    try:
-        _cfg = json.loads(_config_pad.read_text(encoding="utf-8"))
-        if "data_map" in _cfg:
-            _data_map = Path(_cfg["data_map"]).expanduser()
-    except Exception:
-        pass
-
-OUTPUT_BASIS = _data_map if _data_map else (Path.home() / "Documents" / "notulen")
-BRONNEN_MAP = _toolkit_map / "bronnen"
 CATALOGUS_PAD = BRONNEN_MAP / "veiligheidsregios.json"
-
-NOTUBIZ_API = "https://api.notubiz.nl"
-NOTUBIZ_VERSION = "1.17.0"
 TERUGKIJK_DAGEN = 730
-
-IBABS_ENDPOINT = "https://wcf.ibabs.eu/api/Public.svc"
-IBABS_NS = "http://tempuri.org/"
-
-DROOG = "--droog" in sys.argv
-
 HEADERS = {"User-Agent": "lokaalbestuur-toolkit/1.0"}
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# SETUP & LOGGING
-# ══════════════════════════════════════════════════════════════════════════════
-
-def setup(slug: str) -> Path:
-    output_map = OUTPUT_BASIS / "veiligheidsregios" / slug
-    log_map = output_map / "logs"
-    log_map.mkdir(parents=True, exist_ok=True)
-    logbestand = log_map / "scraper.log"
-    handlers = [
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(logbestand, encoding="utf-8"),
-    ]
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s  %(message)s",
-        datefmt="%Y-%m-%d %H:%M",
-        handlers=handlers,
-    )
-    return output_map
-
-
-def log(msg):
-    logging.info(msg)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -154,18 +112,14 @@ def _kan_subpagina_zijn(href: str, basis: str) -> bool:
     link_host = urllib.parse.urlparse(abs_url).netloc
     if link_host and link_host != basis_host:
         return False
-    # Zoek op jaar-/vergaderingswoorden in het pad
     pad = urllib.parse.urlparse(abs_url).path.lower()
     trefwoorden = ["vergader", "vergadering", "stuk", "agenda", "notulen", "besluit",
                    "bestuur", "2020", "2021", "2022", "2023", "2024", "2025", "2026"]
     return any(t in pad for t in trefwoorden)
 
 
-def scrape_website(slug: str, info: dict, output_map: Path) -> tuple[int, int, int]:
-    """
-    Scrape PDF's van een veiligheidsregio-website.
-    Geeft (nieuw, aanwezig, fouten) terug.
-    """
+def scrape_website(slug: str, info: dict, output_map: Path, droog: bool) -> tuple[int, int, int]:
+    """Scrape PDF's van een veiligheidsregio-website."""
     docs_url = info.get("docs_url", "")
     if not docs_url:
         log("Geen docs_url geconfigureerd.")
@@ -176,10 +130,9 @@ def scrape_website(slug: str, info: dict, output_map: Path) -> tuple[int, int, i
 
     pdf_links = [_absoluut(h, docs_url) for h in links if _is_pdf_link(h)]
 
-    # Als er weinig directe PDFs zijn, één niveau dieper zoeken
     if len(pdf_links) < 3:
         sub_links = [_absoluut(h, docs_url) for h in links if _kan_subpagina_zijn(h, docs_url)]
-        sub_links = list(dict.fromkeys(sub_links))[:20]  # max 20 subpagina's
+        sub_links = list(dict.fromkeys(sub_links))[:20]
         if sub_links:
             log(f"  Weinig directe PDFs — subpagina's verkennen ({len(sub_links)})…")
         for sub_url in sub_links:
@@ -190,7 +143,7 @@ def scrape_website(slug: str, info: dict, output_map: Path) -> tuple[int, int, i
                     if abs_pdf not in pdf_links:
                         pdf_links.append(abs_pdf)
 
-    pdf_links = list(dict.fromkeys(pdf_links))  # dedupliceer
+    pdf_links = list(dict.fromkeys(pdf_links))
     log(f"  {len(pdf_links)} PDF's gevonden")
 
     nieuw = aanwezig = fouten = 0
@@ -204,15 +157,13 @@ def scrape_website(slug: str, info: dict, output_map: Path) -> tuple[int, int, i
             aanwezig += 1
             continue
 
-        if DROOG:
+        if droog:
             log(f"  [droog] {bestandsnaam}")
             nieuw += 1
             continue
 
         try:
-            req = urllib.request.Request(url, headers=HEADERS)
-            with urllib.request.urlopen(req, timeout=30) as r:
-                bestemming.write_bytes(r.read())
+            grootte = download(url, bestemming)
             log(f"  ✓ {bestandsnaam}")
             nieuw += 1
         except Exception as e:
@@ -226,15 +177,8 @@ def scrape_website(slug: str, info: dict, output_map: Path) -> tuple[int, int, i
 # NOTUBIZ-SCRAPER (type=notubiz)
 # ══════════════════════════════════════════════════════════════════════════════
 
-def _notubiz_verzoek(endpoint: str) -> dict:
-    sep = "&" if "?" in endpoint else "?"
-    url = f"{NOTUBIZ_API}/{endpoint}{sep}version={NOTUBIZ_VERSION}&format=json"
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return json.loads(r.read())
-
-
-def scrape_notubiz(slug: str, info: dict, output_map: Path) -> tuple[int, int, int]:
+def scrape_notubiz(slug: str, info: dict, output_map: Path, droog: bool) -> tuple[int, int, int]:
+    """Scrape vergaderstukken via de Notubiz API (VR-specifiek)."""
     notubiz_id = info.get("notubiz_id")
     if not notubiz_id:
         log("Geen notubiz_id geconfigureerd.")
@@ -244,7 +188,7 @@ def scrape_notubiz(slug: str, info: dict, output_map: Path) -> tuple[int, int, i
     log(f"Notubiz-ID: {notubiz_id} | vanaf: {vanaf}")
 
     try:
-        data = _notubiz_verzoek(f"events?organisation_id={notubiz_id}&date_from={vanaf}&count=100")
+        data = notubiz_verzoek(f"events?organisation_id={notubiz_id}&date_from={vanaf}&count=100")
     except Exception as e:
         log(f"Notubiz API fout: {e}")
         return 0, 0, 0
@@ -263,7 +207,7 @@ def scrape_notubiz(slug: str, info: dict, output_map: Path) -> tuple[int, int, i
         soort = verg.get("attribute", {}).get("name", "vergadering")
 
         try:
-            detail = _notubiz_verzoek(f"events/{verg_id}")
+            detail = notubiz_verzoek(f"events/{verg_id}")
         except Exception as e:
             log(f"  Vergadering {verg_id} overgeslagen: {e}")
             continue
@@ -274,28 +218,26 @@ def scrape_notubiz(slug: str, info: dict, output_map: Path) -> tuple[int, int, i
             if not url or not url.lower().endswith(".pdf"):
                 continue
 
-            veilige_naam = re.sub(r'[^\w\-.]', '_', f"{datum}_{soort}_{naam}")
-            if not veilige_naam.lower().endswith(".pdf"):
-                veilige_naam += ".pdf"
-            bestemming = output_map / veilige_naam
+            veilige = re.sub(r'[^\w\-.]', '_', f"{datum}_{soort}_{naam}")
+            if not veilige.lower().endswith(".pdf"):
+                veilige += ".pdf"
+            bestemming = output_map / veilige
 
             if bestemming.exists():
                 aanwezig += 1
                 continue
 
-            if DROOG:
-                log(f"  [droog] {veilige_naam}")
+            if droog:
+                log(f"  [droog] {veilige}")
                 nieuw += 1
                 continue
 
             try:
-                req = urllib.request.Request(url, headers=HEADERS)
-                with urllib.request.urlopen(req, timeout=30) as r:
-                    bestemming.write_bytes(r.read())
-                log(f"  ✓ {veilige_naam}")
+                download(url, bestemming)
+                log(f"  ✓ {veilige}")
                 nieuw += 1
             except Exception as e:
-                log(f"  ✗ {veilige_naam}: {e}")
+                log(f"  ✗ {veilige}: {e}")
                 fouten += 1
 
     return nieuw, aanwezig, fouten
@@ -305,30 +247,8 @@ def scrape_notubiz(slug: str, info: dict, output_map: Path) -> tuple[int, int, i
 # IBABS-SCRAPER (type=ibabs)
 # ══════════════════════════════════════════════════════════════════════════════
 
-def _ibabs_soap(actie: str, body_xml: str) -> ET.Element:
-    envelope = f"""<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
-               xmlns:tns="{IBABS_NS}">
-  <soap:Body>{body_xml}</soap:Body>
-</soap:Envelope>"""
-    req = urllib.request.Request(
-        IBABS_ENDPOINT,
-        data=envelope.encode("utf-8"),
-        headers={
-            "Content-Type": "text/xml; charset=utf-8",
-            "SOAPAction": f'"{IBABS_NS}IPublic/{actie}"',
-        },
-    )
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return ET.fromstring(r.read())
-
-
-def _ibabs_tekst(element: ET.Element, tag: str) -> str:
-    el = element.find(f".//{{{IBABS_NS}}}{tag}")
-    return el.text or "" if el is not None else ""
-
-
-def scrape_ibabs(slug: str, info: dict, output_map: Path) -> tuple[int, int, int]:
+def scrape_ibabs(slug: str, info: dict, output_map: Path, droog: bool) -> tuple[int, int, int]:
+    """Scrape vergaderstukken via de iBabs SOAP API (VR-specifiek)."""
     ibabs_naam = info.get("ibabs_naam", "")
     if not ibabs_naam:
         log("Geen ibabs_naam geconfigureerd.")
@@ -338,13 +258,12 @@ def scrape_ibabs(slug: str, info: dict, output_map: Path) -> tuple[int, int, int
     log(f"iBabs site: {ibabs_naam} | vanaf: {vanaf[:10]}")
 
     try:
-        root = _ibabs_soap("GetMeetings", f"""
-<tns:GetMeetings>
-  <tns:siteName>{ibabs_naam}</tns:siteName>
-  <tns:listName></tns:listName>
-  <tns:dateFrom>{vanaf}</tns:dateFrom>
-  <tns:dateTo>{datetime.now().strftime('%Y-%m-%dT23:59:59')}</tns:dateTo>
-</tns:GetMeetings>""")
+        root = ibabs_soap("GetMeetings", (
+            f"<tns:siteName>{ibabs_naam}</tns:siteName>"
+            f"<tns:listName></tns:listName>"
+            f"<tns:dateFrom>{vanaf}</tns:dateFrom>"
+            f"<tns:dateTo>{datetime.now().strftime('%Y-%m-%dT23:59:59')}</tns:dateTo>"
+        ))
     except Exception as e:
         log(f"iBabs API fout: {e}")
         return 0, 0, 0
@@ -354,48 +273,45 @@ def scrape_ibabs(slug: str, info: dict, output_map: Path) -> tuple[int, int, int
 
     nieuw = aanwezig = fouten = 0
     for verg in vergaderingen:
-        verg_id = _ibabs_tekst(verg, "Id")
-        datum = _ibabs_tekst(verg, "MeetingDate")[:10]
-        soort = _ibabs_tekst(verg, "MeetingType")
+        verg_id = ibabs_tekst(verg, "Id")
+        datum = ibabs_tekst(verg, "MeetingDate")[:10]
+        soort = ibabs_tekst(verg, "MeetingType")
 
         try:
-            detail_root = _ibabs_soap("GetMeetingWithItems", f"""
-<tns:GetMeetingWithItems>
-  <tns:siteName>{ibabs_naam}</tns:siteName>
-  <tns:meetingId>{verg_id}</tns:meetingId>
-</tns:GetMeetingWithItems>""")
+            detail_root = ibabs_soap("GetMeetingWithItems", (
+                f"<tns:siteName>{ibabs_naam}</tns:siteName>"
+                f"<tns:meetingId>{verg_id}</tns:meetingId>"
+            ))
         except Exception as e:
             log(f"  Vergadering {verg_id} overgeslagen: {e}")
             continue
 
         for doc in detail_root.findall(f".//{{{IBABS_NS}}}iBabsDocument"):
-            url = _ibabs_tekst(doc, "PublicDownloadURL") or _ibabs_tekst(doc, "DownloadURL")
-            naam = _ibabs_tekst(doc, "DisplayName") or _ibabs_tekst(doc, "FileName")
+            url = ibabs_tekst(doc, "PublicDownloadURL") or ibabs_tekst(doc, "DownloadURL")
+            naam = ibabs_tekst(doc, "DisplayName") or ibabs_tekst(doc, "FileName")
             if not url or not url.lower().endswith(".pdf"):
                 continue
 
-            veilige_naam = re.sub(r'[^\w\-.]', '_', f"{datum}_{soort}_{naam}")
-            if not veilige_naam.lower().endswith(".pdf"):
-                veilige_naam += ".pdf"
-            bestemming = output_map / veilige_naam
+            veilige = re.sub(r'[^\w\-.]', '_', f"{datum}_{soort}_{naam}")
+            if not veilige.lower().endswith(".pdf"):
+                veilige += ".pdf"
+            bestemming = output_map / veilige
 
             if bestemming.exists():
                 aanwezig += 1
                 continue
 
-            if DROOG:
-                log(f"  [droog] {veilige_naam}")
+            if droog:
+                log(f"  [droog] {veilige}")
                 nieuw += 1
                 continue
 
             try:
-                req = urllib.request.Request(url, headers=HEADERS)
-                with urllib.request.urlopen(req, timeout=30) as r:
-                    bestemming.write_bytes(r.read())
-                log(f"  ✓ {veilige_naam}")
+                download(url, bestemming)
+                log(f"  ✓ {veilige}")
                 nieuw += 1
             except Exception as e:
-                log(f"  ✗ {veilige_naam}: {e}")
+                log(f"  ✗ {veilige}: {e}")
                 fouten += 1
 
     return nieuw, aanwezig, fouten
@@ -405,7 +321,7 @@ def scrape_ibabs(slug: str, info: dict, output_map: Path) -> tuple[int, int, int
 # HOOFDFUNCTIE
 # ══════════════════════════════════════════════════════════════════════════════
 
-def scrape(slug: str):
+def scrape(slug: str, droog: bool):
     catalogus = laad_catalogus()
     if slug not in catalogus:
         print(f"\nOnbekende veiligheidsregio: '{slug}'")
@@ -416,7 +332,8 @@ def scrape(slug: str):
     naam = info.get("naam", slug)
     brontype = info.get("type", "website")
 
-    output_map = setup(slug)
+    output_map = OUTPUT_BASIS / "veiligheidsregios" / slug
+    setup_logging(output_map)
     output_map.mkdir(parents=True, exist_ok=True)
 
     log("=" * 60)
@@ -425,22 +342,16 @@ def scrape(slug: str):
     log("=" * 60)
 
     if brontype == "notubiz":
-        nieuw, aanwezig, fouten = scrape_notubiz(slug, info, output_map)
+        nieuw, aanwezig, fouten = scrape_notubiz(slug, info, output_map, droog)
     elif brontype == "ibabs":
-        nieuw, aanwezig, fouten = scrape_ibabs(slug, info, output_map)
+        nieuw, aanwezig, fouten = scrape_ibabs(slug, info, output_map, droog)
     else:
-        nieuw, aanwezig, fouten = scrape_website(slug, info, output_map)
+        nieuw, aanwezig, fouten = scrape_website(slug, info, output_map, droog)
 
     if opmerking := info.get("opmerking"):
         log(f"  Let op: {opmerking}")
 
-    log("")
-    log("─" * 60)
-    log(f"Nieuw gedownload : {nieuw}")
-    log(f"Al aanwezig      : {aanwezig}")
-    log(f"Fouten           : {fouten}")
-    log(f"Opgeslagen in    : {output_map}")
-    log("─" * 60)
+    log_samenvatting(nieuw, aanwezig, fouten, output_map)
 
 
 def toon_lijst():
@@ -472,6 +383,7 @@ def toon_welke(gemeente: str):
 # ══════════════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
+    droog = "--droog" in sys.argv
     args = [a for a in sys.argv[1:] if a != "--droog"]
 
     if not args or args[0] in ("-h", "--help", "-?", "help"):
@@ -483,4 +395,4 @@ if __name__ == "__main__":
     elif args[0] == "--welke" and len(args) > 1:
         toon_welke(args[1])
     else:
-        scrape(args[0])
+        scrape(args[0], droog)

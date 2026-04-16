@@ -5,6 +5,7 @@ Een journalistiek onderzoekstool waarmee je openbare vergaderstukken van Nederla
 ## Wat er in deze map staat
 
 - `toolkit.py` — hoofdinterface: verkennen, onderzoek, nieuw-orgaan, nieuw-dossier, status, check
+- `api.py` — gedeelde API-functies (ORI, Notubiz, iBabs) en utilities voor alle scrapers
 - `scraper.py` — downloadt PDF's van gemeenten via Open Raadsinformatie API
 - `scraper_waterschap.py` — downloadt vergaderstukken van waterschappen via ORI API
 - `scraper_gr.py` — downloadt vergaderstukken van gemeenschappelijke regelingen
