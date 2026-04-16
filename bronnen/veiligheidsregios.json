@@ -3,7 +3,7 @@
   "amsterdam-amstelland": {
     "naam": "Veiligheidsregio Amsterdam-Amstelland",
     "type": "website",
-    "docs_url": "https://www.veiligheidsregioaa.nl/over-ons/bestuur/vergaderingen/",
+    "docs_url": "https://veiligheidsregioaa.nl/organisatie/documenten/",
     "gemeenten": ["amsterdam", "aalsmeer", "amstelveen", "diemen", "ouder-amstel", "uithoorn"]
   },
   "brabant-noord": {
