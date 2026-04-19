@@ -1,6 +1,6 @@
 # Organen-catalogus
 
-Deze map bevat configuratiebestanden per orgaan. Elk bestand beschrijft één orgaan: een gemeente, waterschap of gemeenschappelijke regeling (GR).
+Deze map bevat configuratiebestanden per orgaan. Elk bestand beschrijft één orgaan: een gemeente, waterschap, provincie of gemeenschappelijke regeling (GR).
 
 ## Structuur van een orgaan-config
 
@@ -20,7 +20,7 @@ Deze map bevat configuratiebestanden per orgaan. Elk bestand beschrijft één or
 | Veld | Waarden | Toelichting |
 |---|---|---|
 | `naam` | vrije tekst | Volledige naam voor weergave |
-| `type` | `gemeente`, `waterschap`, `gr` | Type orgaan |
+| `type` | `gemeente`, `waterschap`, `gr`, `provincie` | Type orgaan |
 | `bron` | `ori`, `ibabs`, `notubiz` | Databron — wordt automatisch bepaald op basis van de configuratie in `bronnen/` |
 | `vergadertypen` | lijst van strings | Welke vergadering-namen worden gescraped (hoofdletterongevoelig, gedeeltelijke match) |
 
@@ -30,8 +30,9 @@ Deze map bevat configuratiebestanden per orgaan. Elk bestand beschrijft één or
 - Gemeente: `rotterdam.json`, `den-haag.json`
 - Waterschap: `hollandse-delta.json`, `rijnland.json`
 - GR: `drechtsteden-gr.json`, `midden-holland-gr.json`
+- Provincie: `zuid-holland.json`, `gelderland.json`
 
-Beschikbare indices: `python3 scraper.py --lijst` (gemeenten), `python3 scraper_waterschap.py --lijst` (waterschappen), `python3 scraper_gr.py --lijst` (GRs)
+Beschikbare indices: `python3 scraper.py --lijst` (gemeenten), `python3 scraper_waterschap.py --lijst` (waterschappen), `python3 scraper_gr.py --lijst` (GRs), `python3 scraper_provincie.py --lijst` (provincies)
 
 ## Standaard vergadertypen per type
 
@@ -48,6 +49,11 @@ Beschikbare indices: `python3 scraper.py --lijst` (gemeenten), `python3 scraper_
 **Gemeenschappelijke regeling**
 ```json
 ["algemeen bestuur", "dagelijks bestuur", "portefeuillehoudersoverleg"]
+```
+
+**Provincie**
+```json
+["provinciale staten", "gedeputeerde staten", "statencommissie", "commissie"]
 ```
 
 ## Nieuw orgaan toevoegen

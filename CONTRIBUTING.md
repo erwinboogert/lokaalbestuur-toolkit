@@ -1,6 +1,6 @@
 # Bijdragen aan de Lokaalbestuur Toolkit
 
-Bijdragen zijn welkom, in het bijzonder orgaan-configs voor gemeenten, waterschappen en gemeenschappelijke regelingen die nog niet in de map staan.
+Bijdragen zijn welkom, in het bijzonder orgaan-configs voor gemeenten, waterschappen, provincies en gemeenschappelijke regelingen die nog niet in de map staan.
 
 ---
 
@@ -34,7 +34,7 @@ organen/drechtsteden-gr.json
 
 | Veld | Toegestane waarden |
 |---|---|
-| `type` | `gemeente`, `waterschap`, `gr` |
+| `type` | `gemeente`, `waterschap`, `gr`, `provincie` |
 | `bron` | `ori` (enige ondersteunde bron op dit moment) |
 | `vergadertypen` | zie `organen/README.md` voor standaarden per type |
 

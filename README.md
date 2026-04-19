@@ -1,6 +1,6 @@
 # Lokaalbestuur Toolkit
 
-Nederlandse gemeenten, waterschappen en samenwerkingsverbanden publiceren duizenden vergaderstukken per jaar. Ze zijn openbaar, maar in de praktijk onvindbaar: verspreid over honderden websites, als slecht doorzoekbare PDF's, zonder centrale index.
+Nederlandse gemeenten, provincies, waterschappen en samenwerkingsverbanden publiceren duizenden vergaderstukken per jaar. Ze zijn openbaar, maar in de praktijk onvindbaar: verspreid over honderden websites, als slecht doorzoekbare PDF's, zonder centrale index.
 
 Deze toolkit downloadt die stukken automatisch en maakt ze doorzoekbaar — lokaal op je eigen machine, zonder account of API-sleutel. Je kunt er vervolgens open onderzoeksvragen over stellen: niet "zoek het woord woningbouw", maar "is er een verband tussen de bezuinigingen op sport en de stijgende obesitascijfers onder jongeren?"
 
@@ -18,15 +18,15 @@ De toolkit bestaat uit drie lagen die je los of samen kunt gebruiken:
 
 ---
 
-## Wat je nodig hebt
-
-- Python 3.10 of hoger
-- `pdfplumber` voor tekstextractie
+## Installatie
 
 ```bash
-pip install pdfplumber
-python3 toolkit.py check    # controleert of alles klopt
+git clone https://github.com/erwinboogert/lokaalbestuur-toolkit.git
+cd lokaalbestuur-toolkit
+python3 toolkit.py setup
 ```
+
+Dat is alles. Het setup-commando controleert je Python-versie, installeert de benodigde bibliotheken, test de API-verbinding en stelt de documentenmap in. Je hebt alleen Python 3.10 of hoger nodig.
 
 **Optioneel maar aanbevolen:** [Claude Code](https://claude.ai/code) — een AI-assistent die je installeert als CLI en die zelf bestanden en mappen kan doorzoeken. Daarmee kun je de toolkit zijn volledige potentieel benutten (zie verderop).
 
@@ -36,7 +36,7 @@ python3 toolkit.py check    # controleert of alles klopt
 
 ### Stap 1 — Verkennen
 
-Voordat je iets downloadt, laat de toolkit zien welke bronnen beschikbaar zijn voor een gemeente: de bijbehorende veiligheidsregio, relevante gemeenschappelijke regelingen en het waterschap.
+Voordat je iets downloadt, laat de toolkit zien welke bronnen beschikbaar zijn voor een gemeente: de bijbehorende provincie, veiligheidsregio, relevante gemeenschappelijke regelingen en het waterschap.
 
 ```bash
 python3 toolkit.py verkennen rotterdam
@@ -58,9 +58,10 @@ python3 scraper.py rotterdam --vanaf 2024-01-01   # vanaf een specifieke datum
 python3 scraper.py rotterdam --droog          # eerst zien wat er gedownload wordt
 ```
 
-Wil je ook de veiligheidsregio, een GR of een waterschap downloaden:
+Wil je ook de provincie, veiligheidsregio, een GR of een waterschap downloaden:
 
 ```bash
+python3 scraper_provincie.py zuid-holland
 python3 scraper_vr.py rotterdam-rijnmond
 python3 scraper_gr.py jeugdhulp-rijnmond
 python3 scraper_waterschap.py hollandse-delta
@@ -73,7 +74,7 @@ python3 toolkit.py onderzoek rotterdam
 ```
 
 Dit commando:
-- Controleert welke bronnen beschikbaar zijn (gemeente, plus eventuele GRs en waterschappen)
+- Controleert welke bronnen beschikbaar zijn (gemeente, plus eventuele provincie, GRs en waterschappen)
 - Bouwt de zoekindex bij
 - Schrijft een **contextbriefing** naar `~/Documents/notulen/rotterdam/context.md`
 
@@ -178,6 +179,18 @@ python3 scraper_vr.py --welke rotterdam    # welke VR hoort bij een gemeente?
 
 De scraper ondersteunt alle publicatievormen: eigen websites (22 regio's), iBabs (Brabant-Noord), en Notubiz (Zeeland). Relevant bij onderwerpen als brandweer, crisisbeheersing en rampenbestrijding.
 
+### Provincies
+
+Alle 12 Nederlandse provincies staan in de catalogus. 10 zijn automatisch scrapebaar: 8 via de ORI API, 2 via Notubiz (Gelderland, Noord-Brabant). Drenthe en Zeeland hebben geen geautomatiseerde bron. De toolkit weet welke provincie bij welke gemeente hoort en toont dat automatisch bij `verkennen`. Downloaden:
+
+```bash
+python3 scraper_provincie.py zuid-holland
+python3 scraper_provincie.py --lijst           # toon alle provincies en hun bron
+python3 scraper_provincie.py --lijst-ori       # toon provincies in ORI API
+```
+
+Relevant bij onderwerpen als ruimtelijke ordening, natuur en stikstof, woningbouwafspraken, regionale infrastructuur, energietransitie en interbestuurlijk toezicht op gemeenten.
+
 ---
 
 ## Met Claude Code: wat het extra oplevert
@@ -232,6 +245,8 @@ python3 scraper_vr.py --lijst                   # toon alle 25 veiligheidsregio'
 python3 scraper_vr.py --welke <gemeente>        # welke VR hoort bij gemeente?
 python3 scraper_waterschap.py <slug>            # waterschap
 python3 scraper_gr.py <slug>                    # gemeenschappelijke regeling
+python3 scraper_provincie.py <slug>             # provincie
+python3 scraper_provincie.py --lijst            # toon alle provincies en hun bron
 python3 toolkit.py scrape --alles               # alle geconfigureerde organen bijwerken
 
 # Onderzoek
@@ -253,6 +268,7 @@ python3 analyse.py --dossier <naam>             # handmatig alert draaien
 # Overzicht
 python3 toolkit.py                              # dashboard
 python3 toolkit.py status                       # uitgebreid statusoverzicht
+python3 toolkit.py setup                        # installatie (afhankelijkheden + configuratie)
 python3 toolkit.py check                        # installatiecheck
 ```
 
@@ -277,9 +293,10 @@ lokaalbestuur-toolkit/
 ├── scraper_waterschap.py   waterschapstukken (ORI API + iBabs)
 ├── scraper_gr.py           GR-stukken (ORI / Notubiz / iBabs)
 ├── scraper_vr.py           veiligheidsregio's (website / Notubiz / iBabs)
+├── scraper_provincie.py    provincies (ORI API / Notubiz)
 ├── analyse.py              keyword-alerts
 ├── index.py                zoekindex (SQLite FTS5)
-├── bronnen/                catalogussen (gemeenten, waterschappen, GRs, veiligheidsregio's)
+├── bronnen/                catalogussen (gemeenten, waterschappen, GRs, VRs, provincies)
 ├── organen/                configuratie per orgaan
 ├── dossiers/               configuratie per monitoringsdossier
 ├── prompts/                sjablonen voor onderzoeksgesprekken
@@ -293,5 +310,6 @@ lokaalbestuur-toolkit/
 │   └── alerts/alert-2026-03-26.md
 ├── waterschappen/hollandse-delta/
 ├── regelingen/jeugdhulp-rijnmond/
-└── veiligheidsregios/rotterdam-rijnmond/
+├── veiligheidsregios/rotterdam-rijnmond/
+└── provincies/zuid-holland/
 ```

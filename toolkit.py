@@ -47,6 +47,7 @@ VERGADERTYPEN_PER_TYPE = {
     "gemeente":   ["gemeenteraad", "commissie", "raadsbrede commissie"],
     "waterschap": ["algemeen bestuur", "college van dijkgraaf en heemraden"],
     "gr":         ["algemeen bestuur", "dagelijks bestuur", "portefeuillehoudersoverleg"],
+    "provincie":  ["provinciale staten", "gedeputeerde staten", "statencommissie", "commissie"],
 }
 
 
@@ -208,6 +209,22 @@ def _toon_bronnen_status():
             )
             if n_vr:
                 regels.append(f"  Veiligheidsregio's  {n_vr} gedownload")
+        except Exception:
+            pass
+
+    # Provincies
+    prov_pad = TOOLKIT_MAP / "bronnen" / "provincies.json"
+    if prov_pad.exists():
+        try:
+            prov_cfg = json.loads(prov_pad.read_text(encoding="utf-8"))
+            n_prov = sum(
+                1 for k, v in prov_cfg.items()
+                if not k.startswith("_")
+                and (OUTPUT_BASIS / "provincies" / k).exists()
+                and any((OUTPUT_BASIS / "provincies" / k).rglob("*.pdf"))
+            )
+            if n_prov:
+                regels.append(f"  Provincies      {n_prov} gedownload")
         except Exception:
             pass
 
@@ -449,8 +466,9 @@ def nieuwe_gemeente():
     print("    1  gemeente")
     print("    2  waterschap")
     print("    3  gemeenschappelijke regeling (GR)")
+    print("    4  provincie")
     keuze_type = input("  Keuze [1]: ").strip() or "1"
-    type_map = {"1": "gemeente", "2": "waterschap", "3": "gr"}
+    type_map = {"1": "gemeente", "2": "waterschap", "3": "gr", "4": "provincie"}
     orgaan_type = type_map.get(keuze_type, "gemeente")
 
     standaard = VERGADERTYPEN_PER_TYPE[orgaan_type]
@@ -683,6 +701,78 @@ def nieuw_waterschap():
     print()
 
 
+def nieuwe_provincie():
+    """Wizard: voeg een provincie toe of pas de configuratie aan."""
+    print()
+    print("Provincie configureren")
+    print("─" * 50)
+    print()
+
+    pad = TOOLKIT_MAP / "bronnen" / "provincies.json"
+    try:
+        config = json.loads(pad.read_text(encoding="utf-8"))
+    except Exception:
+        config = {}
+
+    provincies = {k: v for k, v in config.items() if not k.startswith("_")}
+    beschikbaar = [(s, p) for s, p in sorted(provincies.items())
+                   if p.get("ori_index") or p.get("notubiz_id")]
+
+    if not beschikbaar:
+        print("  Geen provincies met geautomatiseerde bron gevonden.")
+        return
+
+    print("  Beschikbare provincies:\n")
+    for i, (slug, info) in enumerate(beschikbaar, 1):
+        naam = info.get("naam", slug)
+        if "ori_index" in info:
+            bron = "ORI"
+        elif "notubiz_id" in info:
+            bron = "Notubiz"
+        else:
+            bron = "?"
+        print(f"    {i:2}.  {naam:<30} ({bron})")
+
+    print()
+    keuze = input("  Welke provincie wil je downloaden? (nummer): ").strip()
+    try:
+        idx = int(keuze) - 1
+        if 0 <= idx < len(beschikbaar):
+            slug = beschikbaar[idx][0]
+            print()
+            subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper_provincie.py"), slug])
+        else:
+            print("  Ongeldig nummer.")
+    except ValueError:
+        print("  Ongeldig nummer.")
+    print()
+
+
+def scrape_provincies():
+    """Download nieuwe vergaderstukken voor alle geconfigureerde provincies."""
+    pad = TOOLKIT_MAP / "bronnen" / "provincies.json"
+    if not pad.exists():
+        print("\nGeen bronnen/provincies.json gevonden.\n")
+        return
+    try:
+        config = json.loads(pad.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"\nFout bij lezen provincies.json: {e}\n")
+        return
+
+    provincies = {k: v for k, v in config.items()
+                  if not k.startswith("_") and (v.get("ori_index") or v.get("notubiz_id"))}
+    if not provincies:
+        print("\nGeen provincies met geautomatiseerde bron geconfigureerd.\n")
+        return
+
+    print(f"\n{len(provincies)} provincies scrapen…\n")
+    for slug in provincies:
+        print(f"  → {slug}")
+        subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper_provincie.py"), slug])
+        print()
+
+
 def scrape_waterschappen():
     """Download nieuwe vergaderstukken voor alle geconfigureerde waterschappen."""
     pad = TOOLKIT_MAP / "bronnen" / "waterschappen.json"
@@ -751,6 +841,7 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list, gevon
                 "gr": "Gemeenschappelijke regeling",
                 "waterschap": "Waterschap",
                 "veiligheidsregio": "Veiligheidsregio",
+                "provincie": "Provincie",
             }
             label = type_labels.get(b["type"], b["type"])
             regels.append(f"**{b['naam']}** ({label}) — {b['n_docs']} documenten")
@@ -781,6 +872,12 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list, gevon
     regels.append(
         "Waterschappen zijn relevant bij: waterveiligheid, dijken, klimaatadaptatie, "
         "grondwater, rioolwaterzuivering, stedelijk water."
+    )
+    regels.append("")
+    regels.append(
+        "Provincies zijn relevant bij: ruimtelijke ordening, natuur en stikstof, "
+        "woningbouwafspraken, regionale infrastructuur (wegen, OV), economisch beleid, "
+        "energietransitie, cultureel erfgoed en interbestuurlijk toezicht op gemeenten."
     )
     regels.append("")
 
@@ -1134,6 +1231,39 @@ def onderzoek(args: list):
         except Exception:
             pass
 
+    # Provincies
+    prov_pad = TOOLKIT_MAP / "bronnen" / "provincies.json"
+    if prov_pad.exists():
+        try:
+            prov_config = {
+                k: v for k, v in json.loads(prov_pad.read_text(encoding="utf-8")).items()
+                if not k.startswith("_")
+            }
+            for slug, info in prov_config.items():
+                if gemeente not in info.get("gemeenten", []):
+                    continue
+                naam = info.get("naam", slug)
+                prov_map = OUTPUT_BASIS / "provincies" / slug
+                brontype = info.get("brontype", "")
+                if brontype == "geen":
+                    ontbrekend.append({
+                        "naam": naam, "type": "provincie",
+                        "commando": "(geen geautomatiseerde bron)",
+                    })
+                elif prov_map.exists() and any(prov_map.rglob("*.pdf")):
+                    n = sum(1 for _ in prov_map.rglob("*.pdf"))
+                    beschikbaar.append({
+                        "naam": naam, "type": "provincie", "n_docs": n,
+                        "pad": str(prov_map), "index": False, "slug": slug,
+                    })
+                else:
+                    ontbrekend.append({
+                        "naam": naam, "type": "provincie",
+                        "commando": f"python3 scraper_provincie.py {slug}",
+                    })
+        except Exception:
+            pass
+
     # Resultaat tonen
     print()
     if beschikbaar:
@@ -1287,6 +1417,103 @@ def nieuw_alert(args: list):
     print()
 
 
+def setup():
+    """Interactieve installatie: controleer vereisten, installeer afhankelijkheden, configureer paden."""
+    print()
+    print("Lokaalbestuur Toolkit — installatie")
+    print("─" * 50)
+    print()
+
+    fouten = 0
+
+    # 1. Python-versie
+    v = sys.version_info
+    if v >= (3, 10):
+        print(f"  ✓ Python {v.major}.{v.minor}")
+    else:
+        print(f"  ✗ Python {v.major}.{v.minor} — versie 3.10 of hoger vereist.")
+        print("    Installeer een nieuwere versie via https://www.python.org/downloads/")
+        print("    en start setup opnieuw.")
+        sys.exit(1)
+
+    # 2. pdfplumber
+    try:
+        import pdfplumber  # noqa: F401
+        print("  ✓ pdfplumber al geïnstalleerd")
+    except ImportError:
+        print("  … pdfplumber installeren…")
+        result = subprocess.run(
+            [PYTHON, "-m", "pip", "install", "pdfplumber"],
+            capture_output=True, text=True,
+        )
+        if result.returncode == 0:
+            print("  ✓ pdfplumber geïnstalleerd")
+        else:
+            print("  ✗ pdfplumber installatie mislukt:")
+            for regel in result.stderr.strip().splitlines()[-3:]:
+                print(f"    {regel}")
+            fouten += 1
+
+    # 3. API bereikbaar
+    print("  … verbinding met Open Raadsinformatie API testen…")
+    try:
+        urllib.request.urlopen(
+            "https://api.openraadsinformatie.nl/v1/elastic/_cat/indices?h=index&format=json",
+            timeout=10,
+        )
+        print("  ✓ API bereikbaar")
+    except Exception:
+        print("  ✗ API niet bereikbaar — controleer je internetverbinding.")
+        print("    De toolkit heeft internet nodig om documenten te downloaden.")
+        fouten += 1
+
+    # 4. Documentenmap instellen
+    config_pad = TOOLKIT_MAP / "config.local.json"
+    standaard_map = Path.home() / "Documents" / "notulen"
+
+    if config_pad.exists():
+        bestaand = _lees_config()
+        huidige_map = Path(bestaand["data_map"]).expanduser() if "data_map" in bestaand else standaard_map
+        print(f"  ✓ Documentenmap al ingesteld: {huidige_map}")
+    else:
+        print()
+        print("  Waar wil je de gedownloade documenten opslaan?")
+        print(f"  Druk Enter voor de standaardmap: {standaard_map}")
+        print()
+        keuze = input(f"  Documentenmap [{standaard_map}]: ").strip()
+        gekozen_map = Path(keuze).expanduser() if keuze else standaard_map
+
+        gekozen_map.mkdir(parents=True, exist_ok=True)
+
+        config_pad.write_text(
+            json.dumps({"data_map": str(gekozen_map)}, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        print(f"  ✓ Configuratie opgeslagen: {config_pad}")
+        print(f"    Documenten komen in: {gekozen_map}")
+
+    # 5. Samenvatting
+    print()
+    print("─" * 50)
+
+    if fouten:
+        print(f"  {fouten} probleem(en) gevonden. Los deze op en draai setup opnieuw.")
+    else:
+        print("  ✓ Installatie compleet. De toolkit is klaar voor gebruik.")
+        print()
+        print("  Volgende stap — kies een gemeente en verken wat er beschikbaar is:")
+        print()
+        print("    python3 toolkit.py verkennen <gemeente>")
+        print()
+        print("  Bijvoorbeeld:")
+        print()
+        print("    python3 toolkit.py verkennen rotterdam")
+        print("    python3 toolkit.py verkennen groningen")
+        print("    python3 toolkit.py verkennen veere")
+
+    print()
+
+
 def check():
     """Controleer of de toolkit correct is geïnstalleerd en klaar voor gebruik."""
     print()
@@ -1417,11 +1644,14 @@ def scrape(args: list):
         # Probeer te raden uit bronnen-catalogussen
         reg_pad = TOOLKIT_MAP / "bronnen" / "regelingen.json"
         ws_pad = TOOLKIT_MAP / "bronnen" / "waterschappen.json"
+        prov_pad = TOOLKIT_MAP / "bronnen" / "provincies.json"
         try:
             if reg_pad.exists() and slug in json.loads(reg_pad.read_text(encoding="utf-8")):
                 orgaan_type = "gr"
             elif ws_pad.exists() and slug in json.loads(ws_pad.read_text(encoding="utf-8")):
                 orgaan_type = "waterschap"
+            elif prov_pad.exists() and slug in json.loads(prov_pad.read_text(encoding="utf-8")):
+                orgaan_type = "provincie"
             else:
                 orgaan_type = "gemeente"
         except Exception:
@@ -1436,6 +1666,7 @@ def _scrape_orgaan(slug: str, orgaan_type: str, droog: bool = False):
         "gemeente": "scraper.py",
         "waterschap": "scraper_waterschap.py",
         "gr": "scraper_gr.py",
+        "provincie": "scraper_provincie.py",
     }
     scraper = scraper_map.get(orgaan_type, "scraper.py")
     cmd = [PYTHON, str(TOOLKIT_MAP / scraper), slug]
@@ -1497,10 +1728,37 @@ def verkennen(args: list):
         except Exception:
             pass
 
+    # Provincie — gefilterd op gemeente
+    prov_pad = TOOLKIT_MAP / "bronnen" / "provincies.json"
+    gevonden_prov = []
+    if prov_pad.exists():
+        try:
+            prov_config = {k: v for k, v in json.loads(prov_pad.read_text(encoding="utf-8")).items()
+                          if not k.startswith("_")}
+            gevonden_prov = [(slug, info) for slug, info in prov_config.items()
+                            if gemeente in info.get("gemeenten", [])]
+        except Exception:
+            pass
+
     # Tonen
     print()
     print("─" * 50)
     print(f"\n  Uit het vooronderzoek voor {naam}:\n")
+
+    if gevonden_prov:
+        for slug, info in gevonden_prov:
+            prov_map = OUTPUT_BASIS / "provincies" / slug
+            al = prov_map.exists() and any(prov_map.rglob("*.pdf"))
+            brontype = info.get("brontype", "")
+            if brontype == "geen":
+                label = "geen geautomatiseerde bron"
+            elif al:
+                label = "al gedownload"
+            else:
+                label = "nog niet gedownload"
+            print(f"  Provincie         {info['naam']} ({label})")
+    else:
+        print(f"  Provincie         niet gevonden in catalogus")
 
     if gevonden_vr:
         for slug, info in gevonden_vr:
@@ -1615,9 +1873,10 @@ HELP_ALGEMEEN = """
 Lokaalbestuur Toolkit — download en doorzoek vergaderstukken van Nederlandse overheden
 
 Werkwijze voor een nieuwe gemeente:
-  1. python3 toolkit.py verkennen <gemeente>   toon VR, GRs en waterschap
+  1. python3 toolkit.py verkennen <gemeente>   toon provincie, VR, GRs en waterschap
   2. python3 scraper.py <gemeente>             raadsdocumenten downloaden
-  3. python3 scraper_vr.py <slug>              optioneel: veiligheidsregio
+  3. python3 scraper_provincie.py <slug>       optioneel: provincie
+     python3 scraper_vr.py <slug>              optioneel: veiligheidsregio
      python3 scraper_gr.py <slug>              optioneel: gemeenschappelijke regeling
      python3 scraper_waterschap.py <slug>      optioneel: waterschap
   4. python3 toolkit.py onderzoek <gemeente>   zoekindex + Claude-briefing
@@ -1632,6 +1891,7 @@ Alle commando's:
   python3 toolkit.py nieuw-orgaan             gemeente, waterschap of GR toevoegen
   python3 toolkit.py nieuw-dossier            monitoring instellen met trefwoorden
   python3 toolkit.py status                   uitgebreid overzicht dossiers en alerts
+  python3 toolkit.py setup                    installatie (afhankelijkheden + configuratie)
   python3 toolkit.py check                    installatiecheck
   python3 toolkit.py fix-cron                 zoekindex koppelen aan bestaande scraper-crontabs
 
@@ -1645,6 +1905,11 @@ Veiligheidsregio's (scraper_vr.py):
   python3 scraper_vr.py --welke <gemeente>    welke VR hoort bij deze gemeente?
   python3 scraper_vr.py <slug>                download vergaderstukken
 
+Provincies (scraper_provincie.py):
+  python3 scraper_provincie.py --lijst         toon alle provincies en hun bron
+  python3 scraper_provincie.py --lijst-ori     toon provincies in ORI API
+  python3 scraper_provincie.py <slug>          download vergaderstukken
+
 Typ 'python3 toolkit.py <commando> --help' voor meer informatie over een commando.
 """
 
@@ -1652,8 +1917,8 @@ HELP_PER_COMMANDO = {
     "verkennen": """
 verkennen <gemeente>
 
-  Toon welke veiligheidsregio, gemeenschappelijke regelingen en waterschap
-  horen bij een gemeente — zonder iets te downloaden.
+  Toon welke provincie, veiligheidsregio, gemeenschappelijke regelingen en
+  waterschap horen bij een gemeente — zonder iets te downloaden.
 
   Dit is altijd de eerste stap bij een nieuwe gemeente. Je ziet meteen
   wat er beschikbaar is en kunt daarna zelf beslissen wat je wilt ophalen.
@@ -1726,6 +1991,18 @@ status
   Toont een overzicht van alle actieve dossiers:
   trefwoorden, laatste run, aantal documenten, openstaande alerts.
 """,
+    "setup": """
+setup
+
+  Interactieve installatie van de toolkit. Controleert Python-versie,
+  installeert pdfplumber als dat ontbreekt, test de API-verbinding
+  en stelt de documentenmap in.
+
+  Draaien na het klonen van de repository:
+    git clone https://github.com/erwinboogert/lokaalbestuur-toolkit.git
+    cd lokaalbestuur-toolkit
+    python3 toolkit.py setup
+""",
     "check": """
 check
 
@@ -1766,6 +2043,8 @@ def main():
         status()
     elif commando == "check":
         check()
+    elif commando == "setup":
+        setup()
     elif commando == "nieuw-alert":
         nieuw_alert(rest)
     elif commando == "nieuwe-regeling":
@@ -1776,6 +2055,10 @@ def main():
         nieuw_waterschap()
     elif commando == "scrape-waterschappen":
         scrape_waterschappen()
+    elif commando == "nieuwe-provincie":
+        nieuwe_provincie()
+    elif commando == "scrape-provincies":
+        scrape_provincies()
     elif commando == "onderzoek":
         onderzoek(rest)
     elif commando == "scrape":

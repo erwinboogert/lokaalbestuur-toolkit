@@ -10,6 +10,7 @@ Een journalistiek onderzoekstool waarmee je openbare vergaderstukken van Nederla
 - `scraper_waterschap.py` — downloadt vergaderstukken van waterschappen via ORI API
 - `scraper_gr.py` — downloadt vergaderstukken van gemeenschappelijke regelingen
 - `scraper_vr.py` — downloadt vergaderstukken van alle 25 veiligheidsregio's (website/Notubiz/iBabs)
+- `scraper_provincie.py` — downloadt vergaderstukken van provincies (ORI/Notubiz)
 - `analyse.py` — doorzoekt PDF's op trefwoorden, genereert wekelijkse alerts
 - `index.py` — bouwt lokale full-text zoekindex (SQLite FTS5)
 - `organen/` — configuratie per orgaan (JSON): naam, type, vergadertypen
@@ -17,6 +18,7 @@ Een journalistiek onderzoekstool waarmee je openbare vergaderstukken van Nederla
 - `bronnen/` — catalogussen:
   - `waterschappen.json` — alle 21 waterschappen met gemeente-mapping
   - `veiligheidsregios.json` — alle 25 veiligheidsregio's met gemeente-mapping
+  - `provincies.json` — alle 12 provincies met bron en gemeente-mapping
   - `regelingen.json` — geconfigureerde GRs
   - `gemeenten_overheid.json` — gemeente → overheid.nl koppeling
 - `prompts/` — analyseprompts voor gebruik in Claude Code-gesprekken:
@@ -42,17 +44,19 @@ Na scrapen: `~/Documents/notulen/<orgaan>/`
 Waterschappen: `~/Documents/notulen/waterschappen/<naam>/`
 GRs: `~/Documents/notulen/regelingen/<naam>/`
 Veiligheidsregio's: `~/Documents/notulen/veiligheidsregios/<naam>/`
+Provincies: `~/Documents/notulen/provincies/<naam>/`
 
 ## De primaire werkwijze
 
 ```
-python3 toolkit.py verkennen <gemeente>          # vooronderzoek: VR, GRs, waterschap tonen
+python3 toolkit.py verkennen <gemeente>          # vooronderzoek: provincie, VR, GRs, waterschap tonen
 python3 scraper.py <gemeente>                    # raadsdocumenten downloaden
 python3 scraper.py <gemeente> --jaren 2          # optioneel: begrens de periode
 python3 scraper.py <gemeente> --vanaf 2024-01-01 # of vanaf een specifieke datum
 python3 scraper_vr.py <slug>                     # optioneel: veiligheidsregio downloaden
 python3 scraper_gr.py <slug>                     # optioneel: GR downloaden
 python3 scraper_waterschap.py <slug>             # optioneel: waterschap downloaden
+python3 scraper_provincie.py <slug>              # optioneel: provincie downloaden
 python3 toolkit.py onderzoek <gemeente>          # zoekindex + Claude-briefing
 claude ~/Documents/notulen/<gemeente>            # Claude Code openen
 ```
@@ -65,6 +69,7 @@ Na `toolkit.py verkennen` de resultaten altijd gestructureerd presenteren in het
 
 **<Gemeente> — vooronderzoek**
 
+**Provincie:** <naam>
 **Veiligheidsregio:** <naam>
 **Waterschap(pen):** <naam>
 **Gemeenschappelijke regelingen (<n>):**
@@ -78,8 +83,8 @@ Sluit af met: de raadsdocumenten worden sowieso gedownload — wil je daar ook e
 
 Na een succesvolle scraper-run altijd automatisch:
 1. `python3 toolkit.py onderzoek <gemeente>` draaien (bijwerkt de zoekindex en genereert de bronnencheck)
-2. De gevonden gemeenschappelijke regelingen en het relevante waterschap tonen
-3. Aanbieden om de GRs en/of het waterschap ook te downloaden — de gebruiker beslist
+2. De gevonden gemeenschappelijke regelingen, het relevante waterschap en de provincie tonen
+3. Aanbieden om de GRs, het waterschap en/of de provincie ook te downloaden — de gebruiker beslist
 
 Dit geldt ook na het downloaden van een waterschap of GR. Niet wachten tot de gebruiker erom vraagt.
 

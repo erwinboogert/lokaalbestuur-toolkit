@@ -18,7 +18,7 @@ De installatiedrempel hoeft geen absolute blokkade te zijn. Een aantal praktisch
 
 **✅ Een vooraf ingesteld voorbeelddossier.** `dossiers/voorbeeld-woningbouw.json` + `organen/amsterdam.json` — nieuwe gebruikers zien meteen hoe een dossier eruitziet en kunnen het als sjabloon gebruiken.
 
-**Een installatiecheck.** Het commando `python3 toolkit.py check` controleert automatisch of alles goed staat: Python-versie, benodigde bibliotheken, verbinding met de API, aanwezige dossiers en crontab-regels. Nieuwe gebruikers zien direct wat er nog mist zonder zelf te moeten debuggen. Dit commando is beschikbaar vanaf de huidige versie van de toolkit.
+**✅ Een installatiewizard.** Het commando `python3 toolkit.py setup` begeleidt nieuwe gebruikers door de volledige installatie: Python-versie controleren, `pdfplumber` installeren, API-verbinding testen, documentenmap instellen. Drie regels (`git clone`, `cd`, `python3 toolkit.py setup`) en je bent klaar. Het bestaande `python3 toolkit.py check` blijft beschikbaar als losse controle achteraf.
 
 **Een korte videowalthrough.** Twee minuten schermopname van terminal tot eerste alert is voor veel journalisten toegankelijker dan een geschreven README, hoe goed die ook is. Dit kost weinig maar verlaagt de drempel sterk.
 
@@ -131,7 +131,8 @@ Kleine verbeteringen en acties die buiten de fases vallen.
 - **✅ GitHub-repository aanmaken** — publiek op github.com/erwinboogert/lokaalbestuur-toolkit
 - **✅ Werkwijze 1 — vrije onderzoeksvraag** — `python3 toolkit.py onderzoek <gemeente>` bereidt een Claude Code-sessie voor: bronnencheck (gemeente + GRs + waterschappen), zoekindex bijwerken, contextbriefing genereren. Prompt: `prompts/vrije-vraag.md`.
 - **✅ Opschoning** — verwijderd: `scraper_cbs.py`, `partijen.py`, `tijdlijn.py`, WikiBrain, `prompts/vergelijking.md`, `prompts/budget.md`, CBS-bronbestanden. Reden: niet bruikbaar in primaire werkwijze, deels onafgemaakt, redundant naast Claude Code.
-- **Dossier kan meerdere organen volgen** — `"organen": ["rotterdam", "utrecht", "groningen"]` in dossier-config; `analyse.py` itereert over meerdere documentenmappen en bundelt resultaten in één rapport. Bewust uitgesteld: vereist substantiële refactor van `analyse.py`.
+- ~~**Dossier kan meerdere organen volgen**~~ — geschrapt. Met Claude Code als primaire onderzoekstool is cross-orgaan onderzoek al mogelijk (Claude leest uit meerdere mappen). Voor geautomatiseerde alerts volstaat het aanmaken van meerdere dossiers met dezelfde trefwoorden.
+- **✅ Provinciescraper** — `scraper_provincie.py` downloadt vergaderstukken van provinciale staten en gedeputeerde staten. 8 provincies via ORI API (`osi_`-prefix), 2 via Notubiz (Gelderland, Noord-Brabant), 2 zonder geautomatiseerde bron (Drenthe, Zeeland). Catalogus: `bronnen/provincies.json`. Geïntegreerd in `verkennen`, `onderzoek` en dashboard.
 
 ---
 
@@ -270,10 +271,7 @@ De eerste concrete stap van de GR-navigator is gebouwd: wanneer een journalist e
   Welke wil je toevoegen aan de catalogus? (nummers, kommagescheiden, of leeglaten):
 ```
 
-**Nog open binnen de GR-navigator:**
-- `python3 toolkit.py gr-info <slug>` — bronstatus + vervolgstappen per GR
-- WOO-verzoeksjabloon pre-invullen per GR
-- Notubiz API-sleutel integreren zodra beschikbaar
+~~**GR-navigator geschrapt:**~~ `gr-info`, pre-ingevulde WOO-verzoeken per GR en de Notubiz API-sleutel zijn geschrapt. De Notubiz- en iBabs-integratie in de scraper dekt het merendeel van de GRs. Voor de rest volstaat de `/woo-verzoek` skill en kan Claude Code desgevraagd de bronstatus samenvatten.
 
 ### ✅ Fase 6b — Waterschappen
 
@@ -312,48 +310,9 @@ python3 toolkit.py scrape-waterschappen # download stukken voor alle waterschapp
 
 ---
 
-## Fase 7 — Financiële vergelijkingsdata (iv3 / CBS)
+## ~~Fase 7 — Financiële vergelijkingsdata (iv3 / CBS)~~ — geschrapt
 
-Doel: lokale journalisten in staat stellen om gemeentelijke financiën niet alleen te lezen uit de stukken, maar ook te vergelijken met andere gemeenten op basis van gestandaardiseerde overheidscijfers.
-
-Alle Nederlandse gemeenten zijn wettelijk verplicht hun financiële verantwoording te rapporteren aan het Rijk via een vaste systematiek die iv3 heet. Het Centraal Bureau voor de Statistiek (CBS) verzamelt deze data en maakt die openbaar. De cijfers zijn gestandaardiseerd en vergelijkbaar: je kunt exact zien hoeveel een gemeente uitgeeft aan jeugdzorg, hoe hoog de schulden zijn, hoe reserves zich ontwikkelen — en dat afzetten tegen vergelijkbare gemeenten.
-
-Deze data wordt door lokale journalisten nauwelijks gebruikt, terwijl het precies het type materiaal is dat signalen oplevert: gemeente A geeft structureel 40% meer uit aan externe inhuur dan vergelijkbare gemeenten, gemeente B heeft de afvalstoffenheffing verhoogd terwijl de reserve groeit. Gecombineerd met raadsstukken uit de bestaande toolkit ontstaat een krachtige combinatie: je ziet wat er besloten is én of het geld er ook daadwerkelijk naartoe gegaan is.
-
-De financiële data is institutioneel (gemeente als geheel) en valt daarmee binnen de bestaande privacygrenzen van de toolkit.
-
-### ✅ Data ophalen en opslaan
-
-`scraper_cbs.py` — haalt de jaarrekening op uit de onbewerkte iv3-data van CBS (dataderden.cbs.nl), slaat op als CSV per gemeente per jaar.
-
-```bash
-python3 scraper_cbs.py rotterdam              # laatste 3 beschikbare jaren
-python3 scraper_cbs.py rotterdam 2022         # specifiek jaar
-python3 scraper_cbs.py rotterdam --droog      # toon wat opgehaald zou worden
-python3 scraper_cbs.py --lijst                # toon geconfigureerde gemeenten
-```
-
-Output in: `~/Documents/notulen/<gemeente>/financien/iv3_<jaar>.csv`
-
-Eenheid: 1.000 euro. Velden: taakveld/balanspost-code, categorie, eerste en tweede plaatsing.
-Gemeentecodes: `bronnen/gemeentecodes.json` (37 gemeenten, uitbreidbaar).
-Dataset-IDs per jaar: `bronnen/iv3datasets.json` (2010–2025).
-
-**Toolkit-commando:**
-```bash
-python3 toolkit.py financien rotterdam        # haal data op via toolkit
-python3 toolkit.py financien rotterdam 2022   # specifiek jaar
-```
-
-### Nog open
-
-- **iv3-codes vertalen naar leesbare labels** — de taakveld/balanspost-codes (bijv. `6.1`, `L1.1`) zijn CBS-codes uit het Besluit begroting en verantwoording. Zonder vertaaltabel zijn de CSV-bestanden niet direct leesbaar voor een journalist. Vereist een handmatig samengestelde of extern verkregen codetabel.
-
-- **Vergelijkbare gemeenten bepalen** — voor een betekenisvolle vergelijking moet je weten welke gemeenten vergelijkbaar zijn (inwonertal, stedelijkheidsgraad, centrumfunctie). CBS heeft een gemeentetypologie; die moet worden geïntegreerd.
-
-- **Afwijkingen signaleren** — automatisch detecteren wanneer een gemeente significant afwijkt van vergelijkbare gemeenten. Vereist statistische keuzes (mediaan, drempelwaarden) en domeinkennis over wat een relevante afwijking is.
-
-- **Vergelijkingsrapport** — Markdown-rapport met opvallende afwijkingen per gemeente, bruikbaar als startpunt voor een verhaal. Dit bouwt voort op de drie punten hierboven.
+De CBS-scraper (`scraper_cbs.py`) en bijbehorende bronbestanden zijn eerder verwijderd bij de opschoning. De openstaande taken (codetabellen, gemeentetypologie, afwijkingsdetectie, vergelijkingsrapport) vereisten substantiële domeinkennis en tooling bovenop een fundament dat niet meer bestaat. CBS-data is publiek beschikbaar via dataderden.cbs.nl — Claude Code kan die data desgevraagd ophalen, interpreteren en vergelijken zonder dat de toolkit daar eigen code voor nodig heeft.
 
 ---
 
