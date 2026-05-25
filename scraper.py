@@ -31,6 +31,7 @@ from api import (
     alle_indices, find_index,
     haal_vergaderingen_ori, haal_documenten_ori,
     haal_vergaderingen_notubiz, haal_documenten_notubiz,
+    haal_bestuurlijke_context,
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -247,46 +248,32 @@ def main():
 
 # ── Gerelateerde organen ─────────────────────────────────────────────────────
 
-def _zoek_in_bronbestand(bestandsnaam: str, gemeente: str) -> list[tuple[str, str]]:
-    """Zoek een gemeente in een bronnen-JSON. Geeft [(slug, naam), ...]."""
-    pad = BRONNEN_MAP / bestandsnaam
-    if not pad.exists():
-        return []
-    data = json.loads(pad.read_text(encoding="utf-8"))
-    return [
-        (slug, info["naam"])
-        for slug, info in data.items()
-        if not slug.startswith("_") and gemeente in info.get("gemeenten", [])
-    ]
+_SECTIES = [
+    ("veiligheidsregio", "Veiligheidsregio"),
+    ("waterschap",       "Waterschappen"),
+    ("gr",               "Gemeenschappelijke regelingen"),
+    ("provincie",        "Provincie"),
+]
 
 
 def toon_gerelateerde_organen(gemeente: str):
-    """Toon VR, waterschappen en GR's die bij deze gemeente horen."""
-    vrs = _zoek_in_bronbestand("veiligheidsregios.json", gemeente)
-    waterschappen = _zoek_in_bronbestand("waterschappen.json", gemeente)
-    regelingen = _zoek_in_bronbestand("regelingen.json", gemeente)
+    """Toon provincie, VR, waterschappen en GR's die bij deze gemeente horen."""
+    context = haal_bestuurlijke_context(gemeente)
 
-    if not vrs and not waterschappen and not regelingen:
+    if not any(context[t] for t, _ in _SECTIES):
         return
 
     log("")
     log("  Gerelateerde organen")
     log("  " + "─" * 56)
 
-    if vrs:
-        log("  Veiligheidsregio:")
-        for slug, naam in vrs:
-            log(f"    → {naam:<45s} python3 scraper_vr.py {slug}")
-
-    if waterschappen:
-        log("  Waterschappen:")
-        for slug, naam in waterschappen:
-            log(f"    → {naam:<45s} python3 scraper_waterschap.py {slug}")
-
-    if regelingen:
-        log("  Gemeenschappelijke regelingen:")
-        for slug, naam in regelingen:
-            log(f"    → {naam:<45s} python3 scraper_gr.py {slug}")
+    for type_sleutel, kopje in _SECTIES:
+        items = [i for i in context[type_sleutel] if i.get("downloadbaar")]
+        if not items:
+            continue
+        log(f"  {kopje}:")
+        for item in items:
+            log(f"    → {item['naam']:<45s} {item['scraper_cmd']}")
 
     log("  " + "─" * 56)
 

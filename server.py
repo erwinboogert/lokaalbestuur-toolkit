@@ -26,6 +26,8 @@ from typing import Optional
 
 from flask import Flask, Response, jsonify, request, send_from_directory
 
+from api import haal_bestuurlijke_context, haal_grs_voor_gemeente
+
 # ── Configuratie ──────────────────────────────────────────────────────────────
 
 TOOLKIT_MAP = Path(__file__).parent
@@ -59,35 +61,49 @@ _jobs       = {}   # type: dict[str, queue.Queue]
 _job_status = {}   # type: dict[str, dict]
 
 
-def _run_job(job_id: str, cmd: list[str]):
-    """Draai een subprocess en stream de uitvoer naar de job-queue."""
+def _run_job_chain(job_id: str, stappen: list[tuple]):
+    """Draai een lijst van (cmd, label) achter elkaar, stop bij eerste fout."""
     q = _jobs[job_id]
     _job_status[job_id] = {"status": "running", "gestart": datetime.now().isoformat()}
-    try:
-        proc = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-        )
-        for line in proc.stdout:
-            q.put({"type": "log", "text": line.rstrip()})
-        proc.wait()
-        _job_status[job_id]["status"] = "done" if proc.returncode == 0 else "error"
-        _job_status[job_id]["returncode"] = proc.returncode
-    except Exception as e:
-        q.put({"type": "error", "text": str(e)})
-        _job_status[job_id]["status"] = "error"
-    finally:
-        q.put(None)  # sentinel: stream beëindigd
+    laatste_returncode = 0
+
+    for i, (cmd, label) in enumerate(stappen):
+        if len(stappen) > 1:
+            q.put({"type": "stap", "index": i, "totaal": len(stappen), "label": label})
+        try:
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            )
+            for line in proc.stdout:
+                q.put({"type": "log", "text": line.rstrip()})
+            proc.wait()
+            laatste_returncode = proc.returncode
+            if proc.returncode != 0:
+                break  # bij fout: stop, sla volgende stappen over
+        except Exception as e:
+            q.put({"type": "error", "text": str(e)})
+            laatste_returncode = -1
+            break
+
+    _job_status[job_id]["status"] = "done" if laatste_returncode == 0 else "error"
+    _job_status[job_id]["returncode"] = laatste_returncode
+    q.put(None)  # sentinel: stream beëindigd
 
 
 def _start_job(cmd: list[str]) -> str:
-    """Start een job in een achtergrondthread en geef het job-id terug."""
+    """Start een single-command job en geef het job-id terug."""
+    return _start_job_chain([(cmd, "")])
+
+
+def _start_job_chain(stappen: list[tuple]) -> str:
+    """Start een gekoppelde job (lijst van (cmd, label)) en geef job-id terug."""
     job_id = str(uuid.uuid4())[:8]
     _jobs[job_id] = queue.Queue()
-    threading.Thread(target=_run_job, args=(job_id, cmd), daemon=True).start()
+    threading.Thread(target=_run_job_chain, args=(job_id, stappen), daemon=True).start()
     return job_id
 
 
@@ -250,70 +266,6 @@ def haal_gemeenten_ori() -> list[str]:
 
 # ── GR-lookup via organisaties.overheid.nl ───────────────────────────────────
 
-def haal_grs_overheid(gemeente_slug: str) -> list:
-    """Haal de volledige GR-lijst op van organisaties.overheid.nl.
-
-    Geeft een lijst van dicts: {naam, slug, overheid_id}.
-    Geeft een lege lijst terug bij een netwerkfout of onbekende gemeente.
-    """
-    mapping_pad = BRONNEN_MAP / "gemeenten_overheid.json"
-    try:
-        mapping = json.loads(mapping_pad.read_text(encoding="utf-8"))
-    except Exception:
-        return []
-
-    info = mapping.get(gemeente_slug)
-    if not info:
-        return []
-
-    overheid_id   = info["overheid_id"]
-    gemeente_naam = info["naam"].replace(" ", "_").replace("'", "")
-    url = f"https://organisaties.overheid.nl/{overheid_id}/Gemeente_{gemeente_naam}"
-
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "lokaalbestuur-toolkit/1.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            html = resp.read().decode("utf-8")
-    except Exception:
-        return []
-
-    # Laad de volledige GR-index voor naamopzoek (indien beschikbaar)
-    gr_index = {}
-    gr_index_pad = BRONNEN_MAP / "regelingen_overheid.json"
-    if gr_index_pad.exists():
-        try:
-            gr_index = {
-                k: v for k, v in
-                json.loads(gr_index_pad.read_text(encoding="utf-8")).items()
-                if not k.startswith("_")
-            }
-        except Exception:
-            pass
-
-    grs  = []
-    seen = set()
-    for m in re.finditer(r'href="[^"]*?/samenwerkingen/(\d+)/([^/"]+)/"', html):
-        overheid_gr_id = m.group(1)
-        if overheid_gr_id in seen:
-            continue
-        seen.add(overheid_gr_id)
-        slug_raw = m.group(2)
-
-        # Gebruik de GR-index voor een nette naam; val terug op URL-afleiding
-        if overheid_gr_id in gr_index:
-            naam = gr_index[overheid_gr_id]["naam"]
-        else:
-            naam = re.sub(r"_+", " ", slug_raw).strip()
-            naam = re.sub(r"^Gemeenschappelijk[e]?\s+[Rr]egeling\s+", "", naam)
-            naam = naam[0].upper() + naam[1:] if naam else naam
-
-        gr_slug = slug_raw.lower().replace("_", "-")
-        gr_slug = re.sub(r"^gemeenschappelijk[e]?-regeling-", "", gr_slug)
-        grs.append({"naam": naam, "slug": gr_slug, "overheid_id": overheid_gr_id})
-
-    return grs
-
-
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.route("/")
@@ -427,6 +379,7 @@ def api_scrapen_start():
     orgaan    = data.get("orgaan", "").lower().strip()
     periode   = int(data.get("periode", 24))   # in maanden
     simuleer  = bool(data.get("simuleer", False))
+    index_na  = bool(data.get("index_na_scrape", True))
 
     if not orgaan:
         return jsonify({"fout": "Geen orgaan opgegeven"}), 400
@@ -443,11 +396,24 @@ def api_scrapen_start():
         return jsonify({"fout": f"Onbekend type: {org_type}"}), 400
 
     jaren = round(periode / 12, 4)          # bijv. 6 mnd → 0.5, 18 mnd → 1.5
-    cmd   = [PYTHON, str(scraper), orgaan, "--jaren", str(jaren)]
+    scrape_cmd = [PYTHON, str(scraper), orgaan, "--jaren", str(jaren)]
     if simuleer:
-        cmd.append("--droog")
+        scrape_cmd.append("--droog")
 
-    return jsonify({"job_id": _start_job(cmd), "orgaan": orgaan})
+    stappen = [(scrape_cmd, "Documenten ophalen")]
+    # Indexeren alleen voor echte downloads (niet bij --droog: dan is er niets nieuws)
+    geindexeerd = index_na and not simuleer
+    if geindexeerd:
+        stappen.append((
+            [PYTHON, str(TOOLKIT_MAP / "index.py"), orgaan],
+            "Doorzoekbaar maken",
+        ))
+
+    return jsonify({
+        "job_id":       _start_job_chain(stappen),
+        "orgaan":       orgaan,
+        "geindexeerd":  geindexeerd,
+    })
 
 
 @app.route("/api/scrapen/stream/<job_id>")
@@ -575,95 +541,22 @@ def api_verkennen():
     if not gemeente:
         return jsonify({"fout": "Geen gemeente opgegeven"}), 400
 
-    # Veiligheidsregio
-    veiligheidsregio = None
-    vr_pad = BRONNEN_MAP / "veiligheidsregios.json"
-    if vr_pad.exists():
-        try:
-            vr_cfg = {k: v for k, v in json.loads(vr_pad.read_text(encoding="utf-8")).items()
-                      if not k.startswith("_")}
-            for slug, info in vr_cfg.items():
-                if gemeente in info.get("gemeenten", []):
-                    veiligheidsregio = {"naam": info.get("naam", slug), "slug": slug}
-                    break
-        except Exception:
-            pass
+    context = haal_bestuurlijke_context(gemeente)
 
-    # Provincie
-    provincie = None
-    prov_pad = BRONNEN_MAP / "provincies.json"
-    if prov_pad.exists():
-        try:
-            prov_cfg = {k: v for k, v in json.loads(prov_pad.read_text(encoding="utf-8")).items()
-                        if not k.startswith("_")}
-            for slug, info in prov_cfg.items():
-                if gemeente in info.get("gemeenten", []):
-                    provincie = {"naam": info.get("naam", slug), "slug": slug}
-                    break
-        except Exception:
-            pass
+    def _enkel(items):
+        return {"naam": items[0]["naam"], "slug": items[0]["slug"]} if items else None
 
-    # Waterschappen
-    waterschappen = []
-    ws_pad = BRONNEN_MAP / "waterschappen.json"
-    if ws_pad.exists():
-        try:
-            for slug, info in json.loads(ws_pad.read_text(encoding="utf-8")).items():
-                if slug.startswith("_"):
-                    continue
-                if gemeente in info.get("gemeenten", []):
-                    waterschappen.append({"naam": info.get("naam", slug), "slug": slug})
-        except Exception:
-            pass
+    provincie        = _enkel(context["provincie"])
+    veiligheidsregio = _enkel(context["veiligheidsregio"])
+    waterschappen    = [{"naam": w["naam"], "slug": w["slug"]} for w in context["waterschap"]]
+    regelingen_lijst = [
+        {"naam": gr["naam"], "slug": gr["slug"], "in_catalogus": gr["in_catalogus"]}
+        for gr in context["gr"]
+    ]
 
-    # Gemeenschappelijke regelingen — live via overheid.nl, catalogus als vlag
-    reg_pad = BRONNEN_MAP / "regelingen.json"
-    catalogus_slugs      = set()           # slug → aanwezig
-    catalogus_namen      = {}              # slug → naam
-    catalogus_overheid_ids = {}            # overheid_id (str) → catalog-slug
-    if reg_pad.exists():
-        try:
-            for slug, info in json.loads(reg_pad.read_text(encoding="utf-8")).items():
-                if not slug.startswith("_") and isinstance(info, dict):
-                    if gemeente in info.get("gemeenten", []):
-                        catalogus_slugs.add(slug)
-                        catalogus_namen[slug] = info.get("naam", slug)
-                        if "overheid_id" in info:
-                            catalogus_overheid_ids[str(info["overheid_id"])] = slug
-        except Exception:
-            pass
-
-    # Probeer live GRs op te halen; val terug op interne catalogus bij fout
-    live_grs = haal_grs_overheid(gemeente)
-
-    if live_grs:
-        regelingen_lijst = []
-        for gr in live_grs:
-            # Match op overheid_id (betrouwbaar) of slug (als fallback)
-            cat_slug = catalogus_overheid_ids.get(str(gr["overheid_id"]))
-            if cat_slug is None and gr["slug"] in catalogus_slugs:
-                cat_slug = gr["slug"]
-            in_cat = cat_slug is not None
-            regelingen_lijst.append({
-                "naam":        catalogus_namen.get(cat_slug, gr["naam"]) if in_cat else gr["naam"],
-                "slug":        cat_slug if in_cat else gr["slug"],
-                "in_catalogus": in_cat,
-            })
-    else:
-        # Fallback: alleen wat in onze catalogus staat
-        regelingen_lijst = []
-        if reg_pad.exists():
-            try:
-                for slug, info in json.loads(reg_pad.read_text(encoding="utf-8")).items():
-                    if not slug.startswith("_") and isinstance(info, dict):
-                        if gemeente in info.get("gemeenten", []):
-                            regelingen_lijst.append({
-                                "naam":        info.get("naam", slug),
-                                "slug":        slug,
-                                "in_catalogus": True,
-                            })
-            except Exception:
-                pass
+    # Bron-detectie voor diagnostiek in de UI (gecached, dus snel)
+    grs_van_overheid = haal_grs_voor_gemeente(gemeente)
+    regelingen_bron  = "overheid.nl" if grs_van_overheid else "catalogus"
 
     if not provincie and not veiligheidsregio and not waterschappen and not regelingen_lijst:
         return jsonify({"fout": f"Gemeente '{gemeente}' niet gevonden in catalogus"}), 404
@@ -674,7 +567,7 @@ def api_verkennen():
         "veiligheidsregio": veiligheidsregio,
         "waterschappen":    waterschappen,
         "regelingen":       regelingen_lijst,
-        "regelingen_bron":  "overheid.nl" if live_grs else "catalogus",
+        "regelingen_bron":  regelingen_bron,
     })
 
 

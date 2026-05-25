@@ -77,6 +77,7 @@ function Scrape({ onNavigate }) {
   const [orgType, setOrgType] = React.useState('gemeente');
   const [periode, setPeriode] = React.useState(24);
   const [simuleer, setSimuleer] = React.useState(false);
+  const [geindexeerd, setGeindexeerd] = React.useState(false);
   const [samenvatting, setSamenvatting] = React.useState(null);
 
   // Pakket-tab staat: bewaard hier zodat verkennen-resultaat intact blijft tijdens/na een scrape
@@ -86,13 +87,17 @@ function Scrape({ onNavigate }) {
   const activeTab = TABS[tabIdx];
 
   // typeOverride: gebruikt vanuit ScrapeGemeentePakket waar het type niet uit de tab komt
-  const handleStart = async (org, per, sim, typeOverride) => {
+  // indexNaScrape: of er na de download ook automatisch geïndexeerd moet worden
+  const handleStart = async (org, per, sim, typeOverride, indexNaScrape = true) => {
     const type = typeOverride !== undefined ? typeOverride : activeTab.type;
     try {
       const resp = await fetch('/api/scrapen/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, orgaan: org, periode: per, simuleer: sim }),
+        body: JSON.stringify({
+          type, orgaan: org, periode: per, simuleer: sim,
+          index_na_scrape: indexNaScrape,
+        }),
       });
       const data = await resp.json();
       if (data.fout) { alert(data.fout); return; }
@@ -101,6 +106,7 @@ function Scrape({ onNavigate }) {
       setOrgType(type);
       setPeriode(per);
       setSimuleer(sim);
+      setGeindexeerd(!!data.geindexeerd);
       setStap('progress');
     } catch (e) {
       alert(`Kon scraper niet starten: ${e.message}`);
@@ -167,6 +173,7 @@ function Scrape({ onNavigate }) {
       )}
       {stap === 'progress' && <ScrapeProgress jobId={jobId} orgaan={orgaan} periode={periode}
                                                simuleer={simuleer}
+                                               geindexeerd={geindexeerd}
                                                onDone={handleDone}
                                                onCancel={() => setStap('idle')} />}
       {stap === 'indexing' && <ScrapeProgress jobId={jobId} orgaan={orgaan} periode={0}
@@ -175,8 +182,10 @@ function Scrape({ onNavigate }) {
                                                onDone={handleIndexDone}
                                                onCancel={handleIndexDone} />}
       {stap === 'done'     && <ScrapeDone orgaan={orgaan} samenvatting={samenvatting}
+                                           geindexeerd={geindexeerd}
                                            onIndexeer={handleIndexeer}
                                            onDownloadEcht={handleDownloadEcht}
+                                           onNaarZoeken={() => onNavigate && onNavigate('zoeken')}
                                            onLater={() => setStap('idle')} />}
     </>
   );
@@ -186,6 +195,7 @@ function ScrapeIdle({ orgaanType, onStart }) {
   const [orgaan, setOrgaan]   = React.useState('');
   const [periode, setPeriode] = React.useState(24);
   const [simuleer, setSimuleer] = React.useState(false);
+  const [indexNaScrape, setIndexNaScrape] = React.useState(true);
   const [opties, setOpties]   = React.useState([]);
 
   React.useEffect(() => {
@@ -283,8 +293,32 @@ function ScrapeIdle({ orgaanType, onStart }) {
           </div>
         </div>
 
+        <div style={scrapeStyles.field}>
+          <label style={scrapeStyles.fieldLabel}>Na download</label>
+          <div
+            style={{ ...scrapeStyles.toggleWrap, opacity: simuleer ? 0.5 : 1 }}
+            onClick={() => !simuleer && setIndexNaScrape(!indexNaScrape)}
+          >
+            <div style={scrapeStyles.toggle(indexNaScrape && !simuleer)}>
+              <div style={scrapeStyles.toggleDot(indexNaScrape && !simuleer)}></div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 500, color: 'var(--text)' }}>Automatisch doorzoekbaar maken</div>
+              <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                {simuleer
+                  ? 'Niet van toepassing bij simulatie.'
+                  : 'Direct na de download de zoekindex bijwerken.'}
+              </div>
+            </div>
+            <Mono color={indexNaScrape && !simuleer ? 'var(--accent)' : 'var(--dim)'} size={10.5}>
+              {indexNaScrape && !simuleer ? 'AAN' : 'UIT'}
+            </Mono>
+          </div>
+        </div>
+
         <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
-          <Btn primary onClick={() => orgaan && onStart(orgaan, periode, simuleer)}
+          <Btn primary
+               onClick={() => orgaan && onStart(orgaan, periode, simuleer, undefined, indexNaScrape)}
                disabled={!orgaan}>
             {simuleer ? 'Start simulatie' : 'Start download'} →
           </Btn>
@@ -326,12 +360,13 @@ function ScrapeIdle({ orgaanType, onStart }) {
   );
 }
 
-function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCancel }) {
+function ScrapeProgress({ jobId, orgaan, periode, simuleer, geindexeerd, titel, onDone, onCancel }) {
   const [regels, setRegels]           = React.useState([]);
   const [nieuw, setNieuw]             = React.useState(0);
   const [fouten, setFouten]           = React.useState(0);
   const [vergaderingen, setVergaderingen] = React.useState([]);
   const [klaar, setKlaar]             = React.useState(false);
+  const [huidigeStap, setHuidigeStap] = React.useState(null);   // {index, totaal, label}
   const esRef = React.useRef(null);
 
   // Refs om stale-closure te vermijden in de onmessage-callback
@@ -345,6 +380,7 @@ function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCan
     foutenRef.current      = 0;
     overgeslagenRef.current = 0;
     vergRef.current        = [];
+    setHuidigeStap(null);
   }, [jobId]);
 
   React.useEffect(() => {
@@ -366,6 +402,11 @@ function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCan
           vergaderingen: vergRef.current,
           simuleer,
         });
+        return;
+      }
+
+      if (data.type === 'stap') {
+        setHuidigeStap({ index: data.index, totaal: data.totaal, label: data.label });
         return;
       }
 
@@ -428,6 +469,7 @@ function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCan
 
   const titelTekst  = titel || `${orgaan} — ${simuleer ? 'simuleren' : 'downloaden'}`;
   const statLabel   = simuleer ? 'gevonden' : 'nieuw gedownload';
+  const toonStapBar = huidigeStap && huidigeStap.totaal > 1;
 
   return (
     <div>
@@ -444,6 +486,15 @@ function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCan
           </div>
         )}
       </div>
+
+      {toonStapBar && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+          <Mono color="var(--accent)" size={10.5}>
+            STAP {huidigeStap.index + 1} / {huidigeStap.totaal}
+          </Mono>
+          <span style={{ fontSize: 13, color: 'var(--text-2)' }}>{huidigeStap.label}</span>
+        </div>
+      )}
 
       {/* Voortgang */}
       <div style={{
@@ -513,7 +564,7 @@ function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCan
   );
 }
 
-function ScrapeDone({ orgaan, samenvatting = {}, onIndexeer, onLater, onDownloadEcht }) {
+function ScrapeDone({ orgaan, samenvatting = {}, geindexeerd, onIndexeer, onNaarZoeken, onLater, onDownloadEcht }) {
   const nieuw         = samenvatting.nieuw         || 0;
   const fouten        = samenvatting.fouten        || 0;
   const overgeslagen  = samenvatting.overgeslagen  || 0;
@@ -657,8 +708,8 @@ function ScrapeDone({ orgaan, samenvatting = {}, onIndexeer, onLater, onDownload
         ))}
       </div>
 
-      {/* Indexeer-dialoog */}
-      {nieuw > 0 && (
+      {/* Indexeer-dialoog: alleen tonen als er nieuwe docs zijn en nog niet geïndexeerd */}
+      {nieuw > 0 && !geindexeerd && (
         <div style={{
           border: '1px solid var(--border-2)',
           background: 'oklch(0.215 0.008 70)',
@@ -690,6 +741,39 @@ function ScrapeDone({ orgaan, samenvatting = {}, onIndexeer, onLater, onDownload
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 180 }}>
             <Btn primary onClick={onIndexeer}>Ja, indexeren ↻</Btn>
             <Btn ghost onClick={onLater}>Later</Btn>
+          </div>
+        </div>
+      )}
+
+      {/* Al automatisch geïndexeerd: succesbericht met directe doorklik */}
+      {nieuw > 0 && geindexeerd && (
+        <div style={{
+          border: '1px solid var(--border-2)',
+          background: 'oklch(0.215 0.008 70)',
+          borderRadius: 'var(--r-2)', padding: '22px 24px',
+          display: 'grid', gridTemplateColumns: '1fr auto',
+          gap: 24, alignItems: 'center',
+          position: 'relative',
+        }}>
+          <div style={{
+            position: 'absolute', top: -1, left: 24, width: 60, height: 2,
+            background: 'var(--green)',
+          }}></div>
+          <div>
+            <Mono color="var(--green)" size={10}>DOORZOEKBAAR</Mono>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 600,
+                         fontSize: 22, letterSpacing: '-0.02em',
+                         margin: '4px 0 8px', color: 'var(--text)' }}>
+              Klaar — {nieuw} nieuwe documenten zijn doorzoekbaar.
+            </h2>
+            <p style={{ color: 'var(--text-2)', fontSize: 13.5, lineHeight: 1.55, margin: 0, maxWidth: 560 }}>
+              De zoekindex is direct na de download bijgewerkt. Je kunt nu via{' '}
+              <span style={{ fontFamily: 'var(--font-mono)' }}>Zoeken</span> door alle stukken.
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 180 }}>
+            {onNaarZoeken && <Btn primary onClick={onNaarZoeken}>Naar zoeken →</Btn>}
+            <Btn ghost onClick={onLater}>Terug</Btn>
           </div>
         </div>
       )}
