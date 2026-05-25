@@ -21,6 +21,7 @@ import time
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Optional
 
 from flask import Flask, Response, jsonify, request, send_from_directory
 
@@ -31,7 +32,7 @@ PYTHON = sys.executable
 WEB_MAP = TOOLKIT_MAP / "web"
 
 _config_pad = TOOLKIT_MAP / "config.local.json"
-_data_map: Path | None = None
+_data_map: Optional[Path] = None
 if _config_pad.exists():
     try:
         _cfg = json.loads(_config_pad.read_text(encoding="utf-8"))
@@ -53,8 +54,8 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
 # ── Job-beheer voor scraper-streams ──────────────────────────────────────────
 
-_jobs:       dict[str, queue.Queue] = {}
-_job_status: dict[str, dict]        = {}
+_jobs       = {}   # type: dict[str, queue.Queue]
+_job_status = {}   # type: dict[str, dict]
 
 
 def _run_job(job_id: str, cmd: list[str]):
@@ -125,7 +126,7 @@ def lees_organen() -> list[dict]:
     return organen
 
 
-def laatste_run_ts(orgaan: str, dossier_naam: str) -> str | None:
+def laatste_run_ts(orgaan: str, dossier_naam: str) -> Optional[str]:
     voor_dossier = OUTPUT_BASIS / orgaan / "logs" / f"analyse-staat-{dossier_naam}.json"
     algemeen     = OUTPUT_BASIS / orgaan / "logs" / "analyse-staat.json"
     pad = voor_dossier if voor_dossier.exists() else (algemeen if algemeen.exists() else None)
@@ -137,7 +138,7 @@ def laatste_run_ts(orgaan: str, dossier_naam: str) -> str | None:
         return None
 
 
-def format_relatief(ts: str | None) -> str:
+def format_relatief(ts: Optional[str]) -> str:
     if not ts:
         return "nooit"
     try:
