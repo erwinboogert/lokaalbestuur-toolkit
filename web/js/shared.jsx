@@ -286,7 +286,7 @@ function Sidebar({ active, onNavigate, counts = {} }) {
       <div style={sharedStyles.footer}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)' }}></span>
-          <span>localhost:5000</span>
+          <span>{window.location.host}</span>
         </div>
         {padKort && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>

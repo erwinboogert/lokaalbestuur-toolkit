@@ -4,7 +4,9 @@ Bronnenboek — lokale webserver
 Gebruik:
     python3 server.py
 
-Opent op http://localhost:5000
+Opent op http://localhost:5001
+
+(Poort 5001 om conflict met macOS AirPlay Receiver op poort 5000 te vermijden.)
 
 Vereisten:
     pip install flask
@@ -48,6 +50,9 @@ OUTPUT_BASIS    = _data_map if _data_map else (Path.home() / "Documents" / "notu
 DOSSIERS_MAP    = (_data_map / "dossiers") if _data_map else (TOOLKIT_MAP / "dossiers")
 ORGANEN_MAP     = (_data_map / "organen")  if _data_map else (TOOLKIT_MAP / "organen")
 BRONNEN_MAP     = TOOLKIT_MAP / "bronnen"
+
+# Poort 5001 vermijdt macOS AirPlay Receiver, dat poort 5000 inneemt.
+PORT = 5001
 
 # ── Flask ─────────────────────────────────────────────────────────────────────
 
@@ -634,8 +639,8 @@ if __name__ == "__main__":
     print(f"  Documenten : {OUTPUT_BASIS}")
     print(f"  Dossiers   : {DOSSIERS_MAP}")
     print()
-    print("  → http://localhost:5000")
+    print(f"  → http://localhost:{PORT}")
     print()
     print("  Ctrl+C om te stoppen.")
     print()
-    app.run(debug=False, port=5000, threaded=True)
+    app.run(debug=False, port=PORT, threaded=True)
