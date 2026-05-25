@@ -18,6 +18,17 @@ De toolkit bestaat uit drie lagen die je los of samen kunt gebruiken:
 
 ---
 
+## Twee manieren om te beginnen
+
+Er zijn twee ingangen — kies wat bij je past:
+
+- **Bronnenboek (browser)** — een lokale webinterface. Dubbelklik `Bronnenboek.command` en ga aan de slag in je browser. Beste keuze voor de meeste journalisten: geen terminal nodig, één plek voor verkennen, scrapen, zoeken en monitoren.
+- **Terminal** — `python3 toolkit.py ...`. Beste keuze als je wilt scripten, in cron wilt draaien, of Claude Code wilt gebruiken voor open onderzoeksvragen.
+
+Beide ingangen werken op dezelfde lokale data — je kunt zonder problemen wisselen.
+
+---
+
 ## Installatie
 
 ```bash
@@ -26,13 +37,43 @@ cd lokaalbestuur-toolkit
 python3 toolkit.py setup
 ```
 
-Dat is alles. Het setup-commando controleert je Python-versie, installeert de benodigde bibliotheken, test de API-verbinding en stelt de documentenmap in. Je hebt alleen Python 3.10 of hoger nodig.
+Dat is alles. Het setup-commando controleert je Python-versie, installeert de benodigde bibliotheken, test de API-verbinding en stelt de documentenmap in. Je hebt **Python 3.10 of hoger** nodig (de scrapers gebruiken nieuwe type-syntax).
+
+**Voor Bronnenboek (browser)** — eenmalig `pip install flask` (of `pip install -r requirements.txt`).
 
 **Optioneel maar aanbevolen:** [Claude Code](https://claude.ai/code) — een AI-assistent die je installeert als CLI en die zelf bestanden en mappen kan doorzoeken. Daarmee kun je de toolkit zijn volledige potentieel benutten (zie verderop).
 
 ---
 
-## Aan de slag — in drie stappen
+## Bronnenboek — via de browser
+
+Bronnenboek is een lokale webinterface die alle stappen visueel maakt: verkennen, scrapen, zoeken, dossiers en alerts. Hij draait op je eigen machine, zonder cloud of account.
+
+### Starten
+
+Dubbelklik op **`Bronnenboek.command`** in Finder. Een Terminal-venster opent met de servertitel "Bronnenboek", en je standaardbrowser opent automatisch op:
+
+```
+http://localhost:5001
+```
+
+Sluit het venster om de server te stoppen. Tip: sleep `Bronnenboek.command` naar je Dock voor één-klik-opstarten.
+
+*Eerste keer:* macOS Gatekeeper kan vragen om bevestiging. Rechtsklik op het bestand → **Open** → bij de waarschuwing op "Openen" klikken. Daarna werkt dubbelklikken gewoon.
+
+### Wat je erin kunt doen
+
+- **Dashboard** — actieve dossiers, recente alerts, status per gemeente in één oogopslag.
+- **Verkennen** — typ een gemeente, zie meteen welke provincie, veiligheidsregio, waterschap en GRs erbij horen. Klik door om elk orgaan met één klik te scrapen.
+- **Scrapen** — periode kiezen (6/12/18/24 maanden), eerst simuleren of direct downloaden. Standaard worden nieuwe documenten **automatisch doorzoekbaar gemaakt** na de download (toggle uitschakelbaar).
+- **Zoeken** — full-text door alle gedownloade stukken, per orgaan.
+- **Dossiers & Alerts** — monitoringsdossiers met trefwoorden; alertrapporten verschijnen hier als er nieuwe treffers zijn.
+
+Alles wat de terminal-versie kan, kan ook hier — alleen wie open onderzoeksvragen via Claude Code wil stellen, gebruikt nog de terminal.
+
+---
+
+## Aan de slag via de terminal — in vier stappen
 
 ### Stap 1 — Verkennen
 
@@ -67,7 +108,7 @@ python3 scraper_gr.py jeugdhulp-rijnmond
 python3 scraper_waterschap.py hollandse-delta
 ```
 
-### Stap 2 — Onderzoeksomgeving voorbereiden
+### Stap 3 — Onderzoeksomgeving voorbereiden
 
 ```bash
 python3 toolkit.py onderzoek rotterdam
@@ -80,7 +121,7 @@ Dit commando:
 
 De briefing beschrijft voor een AI welke bronnen er zijn, hoe ze doorzoekbaar zijn, en welk type organisatie relevant is voor welk onderwerp. Aan het einde staat ook een overzicht van beschikbare prompts en skills.
 
-### Stap 3 — Onderzoeken
+### Stap 4 — Onderzoeken
 
 **Zonder AI — direct via de terminal:**
 
@@ -154,7 +195,7 @@ Voorbeelden: DCMR Milieudienst Rijnmond, veiligheidsregio's.
 Een kleine groep GRs publiceert nauwelijks openbaar. Ze zijn wettelijk verplicht dat wel te doen (Wgr art. 22, Woo). Je kunt een formeel verzoek opstellen met:
 
 ```
-/wob-verzoek <onderwerp>
+/woo-verzoek <onderwerp>
 ```
 
 ### Waterschappen
@@ -201,7 +242,7 @@ De toolkit is zo gebouwd dat Claude Code weet wat er beschikbaar is:
 
 - De `context.md` briefing vertelt Claude welke bronnen er zijn en hoe hij moet zoeken
 - De `prompts/` map bevat sjablonen voor veelvoorkomende onderzoeksvormen
-- De `.claude/skills/` map bevat acties die Claude kan uitvoeren — rapport opslaan, WOO-verzoek genereren, alert instellen
+- De `.claude/commands/` map bevat acties die Claude kan uitvoeren — rapport opslaan, WOO-verzoek genereren, alert instellen, trefwoorden verfijnen
 
 Na een onderzoekssessie biedt Claude zelf aan welke vervolgstappen zinvol zijn. Dat overzicht staat ook in de briefing:
 
@@ -248,6 +289,9 @@ python3 scraper_gr.py <slug>                    # gemeenschappelijke regeling
 python3 scraper_provincie.py <slug>             # provincie
 python3 scraper_provincie.py --lijst            # toon alle provincies en hun bron
 python3 toolkit.py scrape --alles               # alle geconfigureerde organen bijwerken
+python3 toolkit.py scrape-waterschappen         # alle geconfigureerde waterschappen
+python3 toolkit.py scrape-regelingen            # alle geconfigureerde GRs
+python3 toolkit.py scrape-provincies            # alle geconfigureerde provincies
 
 # Onderzoek
 python3 toolkit.py onderzoek <gemeente>         # zoekindex + Claude-briefing
@@ -259,17 +303,26 @@ python3 scraper_gr.py --lijst-ori               # ontdek GRs in de ORI API
 python3 scraper_gr.py --zoek <naam>             # zoek GR-organisatie in Notubiz
 
 # Organen en bronnen instellen
-python3 toolkit.py nieuw-orgaan                 # gemeente, waterschap of GR toevoegen
+python3 toolkit.py nieuw-orgaan                 # gemeente toevoegen (interactief)
+python3 toolkit.py nieuwe-regeling              # GR toevoegen (interactief)
+python3 toolkit.py nieuw-waterschap             # waterschap toevoegen (interactief)
+python3 toolkit.py nieuwe-provincie             # provincie toevoegen (interactief)
+python3 toolkit.py brondata-bijwerken           # GR-index uit overheid.nl verversen
 
 # Monitoring
 python3 toolkit.py nieuw-dossier                # dossier met trefwoorden aanmaken
-python3 analyse.py --dossier <naam>             # handmatig alert draaien
+python3 analyse.py --dossier <naam>             # analyse handmatig draaien
 
-# Overzicht
+# Bronnenboek (webinterface)
+python3 server.py                               # start zonder Bronnenboek.command
+
+# Overzicht en onderhoud
 python3 toolkit.py                              # dashboard
 python3 toolkit.py status                       # uitgebreid statusoverzicht
 python3 toolkit.py setup                        # installatie (afhankelijkheden + configuratie)
 python3 toolkit.py check                        # installatiecheck
+python3 toolkit.py fix-cron                     # crontab-regels controleren/herstellen
+python3 toolkit.py --help                       # alle commando's met korte uitleg
 ```
 
 ---
@@ -288,7 +341,9 @@ python3 toolkit.py check                        # installatiecheck
 
 ```
 lokaalbestuur-toolkit/
+├── Bronnenboek.command     dubbelklik-opstartscript voor de webinterface (macOS)
 ├── toolkit.py              hoofdinterface
+├── api.py                  gedeelde scraper-functies (ORI / Notubiz / iBabs)
 ├── scraper.py              gemeentedocumenten (ORI API)
 ├── scraper_waterschap.py   waterschapstukken (ORI API + iBabs)
 ├── scraper_gr.py           GR-stukken (ORI / Notubiz / iBabs)
@@ -296,10 +351,14 @@ lokaalbestuur-toolkit/
 ├── scraper_provincie.py    provincies (ORI API / Notubiz)
 ├── analyse.py              keyword-alerts
 ├── index.py                zoekindex (SQLite FTS5)
+├── server.py               Bronnenboek-webserver (Flask, poort 5001)
+├── web/                    Bronnenboek-frontend (HTML + React/JSX)
 ├── bronnen/                catalogussen (gemeenten, waterschappen, GRs, VRs, provincies)
 ├── organen/                configuratie per orgaan
 ├── dossiers/               configuratie per monitoringsdossier
 ├── prompts/                sjablonen voor onderzoeksgesprekken
+├── .claude/commands/       slash-commando's binnen dit project (rapport-opslaan, woo-verzoek, …)
+├── skills/                 systeembrede skills (te kopiëren naar ~/.claude/commands/)
 └── checklists/             rode-vlagchecklist lokaal bestuur
 
 ~/Documents/notulen/
