@@ -23,8 +23,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from api import (
-    OUTPUT_BASIS, DATA_MAP, TOOLKIT_MAP,
-    setup_logging, log, log_samenvatting,
+    OUTPUT_BASIS, DATA_MAP, TOOLKIT_MAP, BRONNEN_MAP,
+    setup_logging, log, log_samenvatting, vraag_doorzoekbaar_maken,
     veilige_naam, download,
     alle_indices, find_index,
     haal_vergaderingen_ori, haal_documenten_ori,
@@ -43,7 +43,7 @@ STANDAARD_VERGADERTYPEN = {
     "raadsbrede commissie": True,
 }
 
-MAX_VERGADERINGEN = 50
+MAX_VERGADERINGEN = 500
 
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -213,6 +213,55 @@ def main():
                 totaal_fout += 1
 
     log_samenvatting(totaal_nieuw, totaal_overgeslagen, totaal_fout, output_map)
+    if not droog:
+        vraag_doorzoekbaar_maken(totaal_nieuw, output_map)
+    toon_gerelateerde_organen(gemeente)
+
+
+# ── Gerelateerde organen ─────────────────────────────────────────────────────
+
+def _zoek_in_bronbestand(bestandsnaam: str, gemeente: str) -> list[tuple[str, str]]:
+    """Zoek een gemeente in een bronnen-JSON. Geeft [(slug, naam), ...]."""
+    pad = BRONNEN_MAP / bestandsnaam
+    if not pad.exists():
+        return []
+    data = json.loads(pad.read_text(encoding="utf-8"))
+    return [
+        (slug, info["naam"])
+        for slug, info in data.items()
+        if not slug.startswith("_") and gemeente in info.get("gemeenten", [])
+    ]
+
+
+def toon_gerelateerde_organen(gemeente: str):
+    """Toon VR, waterschappen en GR's die bij deze gemeente horen."""
+    vrs = _zoek_in_bronbestand("veiligheidsregios.json", gemeente)
+    waterschappen = _zoek_in_bronbestand("waterschappen.json", gemeente)
+    regelingen = _zoek_in_bronbestand("regelingen.json", gemeente)
+
+    if not vrs and not waterschappen and not regelingen:
+        return
+
+    log("")
+    log("  Gerelateerde organen")
+    log("  " + "─" * 56)
+
+    if vrs:
+        log("  Veiligheidsregio:")
+        for slug, naam in vrs:
+            log(f"    → {naam:<45s} python3 scraper_vr.py {slug}")
+
+    if waterschappen:
+        log("  Waterschappen:")
+        for slug, naam in waterschappen:
+            log(f"    → {naam:<45s} python3 scraper_waterschap.py {slug}")
+
+    if regelingen:
+        log("  Gemeenschappelijke regelingen:")
+        for slug, naam in regelingen:
+            log(f"    → {naam:<45s} python3 scraper_gr.py {slug}")
+
+    log("  " + "─" * 56)
 
 
 if __name__ == "__main__":

@@ -110,6 +110,30 @@ def vraag(prompt: str, standaard: str = "") -> str:
         print("    (verplicht veld)")
 
 
+def vraag_terugkijkperiode() -> list[str]:
+    """Vraag de gebruiker hoe ver terug te kijken. Geeft een lijst met scraper-argumenten."""
+    opties = [
+        ("6 maanden",  "0.5"),
+        ("12 maanden", "1"),
+        ("18 maanden", "1.5"),
+        ("24 maanden", "2", "← aanbevolen"),
+    ]
+    print()
+    print("  Hoe ver wil je terugkijken bij de eerste download?")
+    print()
+    for i, optie in enumerate(opties, 1):
+        label, _, *extra = optie
+        toelichting = f"  {extra[0]}" if extra else ""
+        print(f"    {i}.  {label}{toelichting}")
+    print()
+    while True:
+        keuze = input("  Keuze [1-4]: ").strip()
+        if keuze in ("1", "2", "3", "4"):
+            _, jaren = opties[int(keuze) - 1][:2]
+            return ["--jaren", jaren]
+        print("  Voer een getal in van 1 tot 4.")
+
+
 def voeg_crontabregel_toe(commentaar: str, regel: str):
     """Voeg een crontabregel toe als die er nog niet in staat. Geen bevestiging: wordt
     alleen aangeroepen vanuit setup-wizards waar de gebruiker dit gedrag verwacht."""
@@ -504,19 +528,21 @@ def nieuwe_gemeente():
     print()
     print(f"  ✓ Orgaan-config opgeslagen: {orgaan_pad}")
 
+    jaren_arg = vraag_terugkijkperiode()
+
     print()
     keuze_droog = input("  Eerst droog uitvoeren (wat zou er gedownload worden)? (j/n): ").strip().lower()
     if keuze_droog == "j":
-        subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper.py"), orgaan, "--droog"])
+        subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper.py"), orgaan, "--droog"] + jaren_arg)
         print()
         keuze_dl = input("  Nu echt downloaden? (j/n): ").strip().lower()
         if keuze_dl != "j":
             print("  Gestopt na droog uitvoeren.")
-            print(f"  Downloaden later: python3 scraper.py {orgaan}")
+            print(f"  Downloaden later: python3 scraper.py {orgaan} {' '.join(jaren_arg)}")
             print()
             return
 
-    subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper.py"), orgaan])
+    subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper.py"), orgaan] + jaren_arg)
 
     log_pad = OUTPUT_BASIS / orgaan / "logs" / "scraper.log"
     cron_scraper = (
@@ -644,9 +670,13 @@ def nieuwe_regeling():
     print()
     print(f"  ✓ Opgeslagen in: {pad}")
     print()
-    print(f"  Direct downloaden:")
-    print(f"  python3 scraper_gr.py {slug}")
-    print(f"  python3 scraper_gr.py {slug} --droog")
+    keuze_dl = input("  Wil je de vergaderstukken nu downloaden? (j/n): ").strip().lower()
+    if keuze_dl == "j":
+        jaren_arg = vraag_terugkijkperiode()
+        print()
+        subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper_gr.py"), slug] + jaren_arg)
+    else:
+        print(f"  Downloaden later: python3 scraper_gr.py {slug} --jaren 2")
     print()
 
 
@@ -695,9 +725,13 @@ def nieuw_waterschap():
     print()
     print(f"  ✓ Opgeslagen in: {pad}")
     print()
-    print(f"  Direct downloaden:")
-    print(f"  python3 scraper_waterschap.py {slug}")
-    print(f"  python3 scraper_waterschap.py {slug} --droog")
+    keuze_dl = input("  Wil je de vergaderstukken nu downloaden? (j/n): ").strip().lower()
+    if keuze_dl == "j":
+        jaren_arg = vraag_terugkijkperiode()
+        print()
+        subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper_waterschap.py"), slug] + jaren_arg)
+    else:
+        print(f"  Downloaden later: python3 scraper_waterschap.py {slug} --jaren 2")
     print()
 
 

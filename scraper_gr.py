@@ -38,7 +38,7 @@ from pathlib import Path
 
 from api import (
     OUTPUT_BASIS, BRONNEN_MAP,
-    setup_logging, log, log_samenvatting,
+    setup_logging, log, log_samenvatting, vraag_doorzoekbaar_maken, parse_jaren_arg,
     alle_indices,
     notubiz_verzoek,
     haal_vergaderingen_notubiz,
@@ -241,19 +241,23 @@ def main():
     log(f"GR: {naam}  {'(DROOG)' if droog else ''}")
     log("=" * 60)
 
+    vanaf, terugkijk_dagen = parse_jaren_arg()
+
     notubiz_id = config.get("notubiz_id")
     ibabs_naam = config.get("ibabs_naam")
 
     if notubiz_id:
         log(f"Bron: Notubiz API (org_id={notubiz_id})")
-        vergaderingen = haal_vergaderingen_notubiz(notubiz_id, vergadertypen)
+        vergaderingen = haal_vergaderingen_notubiz(
+            notubiz_id, vergadertypen, terugkijk_dagen=terugkijk_dagen)
         log(f"{len(vergaderingen)} vergaderingen gevonden")
         nieuw, overgeslagen, fouten = download_vergaderingen_notubiz(
             vergaderingen, output_map, droog)
 
     elif ibabs_naam:
         log(f"Bron: iBabs API (sitename={ibabs_naam})")
-        vergaderingen = haal_vergaderingen_ibabs(ibabs_naam, vergadertypen)
+        vergaderingen = haal_vergaderingen_ibabs(
+            ibabs_naam, vergadertypen, terugkijk_dagen=terugkijk_dagen)
         log(f"{len(vergaderingen)} vergaderingen gevonden")
         nieuw, overgeslagen, fouten = download_vergaderingen_ibabs(
             vergaderingen, output_map, droog)
@@ -268,7 +272,7 @@ def main():
             sys.exit(1)
         log(f"Bron: ORI API (index={index})")
 
-        vergaderingen = haal_vergaderingen_ori(index, vergadertypen, MAX_VERGADERINGEN)
+        vergaderingen = haal_vergaderingen_ori(index, vergadertypen, MAX_VERGADERINGEN, vanaf)
         log(f"{len(vergaderingen)} vergaderingen gevonden")
 
         if not vergaderingen:
@@ -279,6 +283,8 @@ def main():
             vergaderingen, index, output_map, droog)
 
     log_samenvatting(nieuw, overgeslagen, fouten, output_map)
+    if not droog:
+        vraag_doorzoekbaar_maken(nieuw, output_map)
 
 
 if __name__ == "__main__":

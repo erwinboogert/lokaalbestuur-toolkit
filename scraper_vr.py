@@ -27,7 +27,7 @@ from pathlib import Path
 
 from api import (
     OUTPUT_BASIS, BRONNEN_MAP,
-    setup_logging, log, log_samenvatting,
+    setup_logging, log, log_samenvatting, vraag_doorzoekbaar_maken,
     download,
     notubiz_verzoek,
     ibabs_soap, ibabs_tekst, IBABS_NS,
@@ -352,6 +352,8 @@ def scrape(slug: str, droog: bool):
         log(f"  Let op: {opmerking}")
 
     log_samenvatting(nieuw, aanwezig, fouten, output_map)
+    if not droog:
+        vraag_doorzoekbaar_maken(nieuw, output_map)
 
 
 def toon_lijst():

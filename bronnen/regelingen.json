@@ -4,38 +4,47 @@
 
   "nieuw-reijerwaard": {
     "naam": "Gemeenschappelijke Regeling Nieuw Reijerwaard",
-    "notubiz_id": 1659
+    "notubiz_id": 1659,
+    "gemeenten": ["rotterdam", "barendrecht", "ridderkerk"]
   },
   "ggd-rotterdam-rijnmond": {
     "naam": "GGD Rotterdam-Rijnmond",
-    "notubiz_id": 4049
+    "notubiz_id": 4049,
+    "gemeenten": ["rotterdam", "barendrecht", "albrandswaard", "capelle-aan-den-ijssel", "krimpen-aan-den-ijssel", "lansingerland", "ridderkerk", "schiedam", "vlaardingen", "maassluis"]
   },
   "jeugdzorg-rijnmond": {
     "naam": "Gemeenschappelijke Regeling Jeugdzorg Rijnmond",
-    "notubiz_id": 4073
+    "notubiz_id": 4073,
+    "gemeenten": ["rotterdam", "barendrecht", "albrandswaard", "capelle-aan-den-ijssel", "krimpen-aan-den-ijssel", "lansingerland", "ridderkerk", "schiedam", "vlaardingen", "maassluis"]
   },
   "mrdh": {
     "naam": "Metropoolregio Rotterdam Den Haag",
-    "notubiz_id": 3341
+    "notubiz_id": 3341,
+    "gemeenten": ["rotterdam", "den-haag", "delft", "schiedam", "vlaardingen", "maassluis", "westland", "midden-delfland", "pijnacker-nootdorp", "lansingerland", "rijswijk", "leidschendam-voorburg", "wassenaar", "zoetermeer", "barendrecht", "albrandswaard", "ridderkerk", "capelle-aan-den-ijssel", "krimpen-aan-den-ijssel", "nissewaard", "brielle", "hellevoetsluis", "westvoorne"]
   },
   "hoeksche-waard": {
     "naam": "Samenwerkingsorgaan Hoeksche Waard",
-    "notubiz_id": 937
+    "notubiz_id": 937,
+    "gemeenten": ["hoeksche-waard"]
   },
   "meerinzicht": {
     "naam": "Samenwerkingsverband Meerinzicht",
-    "notubiz_id": 1982
+    "notubiz_id": 1982,
+    "gemeenten": ["apeldoorn", "epe", "hattem", "heerde"]
   },
   "ggd-zeeland": {
     "naam": "Gemeenschappelijke Regeling GGD Zeeland",
-    "notubiz_id": 3816
+    "notubiz_id": 3816,
+    "gemeenten": ["borsele", "goes", "hulst", "kapelle", "middelburg", "noord-beveland", "reimerswaal", "schouwen-duiveland", "sluis", "terneuzen", "tholen", "veere", "vlissingen"]
   },
   "orionis-walcheren": {
     "naam": "Orionis Walcheren",
-    "notubiz_id": 2993
+    "notubiz_id": 2993,
+    "gemeenten": ["middelburg", "veere", "vlissingen"]
   },
   "regio-foodvalley": {
     "naam": "Gemeenschappelijke Regeling Regio Foodvalley",
-    "notubiz_id": 3973
+    "notubiz_id": 3973,
+    "gemeenten": ["barneveld", "ede", "nijkerk", "renswoude", "rhenen", "scherpenzeel", "veenendaal", "wageningen"]
   }
 }

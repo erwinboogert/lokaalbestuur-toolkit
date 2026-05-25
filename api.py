@@ -12,6 +12,7 @@ Bevat alle herbruikbare logica voor:
 import json
 import logging
 import re
+import subprocess
 import sys
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -140,11 +141,11 @@ def haal_vergaderingen_ori(index: str, vergadertypen: dict[str, bool],
             "bool": {
                 "must": [
                     {"term": {"@type": "Meeting"}},
-                    {"range": {"start_date": {"gte": vanaf}}},
+                    {"range": {"start_date": {"gte": vanaf + "T00:00:00Z"}}},
                 ]
             }
         }
-        size = 500
+        size = 200
     else:
         query = {"term": {"@type": "Meeting"}}
         size = max_vergaderingen
@@ -174,14 +175,25 @@ def haal_documenten_ori(index: str, vergadering_id: str) -> list[dict]:
         "_source": ["attachment"],
     })
     attachment_ids = []
+    meeting_hits = api_search(index, {'query': {'ids': {'values': [vergadering_id]}}, '_source': ['attachment']})
+    if meeting_hits:
+        val = meeting_hits[0]['_source'].get('attachment', [])
+        if val:
+            attachment_ids.extend(val if isinstance(val, list) else [val])
+
+    meeting_hits = api_search(index, {"query": {"ids": {"values": [vergadering_id]}}, "_source": ["attachment"]})
+    if meeting_hits:
+        val = meeting_hits[0]["_source"].get("attachment", [])
+        attachment_ids.extend(val if isinstance(val, list) else [val])
+
     for hit in agenda_hits:
-        attachment_ids.extend(hit["_source"].get("attachment", []))
+        val = hit["_source"].get("attachment", []); attachment_ids.extend(val if isinstance(val, list) else [val])
     if not attachment_ids:
         return []
 
     media_hits = api_search(index, {
         "query": {"ids": {"values": attachment_ids}},
-        "size": 200,
+        "size": 500,
         "_source": ["name", "url", "@type"],
     })
     return [
@@ -547,6 +559,30 @@ def download_vergaderingen_ibabs(vergaderingen: list[dict],
     return totaal_nieuw, totaal_overgeslagen, totaal_fout
 
 
+def parse_jaren_arg(standaard_dagen: int = 730) -> tuple[str | None, int]:
+    """Lees --jaren N uit sys.argv. Geeft (vanaf_datum, terugkijk_dagen).
+
+    vanaf_datum: ISO-datumstring voor ORI-queries (of None als niet opgegeven).
+    terugkijk_dagen: aantal dagen terug, bruikbaar voor Notubiz en iBabs.
+    Standaard: standaard_dagen (default 730 = 2 jaar).
+    """
+    argv = sys.argv[1:]
+    if "--jaren" not in argv:
+        return None, standaard_dagen
+
+    idx = argv.index("--jaren")
+    if idx + 1 >= len(argv):
+        return None, standaard_dagen
+
+    try:
+        jaren = float(argv[idx + 1])
+        dagen = int(jaren * 365)
+        vanaf = (datetime.now() - timedelta(days=dagen)).strftime("%Y-%m-%d")
+        return vanaf, dagen
+    except ValueError:
+        return None, standaard_dagen
+
+
 def log_samenvatting(nieuw: int, overgeslagen: int, fouten: int, output_map: Path):
     """Print een standaard-samenvatting na het downloaden."""
     log("")
@@ -556,3 +592,39 @@ def log_samenvatting(nieuw: int, overgeslagen: int, fouten: int, output_map: Pat
     log(f"Fouten           : {fouten}")
     log(f"Opgeslagen in    : {output_map}")
     log("─" * 60)
+
+
+def vraag_doorzoekbaar_maken(nieuw: int, output_map: Path):
+    """Vraag interactief of nieuwe documenten doorzoekbaar gemaakt moeten worden.
+
+    Alleen actief als er nieuwe documenten zijn en de sessie interactief is.
+    In cron of piped mode wordt de vraag stilletjes overgeslagen.
+    """
+    if nieuw == 0:
+        return
+    if not sys.stdin.isatty():
+        return
+
+    if nieuw <= 20:
+        tijdschatting = "even"
+    else:
+        minuten = max(2, nieuw * 3 // 60)
+        tijdschatting = f"~{minuten} minuten"
+
+    doc_woord = "document" if nieuw == 1 else "documenten"
+    print(f"\nWil je de {nieuw} nieuwe {doc_woord} nu doorzoekbaar maken?")
+    print(f"Dit duurt {tijdschatting}. [j/n] ", end="", flush=True)
+
+    try:
+        antwoord = input().strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return
+
+    if antwoord != "j":
+        print()
+        return
+
+    print()
+    index_script = TOOLKIT_MAP / "index.py"
+    subprocess.run([sys.executable, str(index_script), output_map.name])

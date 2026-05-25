@@ -27,7 +27,7 @@ from pathlib import Path
 
 from api import (
     OUTPUT_BASIS, BRONNEN_MAP,
-    setup_logging, log, log_samenvatting,
+    setup_logging, log, log_samenvatting, vraag_doorzoekbaar_maken, parse_jaren_arg,
     alle_indices,
     haal_vergaderingen_ori, haal_vergaderingen_notubiz,
     download_vergaderingen_ori, download_vergaderingen_notubiz,
@@ -175,11 +175,14 @@ def main():
         log("Vergaderstukken moeten handmatig worden opgehaald.")
         sys.exit(1)
 
+    vanaf, terugkijk_dagen = parse_jaren_arg()
+
     # Notubiz
     notubiz_id = config.get("notubiz_id")
     if notubiz_id:
         log(f"Bron: Notubiz (organisatie-ID {notubiz_id})")
-        vergaderingen = haal_vergaderingen_notubiz(int(notubiz_id), vergadertypen)
+        vergaderingen = haal_vergaderingen_notubiz(
+            int(notubiz_id), vergadertypen, terugkijk_dagen=terugkijk_dagen)
         log(f"{len(vergaderingen)} vergaderingen gevonden")
         if not vergaderingen:
             log("Geen vergaderingen gevonden met de geconfigureerde vergadertypen.")
@@ -188,6 +191,8 @@ def main():
         nieuw, overgeslagen, fouten = download_vergaderingen_notubiz(
             vergaderingen, output_map, droog)
         log_samenvatting(nieuw, overgeslagen, fouten, output_map)
+        if not droog:
+            vraag_doorzoekbaar_maken(nieuw, output_map)
         return
 
     # ORI
@@ -198,7 +203,7 @@ def main():
         sys.exit(1)
     log(f"Bron: ORI-index {index}")
 
-    vergaderingen = haal_vergaderingen_ori(index, vergadertypen, MAX_VERGADERINGEN)
+    vergaderingen = haal_vergaderingen_ori(index, vergadertypen, MAX_VERGADERINGEN, vanaf)
     log(f"{len(vergaderingen)} vergaderingen gevonden")
 
     if not vergaderingen:
@@ -208,6 +213,8 @@ def main():
     nieuw, overgeslagen, fouten = download_vergaderingen_ori(
         vergaderingen, index, output_map, droog)
     log_samenvatting(nieuw, overgeslagen, fouten, output_map)
+    if not droog:
+        vraag_doorzoekbaar_maken(nieuw, output_map)
 
 
 if __name__ == "__main__":

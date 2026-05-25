@@ -277,7 +277,7 @@ def main():
     docs_map = OUTPUT_BASIS / orgaan
     if not docs_map.exists():
         # Probeer ook submappen voor regelingen, waterschappen en veiligheidsregio's
-        for submap in ("regelingen", "waterschappen", "veiligheidsregios"):
+        for submap in ("regelingen", "waterschappen", "veiligheidsregios", "provincies"):
             kandidaat = OUTPUT_BASIS / submap / orgaan
             if kandidaat.exists():
                 docs_map = kandidaat

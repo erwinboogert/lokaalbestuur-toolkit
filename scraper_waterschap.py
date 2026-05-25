@@ -27,7 +27,7 @@ from pathlib import Path
 
 from api import (
     OUTPUT_BASIS, BRONNEN_MAP,
-    setup_logging, log, log_samenvatting,
+    setup_logging, log, log_samenvatting, vraag_doorzoekbaar_maken, parse_jaren_arg,
     alle_indices,
     haal_vergaderingen_ori,
     haal_vergaderingen_ibabs,
@@ -173,10 +173,13 @@ def main():
     log(f"Waterschap: {naam}  {'(DROOG)' if droog else ''}")
     log("=" * 60)
 
+    vanaf, terugkijk_dagen = parse_jaren_arg()
+
     ibabs_naam = config.get("ibabs_naam")
     if ibabs_naam:
         log(f"Bron: iBabs ({ibabs_naam}.bestuurlijkeinformatie.nl)")
-        vergaderingen = haal_vergaderingen_ibabs(ibabs_naam, vergadertypen)
+        vergaderingen = haal_vergaderingen_ibabs(
+            ibabs_naam, vergadertypen, terugkijk_dagen=terugkijk_dagen)
         log(f"{len(vergaderingen)} vergaderingen gevonden")
         if not vergaderingen:
             log("Geen vergaderingen gevonden met de geconfigureerde vergadertypen.")
@@ -185,6 +188,8 @@ def main():
         nieuw, overgeslagen, fouten = download_vergaderingen_ibabs(
             vergaderingen, output_map, droog)
         log_samenvatting(nieuw, overgeslagen, fouten, output_map)
+        if not droog:
+            vraag_doorzoekbaar_maken(nieuw, output_map)
         return
 
     index = find_index_waterschap(naam)
@@ -195,7 +200,7 @@ def main():
         sys.exit(1)
     log(f"Bron: ORI-index {index}")
 
-    vergaderingen = haal_vergaderingen_ori(index, vergadertypen, MAX_VERGADERINGEN)
+    vergaderingen = haal_vergaderingen_ori(index, vergadertypen, MAX_VERGADERINGEN, vanaf)
     log(f"{len(vergaderingen)} vergaderingen gevonden")
 
     if not vergaderingen:
@@ -205,6 +210,8 @@ def main():
     nieuw, overgeslagen, fouten = download_vergaderingen_ori(
         vergaderingen, index, output_map, droog)
     log_samenvatting(nieuw, overgeslagen, fouten, output_map)
+    if not droog:
+        vraag_doorzoekbaar_maken(nieuw, output_map)
 
 
 if __name__ == "__main__":
