@@ -16,6 +16,8 @@ Zonder orgaan-config worden de standaard vergadertypen gebruikt (zie CONFIGURATI
 Vereisten: geen externe bibliotheken (alleen standaard Python 3)
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sys
@@ -90,6 +92,30 @@ def laad_orgaan_config(orgaan_naam: str) -> tuple[dict[str, bool], int | None]:
     return vergadertypen, config.get("notubiz_id")
 
 
+# ── Orgaan-config bewaken ────────────────────────────────────────────────────
+
+def zorg_voor_orgaan_config(orgaan_naam: str) -> None:
+    """Maak orgaan-config aan als die nog niet bestaat.
+
+    Voorkomt dat een scraper-run een map met documenten achterlaat zonder
+    bijbehorend configuratiebestand in organen/, waardoor het orgaan onzichtbaar
+    blijft in de interface.
+    """
+    pad = _ORGANEN_MAP / f"{orgaan_naam}.json"
+    if pad.exists():
+        return
+    _ORGANEN_MAP.mkdir(parents=True, exist_ok=True)
+    naam = " ".join(w.capitalize() for w in orgaan_naam.replace("-", " ").split())
+    config = {
+        "naam": naam,
+        "type": "gemeente",
+        "bron": "ori",
+        "vergadertypen": list(STANDAARD_VERGADERTYPEN.keys()),
+    }
+    pad.write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"  Orgaan-config aangemaakt: {pad}")
+
+
 # ── Argumenten ───────────────────────────────────────────────────────────────
 
 def _parse_vanaf() -> str | None:
@@ -132,6 +158,7 @@ def main():
         print(f"Ongeldige gemeentenaam: '{gemeente}'. Gebruik alleen letters, cijfers en koppeltekens.")
         sys.exit(1)
 
+    zorg_voor_orgaan_config(gemeente)
     vanaf = _parse_vanaf()
     vergadertypen, notubiz_id = laad_orgaan_config(gemeente)
 

@@ -9,6 +9,8 @@ Bevat alle herbruikbare logica voor:
   - Configuratie (config.local.json)
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import re
