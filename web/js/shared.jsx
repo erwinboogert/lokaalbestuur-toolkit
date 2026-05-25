@@ -120,7 +120,125 @@ const sharedStyles = {
   },
 };
 
+// ── PadModal ──────────────────────────────────────────────────────────────────
+
+function PadModal({ huidigPad, onOpslaan, onSluiten }) {
+  const [pad, setPad]       = React.useState(huidigPad || '');
+  const [bezig, setBezig]   = React.useState(false);
+  const [fout, setFout]     = React.useState(null);
+  const [succes, setSucces] = React.useState(false);
+
+  const opslaan = async () => {
+    if (!pad.trim()) return;
+    setBezig(true); setFout(null);
+    try {
+      const resp = await fetch('/api/instellingen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ output_pad: pad.trim() }),
+      });
+      const data = await resp.json();
+      if (data.fout) setFout(data.fout);
+      else { setSucces(true); onOpslaan(data.nieuw_pad || pad.trim()); }
+    } catch (e) {
+      setFout(e.message);
+    } finally {
+      setBezig(false);
+    }
+  };
+
+  const invoerStyle = {
+    background: 'oklch(0.175 0.005 70)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--r-2)',
+    color: 'var(--text)',
+    fontFamily: 'var(--font-mono)', fontSize: 12.5,
+    padding: '9px 12px',
+    outline: 'none',
+    width: '100%',
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0,
+        background: 'oklch(0 0 0 / 0.55)', zIndex: 200,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}
+      onClick={onSluiten}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: 'oklch(0.21 0.005 70)',
+          border: '1px solid var(--border-2)',
+          borderRadius: 'var(--r-3)',
+          padding: '24px 28px', width: 500,
+          display: 'flex', flexDirection: 'column', gap: 16,
+          boxShadow: '0 20px 60px oklch(0 0 0 / 0.6)',
+        }}
+      >
+        <div style={{
+          fontFamily: 'var(--font-serif)', fontSize: 17,
+          fontWeight: 600, color: 'var(--text)',
+        }}>
+          Documentenmap instellen
+        </div>
+        <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.55 }}>
+          Absoluut pad waar Bronnenboek documenten opslaat. Je kunt{' '}
+          <code style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5 }}>~</code>{' '}
+          gebruiken voor de thuismap. Na het opslaan is een{' '}
+          <strong style={{ color: 'var(--text-2)' }}>herstart van de server</strong>{' '}
+          nodig.
+        </div>
+        <input
+          type="text"
+          value={pad}
+          onChange={e => { setPad(e.target.value); setSucces(false); setFout(null); }}
+          placeholder="/Users/naam/Documents/notulen"
+          autoFocus
+          style={invoerStyle}
+          onKeyDown={e => { if (e.key === 'Enter' && !succes) opslaan(); if (e.key === 'Escape') onSluiten(); }}
+        />
+        {fout && (
+          <div style={{ color: 'var(--red)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+            {fout}
+          </div>
+        )}
+        {succes && (
+          <div style={{ color: 'var(--green)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+            ✓ Opgeslagen — herstart de server om de wijziging door te voeren.
+          </div>
+        )}
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <Btn ghost onClick={onSluiten}>Annuleren</Btn>
+          <Btn primary onClick={opslaan} disabled={bezig || !pad.trim() || succes}>
+            {bezig ? 'Opslaan…' : 'Opslaan'}
+          </Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+
 function Sidebar({ active, onNavigate, counts = {} }) {
+  const [outputPad, setOutputPad] = React.useState(null);
+  const [editOpen, setEditOpen]   = React.useState(false);
+
+  React.useEffect(() => {
+    fetch('/api/instellingen')
+      .then(r => r.json())
+      .then(d => setOutputPad(d.output_pad))
+      .catch(() => {});
+  }, []);
+
+  // ~/Documents/notulen in plaats van /Users/erwin/Documents/notulen
+  const padKort = outputPad
+    ? outputPad.replace(/^\/Users\/[^/]+/, '~')
+    : null;
+
   const werkItems = [
     { id: 'dashboard',  label: 'Dashboard',  count: null },
     { id: 'verkennen',  label: 'Verkennen',  count: null },
@@ -170,7 +288,37 @@ function Sidebar({ active, onNavigate, counts = {} }) {
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)' }}></span>
           <span>localhost:5000</span>
         </div>
+        {padKort && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+            <span style={{
+              flex: 1, fontSize: 10, color: 'var(--dim)',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }} title={outputPad}>
+              {padKort}
+            </span>
+            <button
+              onClick={() => setEditOpen(true)}
+              title="Documentenmap wijzigen"
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--dim)', fontSize: 12, padding: '1px 3px',
+                flexShrink: 0, lineHeight: 1,
+                transition: 'color 80ms',
+              }}
+              onMouseEnter={e => e.target.style.color = 'var(--text-2)'}
+              onMouseLeave={e => e.target.style.color = 'var(--dim)'}
+            >✎</button>
+          </div>
+        )}
       </div>
+
+      {editOpen && (
+        <PadModal
+          huidigPad={outputPad}
+          onOpslaan={(nieuwPad) => { setOutputPad(nieuwPad); setEditOpen(false); }}
+          onSluiten={() => setEditOpen(false)}
+        />
+      )}
     </aside>
   );
 }
@@ -384,6 +532,6 @@ function Foutmelding({ tekst }) {
 }
 
 Object.assign(window, {
-  sharedStyles, Sidebar, Topbar,
+  sharedStyles, Sidebar, Topbar, PadModal,
   Badge, ProgressBar, Mono, Btn, SectionHead, Toast, Laadspinner, Foutmelding,
 });

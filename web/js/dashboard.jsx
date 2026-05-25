@@ -215,37 +215,7 @@ function Dashboard({ onNavigate }) {
           title="Bronnen-status"
           right={<Btn small ghost onClick={() => onNavigate('scrapen')}>Naar Scrapen →</Btn>}
         />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
-          {[
-            { type: 'Gemeenten',          sleutel: 'gemeenten' },
-            { type: "GR's",               sleutel: 'grs' },
-            { type: 'Waterschappen',      sleutel: 'waterschappen' },
-            { type: "Veiligheidsregio's", sleutel: 'veiligheidsregios' },
-            { type: 'Provincies',         sleutel: 'provincies' },
-          ].map((s, i) => {
-            const b = bronnen[s.sleutel] || {};
-            return (
-              <div key={i} style={dashStyles.sourceTile}
-                   onClick={() => onNavigate('scrapen')}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10,
-                               color: 'var(--dim)', letterSpacing: '0.10em', textTransform: 'uppercase' }}>
-                  {s.type}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                  <span style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, fontSize: 22,
-                                 color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1,
-                                 fontVariantNumeric: 'tabular-nums' }}>
-                    {(b.docs || 0).toLocaleString('nl-NL')}
-                  </span>
-                  <Mono color="var(--dim)" size={10.5}>docs</Mono>
-                </div>
-                <Mono color="var(--muted)" size={11}>
-                  {b.geconfigureerd || 0} geconfigureerd
-                </Mono>
-              </div>
-            );
-          })}
-        </div>
+        <BronnenDetail bronnen={bronnen} onNavigate={onNavigate} />
       </div>
     </>
   );
@@ -330,4 +300,127 @@ function DashboardLeeg({ onNavigate }) {
   );
 }
 
-Object.assign(window, { Dashboard });
+// ── BronnenDetail ─────────────────────────────────────────────────────────────
+
+const BRONNEN_TYPES = [
+  { label: 'Gemeenten',          sleutel: 'gemeenten' },
+  { label: "GR's",               sleutel: 'grs' },
+  { label: 'Waterschappen',      sleutel: 'waterschappen' },
+  { label: "Veiligheidsregio's", sleutel: 'veiligheidsregios' },
+  { label: 'Provincies',         sleutel: 'provincies' },
+];
+
+function BronnenDetail({ bronnen, onNavigate }) {
+  // Start open voor types die docs hebben, dicht voor lege
+  const [open, setOpen] = React.useState(() => {
+    const init = {};
+    BRONNEN_TYPES.forEach(t => {
+      init[t.sleutel] = (bronnen[t.sleutel]?.docs || 0) > 0;
+    });
+    return init;
+  });
+
+  const toggle = (sleutel) => setOpen(p => ({ ...p, [sleutel]: !p[sleutel] }));
+
+  return (
+    <div style={{ border: '1px solid var(--rule)', borderRadius: 'var(--r-2)', overflow: 'hidden' }}>
+      {BRONNEN_TYPES.map((t, ti) => {
+        const b      = bronnen[t.sleutel] || { geconfigureerd: 0, docs: 0, organen: [] };
+        const organen = b.organen || [];
+        const isOpen  = open[t.sleutel];
+        const heeftOrganen = organen.length > 0;
+
+        return (
+          <div key={t.sleutel}>
+            {/* Type-rij */}
+            <div
+              onClick={heeftOrganen ? () => toggle(t.sleutel) : undefined}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '18px 1fr auto 100px',
+                alignItems: 'center',
+                gap: 10,
+                padding: '10px 14px',
+                background: ti % 2 === 0
+                  ? 'oklch(0.185 0.005 70)'
+                  : 'oklch(0.178 0.005 70)',
+                borderBottom: (isOpen && heeftOrganen) ? '1px solid var(--rule)' : 'none',
+                cursor: heeftOrganen ? 'pointer' : 'default',
+                userSelect: 'none',
+              }}
+            >
+              {/* Uitklap-indicator */}
+              <span style={{
+                fontFamily: 'var(--font-mono)', fontSize: 10,
+                color: 'var(--dim)',
+                opacity: heeftOrganen ? 1 : 0,
+                transition: 'transform 150ms',
+                display: 'inline-block',
+                transform: isOpen ? 'rotate(90deg)' : 'none',
+              }}>›</span>
+
+              {/* Type-naam */}
+              <span style={{
+                fontFamily: 'var(--font-mono)', fontSize: 10,
+                color: 'var(--dim)', letterSpacing: '0.10em', textTransform: 'uppercase',
+              }}>{t.label}</span>
+
+              {/* Geconfigureerd */}
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color: 'var(--muted)' }}>
+                {b.geconfigureerd} {b.geconfigureerd === 1 ? 'orgaan' : 'organen'}
+              </span>
+
+              {/* Docs-teller */}
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, justifyContent: 'flex-end' }}>
+                <span style={{
+                  fontFamily: 'var(--font-serif)', fontWeight: 600,
+                  fontSize: b.docs > 0 ? 18 : 14,
+                  color: b.docs > 0 ? 'var(--text)' : 'var(--dim)',
+                  letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums',
+                }}>{(b.docs || 0).toLocaleString('nl-NL')}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--dim)' }}>docs</span>
+              </div>
+            </div>
+
+            {/* Organen-rijen (uitgekalpt) */}
+            {isOpen && heeftOrganen && organen.map((org, oi) => (
+              <div
+                key={org.slug}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '18px 1fr auto 100px',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '7px 14px 7px 32px',
+                  background: 'oklch(0.162 0.004 70)',
+                  borderBottom: oi < organen.length - 1
+                    ? '1px solid oklch(0.205 0.005 70)'
+                    : '1px solid var(--rule)',
+                }}
+              >
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'oklch(0.35 0.005 70)' }}>—</span>
+                <span style={{ fontSize: 12.5, color: 'var(--text-2)', letterSpacing: '-0.005em' }}>
+                  {org.naam}
+                </span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'oklch(0.40 0.005 70)' }}>
+                  {org.slug}
+                </span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, justifyContent: 'flex-end' }}>
+                  <span style={{
+                    fontFamily: 'var(--font-serif)', fontWeight: 600,
+                    fontSize: 14,
+                    color: org.docs > 0 ? 'var(--text-2)' : 'oklch(0.38 0.005 70)',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}>{org.docs.toLocaleString('nl-NL')}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--dim)' }}>docs</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+Object.assign(window, { Dashboard, BronnenDetail });

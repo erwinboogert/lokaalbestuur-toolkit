@@ -277,33 +277,58 @@ def api_status():
         for d in dossiers_raw
     ]
 
-    gem_slugs = [o["_slug"] for o in organen if o.get("type", "gemeente") == "gemeente"]
-    gem_docs  = sum(tel_pdfs(OUTPUT_BASIS / s) for s in gem_slugs)
+    # ── Gemeenten-detail ─────────────────────────────────────────────────────
+    gem_organen = []
+    for o in organen:
+        if o.get("type", "gemeente") == "gemeente":
+            slug = o["_slug"]
+            docs = tel_pdfs(OUTPUT_BASIS / slug)
+            gem_organen.append({"naam": o.get("naam", slug), "slug": slug, "docs": docs})
+    gem_organen.sort(key=lambda x: x["docs"], reverse=True)
+    gem_docs = sum(o["docs"] for o in gem_organen)
 
-    def _bronnen(pad: Path, submap: str) -> tuple[int, int]:
+    # ── Overige bronnen-detail ────────────────────────────────────────────────
+    def _bronnen_detail(pad: Path, submap: str) -> dict:
+        """Geef geconfigureerd-telling, totaal docs en per-orgaan detail."""
         try:
-            cfg = {k: v for k, v in json.loads(pad.read_text()).items() if not k.startswith("_")}
-            docs = sum(tel_pdfs(OUTPUT_BASIS / submap / s) for s in cfg)
-            return len(cfg), docs
+            cfg = {k: v for k, v in json.loads(pad.read_text(encoding="utf-8")).items()
+                   if not k.startswith("_")}
         except Exception:
-            return 0, 0
+            return {"geconfigureerd": 0, "docs": 0, "organen": []}
+        org_lijst = []
+        for slug, info in cfg.items():
+            naam = info.get("naam", slug) if isinstance(info, dict) else slug
+            org_docs = tel_pdfs(OUTPUT_BASIS / submap / slug)
+            org_lijst.append({"naam": naam, "slug": slug, "docs": org_docs})
+        org_lijst.sort(key=lambda x: x["docs"], reverse=True)
+        return {
+            "geconfigureerd": len(org_lijst),
+            "docs":    sum(o["docs"] for o in org_lijst),
+            "organen": org_lijst,
+        }
 
-    n_gr,   gr_docs   = _bronnen(BRONNEN_MAP / "regelingen.json",     "regelingen")
-    n_ws,   ws_docs   = _bronnen(BRONNEN_MAP / "waterschappen.json",   "waterschappen")
-    n_vr,   vr_docs   = _bronnen(BRONNEN_MAP / "veiligheidsregios.json","veiligheidsregios")
-    n_prov, prov_docs = _bronnen(BRONNEN_MAP / "provincies.json",      "provincies")
+    gr_detail   = _bronnen_detail(BRONNEN_MAP / "regelingen.json",      "regelingen")
+    ws_detail   = _bronnen_detail(BRONNEN_MAP / "waterschappen.json",    "waterschappen")
+    vr_detail   = _bronnen_detail(BRONNEN_MAP / "veiligheidsregios.json","veiligheidsregios")
+    prov_detail = _bronnen_detail(BRONNEN_MAP / "provincies.json",       "provincies")
 
-    totaal = gem_docs + gr_docs + ws_docs + vr_docs + prov_docs
+    totaal = (gem_docs + gr_detail["docs"] + ws_detail["docs"]
+              + vr_detail["docs"] + prov_detail["docs"])
 
     return jsonify({
-        "alerts":   alerts,
-        "dossiers": dossiers,
+        "alerts":     alerts,
+        "dossiers":   dossiers,
+        "output_pad": str(OUTPUT_BASIS),
         "bronnen": {
-            "gemeenten":         {"geconfigureerd": len(gem_slugs), "docs": gem_docs},
-            "grs":               {"geconfigureerd": n_gr,   "docs": gr_docs},
-            "waterschappen":     {"geconfigureerd": n_ws,   "docs": ws_docs},
-            "veiligheidsregios": {"geconfigureerd": n_vr,   "docs": vr_docs},
-            "provincies":        {"geconfigureerd": n_prov, "docs": prov_docs},
+            "gemeenten": {
+                "geconfigureerd": len(gem_organen),
+                "docs":    gem_docs,
+                "organen": gem_organen,
+            },
+            "grs":               gr_detail,
+            "waterschappen":     ws_detail,
+            "veiligheidsregios": vr_detail,
+            "provincies":        prov_detail,
         },
         "stats": {
             "totaal_docs":      totaal,
@@ -558,6 +583,47 @@ def api_document_open():
         return jsonify({"fout": "Bestand niet gevonden"}), 404
     subprocess.Popen(["open", pad])
     return jsonify({"ok": True})
+
+
+@app.route("/api/instellingen", methods=["GET"])
+def api_instellingen_get():
+    config = {}
+    if _config_pad.exists():
+        try:
+            config = json.loads(_config_pad.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return jsonify({"output_pad": str(OUTPUT_BASIS), "config": config})
+
+
+@app.route("/api/instellingen", methods=["POST"])
+def api_instellingen_post():
+    data = request.json or {}
+    nieuw_pad_str = data.get("output_pad", "").strip()
+    if not nieuw_pad_str:
+        return jsonify({"fout": "Geen pad opgegeven"}), 400
+    try:
+        nieuw_pad = Path(nieuw_pad_str).expanduser().resolve()
+    except Exception as e:
+        return jsonify({"fout": str(e)}), 400
+
+    # Lees bestaande config en update
+    config = {}
+    if _config_pad.exists():
+        try:
+            config = json.loads(_config_pad.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    config["data_map"] = str(nieuw_pad)
+    try:
+        _config_pad.write_text(
+            json.dumps(config, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+    except Exception as e:
+        return jsonify({"fout": f"Kan config niet schrijven: {e}"}), 500
+
+    return jsonify({"ok": True, "nieuw_pad": str(nieuw_pad), "herstart": True})
 
 
 # ── Start ─────────────────────────────────────────────────────────────────────
