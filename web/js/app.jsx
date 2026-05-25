@@ -126,14 +126,31 @@ function VerkennenScherm() {
 
           {resultaat.regelingen && resultaat.regelingen.length > 0 && (
             <div>
-              <div style={{ display: 'flex', gap: 16, alignItems: 'baseline', marginBottom: 8 }}>
-                <Mono color="var(--dim)" size={11} style={{ minWidth: 180 }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'baseline', marginBottom: 10 }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--dim)', minWidth: 180 }}>
                   Gemeenschappelijke regelingen ({resultaat.regelingen.length})
-                </Mono>
+                </span>
+                {resultaat.regelingen_bron && (
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'oklch(0.40 0.005 70)' }}>
+                    bron: {resultaat.regelingen_bron}
+                  </span>
+                )}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, paddingLeft: 196 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5, paddingLeft: 196 }}>
                 {resultaat.regelingen.map((r, i) => (
-                  <span key={i} style={{ fontSize: 13, color: 'var(--text-2)' }}>— {r}</span>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 13, color: 'var(--text-2)' }}>
+                      — {r.naam !== undefined ? r.naam : r}
+                    </span>
+                    {r.in_catalogus && (
+                      <span style={{
+                        fontFamily: 'var(--font-mono)', fontSize: 9.5,
+                        color: 'var(--green)', letterSpacing: '0.06em',
+                        border: '1px solid oklch(0.760 0.150 148 / 0.35)',
+                        borderRadius: 2, padding: '1px 5px',
+                      }}>downloadbaar</span>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>

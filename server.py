@@ -18,6 +18,7 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.request
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -231,7 +232,6 @@ def haal_gemeenten_ori() -> list[str]:
     if _gem_cache and (time.time() - _gem_cache_ts) < 86400:
         return _gem_cache
     try:
-        import urllib.request
         req = urllib.request.Request(
             "https://api.openraadsinformatie.nl/v1/elastic/_cat/indices?h=index&format=json",
             headers={"Accept": "application/json"},
@@ -246,6 +246,53 @@ def haal_gemeenten_ori() -> list[str]:
         return gemeenten
     except Exception:
         return _gem_cache
+
+
+# ── GR-lookup via organisaties.overheid.nl ───────────────────────────────────
+
+def haal_grs_overheid(gemeente_slug: str) -> list:
+    """Haal de volledige GR-lijst op van organisaties.overheid.nl.
+
+    Geeft een lijst van dicts: {naam, slug, overheid_id}.
+    Geeft een lege lijst terug bij een netwerkfout of onbekende gemeente.
+    """
+    mapping_pad = BRONNEN_MAP / "gemeenten_overheid.json"
+    try:
+        mapping = json.loads(mapping_pad.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+    info = mapping.get(gemeente_slug)
+    if not info:
+        return []
+
+    overheid_id   = info["overheid_id"]
+    gemeente_naam = info["naam"].replace(" ", "_").replace("'", "")
+    url = f"https://organisaties.overheid.nl/{overheid_id}/Gemeente_{gemeente_naam}"
+
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "lokaalbestuur-toolkit/1.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            html = resp.read().decode("utf-8")
+    except Exception:
+        return []
+
+    grs  = []
+    seen = set()
+    for m in re.finditer(r'href="[^"]*?/samenwerkingen/(\d+)/([^/"]+)/"', html):
+        overheid_gr_id = m.group(1)
+        if overheid_gr_id in seen:
+            continue
+        seen.add(overheid_gr_id)
+        slug_raw = m.group(2)
+        naam = re.sub(r"_+", " ", slug_raw).strip()
+        naam = re.sub(r"^Gemeenschappelijk[e]?\s+[Rr]egeling\s+", "", naam)
+        naam = naam[0].upper() + naam[1:] if naam else naam
+        gr_slug = slug_raw.lower().replace("_", "-")
+        gr_slug = re.sub(r"^gemeenschappelijk[e]?-regeling-", "", gr_slug)
+        grs.append({"naam": naam, "slug": gr_slug, "overheid_id": overheid_gr_id})
+
+    return grs
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
@@ -550,28 +597,56 @@ def api_verkennen():
         except Exception:
             pass
 
-    # Gemeenschappelijke regelingen
-    regelingen_lijst = []
+    # Gemeenschappelijke regelingen — live via overheid.nl, catalogus als vlag
     reg_pad = BRONNEN_MAP / "regelingen.json"
+    catalogus_slugs = set()
     if reg_pad.exists():
         try:
             for slug, info in json.loads(reg_pad.read_text(encoding="utf-8")).items():
-                if slug.startswith("_"):
-                    continue
-                if isinstance(info, dict) and gemeente in info.get("gemeenten", []):
-                    regelingen_lijst.append(info.get("naam", slug))
+                if not slug.startswith("_") and isinstance(info, dict):
+                    if gemeente in info.get("gemeenten", []):
+                        catalogus_slugs.add(slug)
         except Exception:
             pass
+
+    # Probeer live GRs op te halen; val terug op interne catalogus bij fout
+    live_grs = haal_grs_overheid(gemeente)
+
+    if live_grs:
+        regelingen_lijst = [
+            {
+                "naam":        gr["naam"],
+                "slug":        gr["slug"],
+                "in_catalogus": gr["slug"] in catalogus_slugs,
+            }
+            for gr in live_grs
+        ]
+    else:
+        # Fallback: alleen wat in onze catalogus staat
+        regelingen_lijst = []
+        if reg_pad.exists():
+            try:
+                for slug, info in json.loads(reg_pad.read_text(encoding="utf-8")).items():
+                    if not slug.startswith("_") and isinstance(info, dict):
+                        if gemeente in info.get("gemeenten", []):
+                            regelingen_lijst.append({
+                                "naam":        info.get("naam", slug),
+                                "slug":        slug,
+                                "in_catalogus": True,
+                            })
+            except Exception:
+                pass
 
     if not provincie and not veiligheidsregio and not waterschappen and not regelingen_lijst:
         return jsonify({"fout": f"Gemeente '{gemeente}' niet gevonden in catalogus"}), 404
 
     return jsonify({
-        "gemeente":        gemeente,
-        "provincie":       provincie,
+        "gemeente":         gemeente,
+        "provincie":        provincie,
         "veiligheidsregio": veiligheidsregio,
-        "waterschappen":   waterschappen,
-        "regelingen":      regelingen_lijst,
+        "waterschappen":    waterschappen,
+        "regelingen":       regelingen_lijst,
+        "regelingen_bron":  "overheid.nl" if live_grs else "catalogus",
     })
 
 
