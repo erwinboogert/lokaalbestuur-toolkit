@@ -31,6 +31,7 @@ from api import (
     download,
     notubiz_verzoek,
     ibabs_soap, ibabs_tekst, IBABS_NS,
+    parse_jaren_arg,
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -386,7 +387,10 @@ def toon_welke(gemeente: str):
 
 if __name__ == "__main__":
     droog = "--droog" in sys.argv
-    args = [a for a in sys.argv[1:] if a != "--droog"]
+    args = [a for a in sys.argv[1:] if a not in ("--droog",)]
+
+    # Pas TERUGKIJK_DAGEN aan op basis van --jaren N (bijv. --jaren 0.5 = 6 mnd)
+    _, TERUGKIJK_DAGEN = parse_jaren_arg(TERUGKIJK_DAGEN)
 
     if not args or args[0] in ("-h", "--help", "-?", "help"):
         print(__doc__)

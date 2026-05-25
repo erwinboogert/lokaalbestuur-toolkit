@@ -114,9 +114,9 @@ function VerkennenScherm() {
           </div>
 
           {[
-            { k: 'Provincie',           v: resultaat.provincie },
-            { k: 'Veiligheidsregio',    v: resultaat.veiligheidsregio },
-            { k: 'Waterschap(pen)',      v: (resultaat.waterschappen || []).join(', ') || '—' },
+            { k: 'Provincie',           v: resultaat.provincie?.naam },
+            { k: 'Veiligheidsregio',    v: resultaat.veiligheidsregio?.naam },
+            { k: 'Waterschap(pen)',      v: (resultaat.waterschappen || []).map(w => w.naam).join(', ') || '—' },
           ].map(({ k, v }) => (
             <div key={k} style={{ display: 'flex', gap: 16, alignItems: 'baseline' }}>
               <Mono color="var(--dim)" size={11} style={{ minWidth: 180 }}>{k}</Mono>

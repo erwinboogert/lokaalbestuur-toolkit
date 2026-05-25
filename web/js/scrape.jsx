@@ -61,11 +61,12 @@ const scrapeStyles = {
 };
 
 const TABS = [
-  { id: 'gemeente',         label: 'Gemeenten',           type: 'gemeente' },
-  { id: 'gr',               label: "GR's",                type: 'gr' },
-  { id: 'waterschap',       label: 'Waterschappen',        type: 'waterschap' },
-  { id: 'veiligheidsregio', label: "Veiligheidsregio's",  type: 'veiligheidsregio' },
-  { id: 'provincie',        label: 'Provincies',           type: 'provincie' },
+  { id: 'pakket',           label: 'Via gemeente',         type: null },
+  { id: 'gemeente',         label: 'Gemeente',             type: 'gemeente' },
+  { id: 'gr',               label: "GR's",                 type: 'gr' },
+  { id: 'waterschap',       label: 'Waterschap',           type: 'waterschap' },
+  { id: 'veiligheidsregio', label: "Veiligheidsregio",    type: 'veiligheidsregio' },
+  { id: 'provincie',        label: 'Provincie',            type: 'provincie' },
 ];
 
 function Scrape({ onNavigate }) {
@@ -73,23 +74,31 @@ function Scrape({ onNavigate }) {
   const [stap, setStap]       = React.useState('idle');
   const [jobId, setJobId]     = React.useState(null);
   const [orgaan, setOrgaan]   = React.useState('');
+  const [orgType, setOrgType] = React.useState('gemeente');
   const [periode, setPeriode] = React.useState(24);
   const [simuleer, setSimuleer] = React.useState(false);
   const [samenvatting, setSamenvatting] = React.useState(null);
 
+  // Pakket-tab staat: bewaard hier zodat verkennen-resultaat intact blijft tijdens/na een scrape
+  const [pakketGemeente, setPakketGemeente] = React.useState('');
+  const [pakketResultaat, setPakketResultaat] = React.useState(null);
+
   const activeTab = TABS[tabIdx];
 
-  const handleStart = async (org, per, sim) => {
+  // typeOverride: gebruikt vanuit ScrapeGemeentePakket waar het type niet uit de tab komt
+  const handleStart = async (org, per, sim, typeOverride) => {
+    const type = typeOverride !== undefined ? typeOverride : activeTab.type;
     try {
       const resp = await fetch('/api/scrapen/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: activeTab.type, orgaan: org, periode: per, simuleer: sim }),
+        body: JSON.stringify({ type, orgaan: org, periode: per, simuleer: sim }),
       });
       const data = await resp.json();
       if (data.fout) { alert(data.fout); return; }
       setJobId(data.job_id);
       setOrgaan(org);
+      setOrgType(type);
       setPeriode(per);
       setSimuleer(sim);
       setStap('progress');
@@ -126,6 +135,11 @@ function Scrape({ onNavigate }) {
     if (onNavigate) onNavigate('zoeken');
   };
 
+  const handleDownloadEcht = () => {
+    // Zelfde orgaan, type en periode als de simulatie, maar nu echt downloaden
+    handleStart(orgaan, periode, false, orgType);
+  };
+
   return (
     <>
       {/* Tabs */}
@@ -139,7 +153,18 @@ function Scrape({ onNavigate }) {
         <div style={{ flex: 1, borderBottom: '1px solid var(--border)' }}></div>
       </div>
 
-      {stap === 'idle'     && <ScrapeIdle orgaanType={activeTab.type} onStart={handleStart} />}
+      {stap === 'idle' && activeTab.id === 'pakket' && (
+        <ScrapeGemeentePakket
+          onStart={handleStart}
+          gemeente={pakketGemeente}
+          onGemeenteChange={setPakketGemeente}
+          resultaat={pakketResultaat}
+          onResultaat={setPakketResultaat}
+        />
+      )}
+      {stap === 'idle' && activeTab.id !== 'pakket' && (
+        <ScrapeIdle orgaanType={activeTab.type} onStart={handleStart} />
+      )}
       {stap === 'progress' && <ScrapeProgress jobId={jobId} orgaan={orgaan} periode={periode}
                                                simuleer={simuleer}
                                                onDone={handleDone}
@@ -151,6 +176,7 @@ function Scrape({ onNavigate }) {
                                                onCancel={handleIndexDone} />}
       {stap === 'done'     && <ScrapeDone orgaan={orgaan} samenvatting={samenvatting}
                                            onIndexeer={handleIndexeer}
+                                           onDownloadEcht={handleDownloadEcht}
                                            onLater={() => setStap('idle')} />}
     </>
   );
@@ -301,11 +327,25 @@ function ScrapeIdle({ orgaanType, onStart }) {
 }
 
 function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCancel }) {
-  const [regels, setRegels] = React.useState([]);
-  const [nieuw, setNieuw]   = React.useState(0);
-  const [fouten, setFouten] = React.useState(0);
-  const [klaar, setKlaar]   = React.useState(false);
+  const [regels, setRegels]           = React.useState([]);
+  const [nieuw, setNieuw]             = React.useState(0);
+  const [fouten, setFouten]           = React.useState(0);
+  const [vergaderingen, setVergaderingen] = React.useState([]);
+  const [klaar, setKlaar]             = React.useState(false);
   const esRef = React.useRef(null);
+
+  // Refs om stale-closure te vermijden in de onmessage-callback
+  const nieuwRef       = React.useRef(0);
+  const foutenRef      = React.useRef(0);
+  const overgeslagenRef = React.useRef(0);
+  const vergRef        = React.useRef([]);
+
+  React.useEffect(() => {
+    nieuwRef.current       = 0;
+    foutenRef.current      = 0;
+    overgeslagenRef.current = 0;
+    vergRef.current        = [];
+  }, [jobId]);
 
   React.useEffect(() => {
     if (!jobId) return;
@@ -319,8 +359,13 @@ function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCan
       if (data.type === 'done') {
         es.close();
         setKlaar(true);
-        // Geef samenvatting mee
-        onDone({ nieuw, fouten });
+        onDone({
+          nieuw:         nieuwRef.current,
+          fouten:        foutenRef.current,
+          overgeslagen:  overgeslagenRef.current,
+          vergaderingen: vergRef.current,
+          simuleer,
+        });
         return;
       }
 
@@ -328,20 +373,51 @@ function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCan
         const tekst = data.text;
         setRegels(prev => [tekst, ...prev].slice(0, 80));
 
-        // Parse statistieken uit log-output
+        // Eindstatistieken uit samenvattingsblok
         const mNieuw = tekst.match(/Nieuw gedownload\s*:\s*(\d+)/);
-        if (mNieuw) setNieuw(parseInt(mNieuw[1]));
+        if (mNieuw) {
+          const n = parseInt(mNieuw[1]);
+          nieuwRef.current = n;
+          setNieuw(n);
+        }
+
+        const mOverg = tekst.match(/Al aanwezig\s*:\s*(\d+)/);
+        if (mOverg) {
+          overgeslagenRef.current = parseInt(mOverg[1]);
+        }
 
         const mFout = tekst.match(/Fouten\s*:\s*(\d+)/);
-        if (mFout) setFouten(parseInt(mFout[1]));
+        if (mFout) {
+          const f = parseInt(mFout[1]);
+          foutenRef.current = f;
+          setFouten(f);
+        }
 
         if (tekst.includes('! FOUT') || tekst.includes('! fout')) {
+          foutenRef.current += 1;
           setFouten(f => f + 1);
         }
 
-        // Tel gedownloade docs (+) en overgeslagen
-        if (tekst.trim().startsWith('+ ')) {
+        // Live tellen tijdens de run
+        if (simuleer && tekst.includes('[DROOG]')) {
+          nieuwRef.current += 1;
           setNieuw(n => n + 1);
+        } else if (!simuleer && tekst.trim().startsWith('+ ')) {
+          nieuwRef.current += 1;
+          setNieuw(n => n + 1);
+        }
+
+        // Vergadering-headers: "  Naam (datum) — N nieuw van M"
+        const mVerg = tekst.match(/^\s{2}(.+?)\s*\((\d{4}-\d{2}-\d{2})\)\s*[—-]\s*(\d+)\s*nieuw\s*van\s*(\d+)/);
+        if (mVerg) {
+          const verg = {
+            naam:   mVerg[1].trim(),
+            datum:  mVerg[2],
+            nieuw:  parseInt(mVerg[3]),
+            totaal: parseInt(mVerg[4]),
+          };
+          vergRef.current = [...vergRef.current, verg];
+          setVergaderingen(v => [...v, verg]);
         }
       }
     };
@@ -350,7 +426,8 @@ function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCan
     return () => es.close();
   }, [jobId]);
 
-  const titelTekst = titel || `${orgaan} — ${simuleer ? 'simuleren' : 'downloaden'}`;
+  const titelTekst  = titel || `${orgaan} — ${simuleer ? 'simuleren' : 'downloaden'}`;
+  const statLabel   = simuleer ? 'gevonden' : 'nieuw gedownload';
 
   return (
     <div>
@@ -381,7 +458,7 @@ function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCan
                            fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
               {nieuw.toLocaleString('nl-NL')}
             </span>
-            <Mono color="var(--text-2)" size={13}>nieuw gedownload</Mono>
+            <Mono color="var(--text-2)" size={13}>{statLabel}</Mono>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 18 }}>
             <div>
@@ -436,10 +513,116 @@ function ScrapeProgress({ jobId, orgaan, periode, simuleer, titel, onDone, onCan
   );
 }
 
-function ScrapeDone({ orgaan, samenvatting = {}, onIndexeer, onLater }) {
-  const nieuw   = samenvatting.nieuw   || 0;
-  const fouten  = samenvatting.fouten  || 0;
+function ScrapeDone({ orgaan, samenvatting = {}, onIndexeer, onLater, onDownloadEcht }) {
+  const nieuw         = samenvatting.nieuw         || 0;
+  const fouten        = samenvatting.fouten        || 0;
+  const overgeslagen  = samenvatting.overgeslagen  || 0;
+  const simuleer      = samenvatting.simuleer      || false;
+  const vergaderingen = samenvatting.vergaderingen || [];
 
+  // ── Simulate-resultaat ────────────────────────────────────────────────────
+  if (simuleer) {
+    return (
+      <div style={{ position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 14 }}>
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontWeight: 600,
+                       fontSize: 24, letterSpacing: '-0.02em', margin: 0 }}>
+            {orgaan} — simulatie klaar
+          </h1>
+          <Badge kind="accent">droog</Badge>
+        </div>
+
+        {/* Stats */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
+          border: '1px solid var(--rule)', borderRadius: 'var(--r-2)',
+          background: 'oklch(0.185 0.005 70)', overflow: 'hidden', marginBottom: 24,
+        }}>
+          {[
+            { k: 'Te downloaden', v: String(nieuw),        s: 'nieuwe documenten',  c: 'var(--accent)' },
+            { k: 'Al aanwezig',   v: String(overgeslagen), s: 'overgeslagen',        c: 'var(--text-2)' },
+            { k: 'Orgaan',        v: orgaan,                s: '',                   c: 'var(--text)' },
+          ].map((s, i) => (
+            <div key={i} style={{
+              padding: '18px 22px',
+              borderRight: i < 2 ? '1px solid var(--rule)' : 'none',
+              display: 'flex', flexDirection: 'column', gap: 4,
+            }}>
+              <Mono color="var(--dim)" size={10}>{s.k.toUpperCase()}</Mono>
+              <div style={{ fontFamily: 'var(--font-serif)', fontSize: 28, fontWeight: 600,
+                            color: s.c, letterSpacing: '-0.02em', lineHeight: 1,
+                            fontVariantNumeric: 'tabular-nums' }}>{s.v}</div>
+              {s.s && <Mono color="var(--muted)" size={11}>{s.s}</Mono>}
+            </div>
+          ))}
+        </div>
+
+        {/* Vergadering-breakdown */}
+        {vergaderingen.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <Mono color="var(--dim)" size={10}>VERGADERINGEN MET NIEUWE STUKKEN</Mono>
+            <div style={{
+              marginTop: 8, border: '1px solid var(--rule)', borderRadius: 'var(--r-2)',
+              background: 'oklch(0.135 0.005 70)', fontFamily: 'var(--font-mono)',
+              fontSize: 11.5, maxHeight: 240, overflowY: 'auto',
+            }}>
+              {vergaderingen.map((v, i) => (
+                <div key={i} style={{
+                  padding: '8px 14px',
+                  borderBottom: i < vergaderingen.length - 1 ? '1px solid oklch(0.18 0.005 70)' : 'none',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                }}>
+                  <div>
+                    <span style={{ color: 'var(--text-2)' }}>{v.naam}</span>
+                    <span style={{ color: 'var(--dim)', marginLeft: 12, fontSize: 11 }}>{v.datum}</span>
+                  </div>
+                  <Mono color="var(--accent)" size={11}>{v.nieuw} nieuw van {v.totaal}</Mono>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* CTA: nu echt downloaden */}
+        <div style={{
+          border: '1px solid var(--border-2)',
+          background: 'oklch(0.215 0.008 70)',
+          borderRadius: 'var(--r-2)', padding: '22px 24px',
+          display: 'grid', gridTemplateColumns: '1fr auto',
+          gap: 24, alignItems: 'center',
+          position: 'relative',
+        }}>
+          <div style={{
+            position: 'absolute', top: -1, left: 24, width: 60, height: 2,
+            background: 'var(--accent)',
+          }}></div>
+          <div>
+            <Mono color="var(--accent)" size={10}>VERVOLGSTAP</Mono>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 600,
+                         fontSize: 22, letterSpacing: '-0.02em',
+                         margin: '4px 0 8px', color: 'var(--text)' }}>
+              {nieuw > 0
+                ? `${nieuw} documenten staan klaar — nu echt downloaden?`
+                : 'Alles al aanwezig — niets te downloaden.'}
+            </h2>
+            <p style={{ color: 'var(--text-2)', fontSize: 13.5, lineHeight: 1.55, margin: 0 }}>
+              {nieuw > 0
+                ? 'De simulatie is klaar. Klik hiernaast om alle gevonden stukken daadwerkelijk op te slaan.'
+                : 'Er zijn geen nieuwe documenten gevonden. Alles is al aanwezig op schijf.'}
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 180 }}>
+            {nieuw > 0 && onDownloadEcht && (
+              <Btn primary onClick={onDownloadEcht}>Ja, download echt →</Btn>
+            )}
+            <Btn ghost onClick={onLater}>← Terug</Btn>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Echte download voltooid ───────────────────────────────────────────────
   return (
     <div style={{ position: 'relative' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 14 }}>
@@ -515,6 +698,201 @@ function ScrapeDone({ orgaan, samenvatting = {}, onIndexeer, onLater }) {
         <div style={{ marginTop: 16 }}>
           <Btn ghost onClick={onLater}>← Terug</Btn>
         </div>
+      )}
+    </div>
+  );
+}
+
+// ── ScrapeGemeentePakket ──────────────────────────────────────────────────────
+// Gemeente-eerst workflow: vul gemeente in → zie alle gerelateerde organen →
+// scrape elk orgaan met één klik.
+
+function ScrapeGemeentePakket({ onStart, gemeente, onGemeenteChange, resultaat, onResultaat }) {
+  // gemeente en resultaat komen van de Scrape-parent (lifted state),
+  // zodat het verkennen-resultaat bewaard blijft tijdens en na een scrape.
+  const [gemeenten, setGemeenten] = React.useState([]);
+  const [bezig, setBezig]         = React.useState(false);
+  const [fout, setFout]           = React.useState(null);
+  const [periode, setPeriode]     = React.useState(24);
+  const [simuleer, setSimuleer]   = React.useState(false);
+
+  React.useEffect(() => {
+    fetch('/api/gemeenten').then(r => r.json()).then(setGemeenten).catch(() => {});
+  }, []);
+
+  const verken = async (e) => {
+    if (e) e.preventDefault();
+    if (!gemeente.trim()) return;
+    setBezig(true); setFout(null); onResultaat(null);
+    try {
+      const resp = await fetch(`/api/verkennen?gemeente=${encodeURIComponent(gemeente.trim())}`);
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.fout || resp.statusText);
+      onResultaat(data);
+    } catch (err) {
+      setFout(err.message);
+    } finally {
+      setBezig(false);
+    }
+  };
+
+  // Bouw gegroepeerde orgaanlijst uit het verkennen-resultaat
+  const groepen = resultaat ? [
+    {
+      kicker: 'Gemeente',
+      orgs: [{ type: 'gemeente', naam: resultaat.gemeente, slug: resultaat.gemeente, beschikbaar: true }],
+    },
+    ...(resultaat.waterschappen?.length ? [{
+      kicker: 'Waterschap',
+      orgs: resultaat.waterschappen.map(ws => ({
+        type: 'waterschap', naam: ws.naam, slug: ws.slug, beschikbaar: true,
+      })),
+    }] : []),
+    ...(resultaat.veiligheidsregio ? [{
+      kicker: 'Veiligheidsregio',
+      orgs: [{ type: 'veiligheidsregio', naam: resultaat.veiligheidsregio.naam, slug: resultaat.veiligheidsregio.slug, beschikbaar: true }],
+    }] : []),
+    ...(resultaat.provincie ? [{
+      kicker: 'Provincie',
+      orgs: [{ type: 'provincie', naam: resultaat.provincie.naam, slug: resultaat.provincie.slug, beschikbaar: true }],
+    }] : []),
+    ...(resultaat.regelingen?.length ? [{
+      kicker: `Gemeenschappelijke regelingen (${resultaat.regelingen.length})`,
+      orgs: resultaat.regelingen.map(gr => ({
+        type: 'gr', naam: gr.naam, slug: gr.slug, beschikbaar: gr.in_catalogus,
+      })),
+    }] : []),
+  ] : [];
+
+  const nBeschikbaar = groepen.reduce((s, g) => s + g.orgs.filter(o => o.beschikbaar).length, 0);
+
+  return (
+    <div>
+      <h1 style={{
+        fontFamily: 'var(--font-serif)', fontSize: 26, fontWeight: 600,
+        letterSpacing: '-0.02em', margin: '0 0 6px', color: 'var(--text)',
+      }}>Documenten ophalen — Via gemeente</h1>
+      <p style={{ color: 'var(--muted)', fontSize: 13, margin: '0 0 24px', lineHeight: 1.55, maxWidth: 540 }}>
+        Vul een gemeente in. Je ziet direct alle gerelateerde organen — waterschap,
+        veiligheidsregio, provincie en GR's — en kunt elk orgaan met één klik scrapen.
+      </p>
+
+      {/* Zoekbalk */}
+      <form onSubmit={verken} style={{ display: 'flex', gap: 8, marginBottom: 28 }}>
+        <input
+          list="pakket-gemeenten"
+          value={gemeente}
+          onChange={e => onGemeenteChange(e.target.value)}
+          placeholder="Naam van gemeente…"
+          style={{
+            flex: 1, padding: '9px 12px',
+            background: 'oklch(0.215 0.005 70)',
+            border: '1px solid var(--border)', borderRadius: 'var(--r-2)',
+            color: 'var(--text)', fontFamily: 'var(--font-ui)', fontSize: 13.5,
+          }}
+          autoFocus
+        />
+        <datalist id="pakket-gemeenten">
+          {gemeenten.map(g => <option key={g} value={g} />)}
+        </datalist>
+        <Btn primary disabled={!gemeente.trim() || bezig} onClick={verken}>
+          {bezig ? 'Laden…' : 'Verkennen →'}
+        </Btn>
+      </form>
+
+      {bezig && <Laadspinner />}
+      {fout  && <Foutmelding tekst={fout} />}
+
+      {/* Geen resultaat nog */}
+      {!resultaat && !bezig && !fout && (
+        <div style={{
+          padding: '16px 20px',
+          border: '1px solid var(--rule)', borderRadius: 'var(--r-2)',
+          background: 'oklch(0.175 0.005 70)',
+          fontSize: 13, color: 'var(--muted)', lineHeight: 1.6,
+        }}>
+          Zoek een gemeente om direct te zien welke organen beschikbaar zijn.
+          Handig als je niet zeker weet welke GR's, waterschappen of regio's bij
+          een gemeente horen.
+        </div>
+      )}
+
+      {resultaat && (
+        <>
+          {/* Instellingen-balk */}
+          <div style={{
+            display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap',
+            padding: '10px 14px', marginBottom: 22,
+            background: 'oklch(0.19 0.005 70)',
+            border: '1px solid var(--rule)', borderRadius: 'var(--r-2)',
+          }}>
+            <Mono color="var(--dim)" size={10}>PERIODE</Mono>
+            <div style={scrapeStyles.radioGroup}>
+              {[6, 12, 18, 24].map(p => (
+                <div key={p} onClick={() => setPeriode(p)} style={scrapeStyles.radio(periode === p)}>
+                  {p} mnd
+                  {p === 24 && (
+                    <sup style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontSize: 8, marginLeft: 3 }}>★</sup>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', marginLeft: 'auto' }}
+              onClick={() => setSimuleer(!simuleer)}
+            >
+              <div style={scrapeStyles.toggle(simuleer)}>
+                <div style={scrapeStyles.toggleDot(simuleer)}></div>
+              </div>
+              <Mono color={simuleer ? 'var(--accent)' : 'var(--text-2)'} size={11}>
+                {simuleer ? 'Simuleren AAN' : 'Simuleren UIT'}
+              </Mono>
+            </div>
+          </div>
+
+          {/* Orgaan-groepen */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            {groepen.map((groep, gi) => (
+              <div key={gi}>
+                <Mono color="var(--dim)" size={10}>{groep.kicker.toUpperCase()}</Mono>
+                <div style={{
+                  marginTop: 7,
+                  border: '1px solid var(--rule)', borderRadius: 'var(--r-2)',
+                  background: 'oklch(0.185 0.005 70)', overflow: 'hidden',
+                }}>
+                  {groep.orgs.map((org, oi) => (
+                    <div key={oi} style={{
+                      display: 'flex', alignItems: 'center', gap: 14,
+                      padding: '11px 16px',
+                      borderBottom: oi < groep.orgs.length - 1 ? '1px solid var(--rule)' : 'none',
+                      opacity: org.beschikbaar ? 1 : 0.4,
+                    }}>
+                      <span style={{
+                        flex: 1, fontSize: 13.5, color: 'var(--text)',
+                        letterSpacing: '-0.005em', textTransform: 'capitalize',
+                      }}>
+                        {org.naam}
+                      </span>
+                      {org.beschikbaar ? (
+                        <Btn small primary onClick={() => onStart(org.slug, periode, simuleer, org.type)}>
+                          {simuleer ? 'Simuleer →' : 'Scrape →'}
+                        </Btn>
+                      ) : (
+                        <Mono color="var(--dim)" size={10}>niet downloadbaar</Mono>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {nBeschikbaar === 0 && (
+            <div style={{ marginTop: 16, color: 'var(--muted)', fontSize: 13 }}>
+              Geen downloadbare organen gevonden voor deze gemeente.
+            </div>
+          )}
+        </>
       )}
     </div>
   );
