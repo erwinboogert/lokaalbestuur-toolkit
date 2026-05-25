@@ -1,0 +1,2185 @@
+{
+  "_opmerking": "Volledige index van alle gemeenschappelijke regelingen op organisaties.overheid.nl. Sleutel = overheid_id (string). Gebruik dit voor betrouwbare koppeling tussen live verkennen-resultaten en de scrapeable regelingen in regelingen.json.",
+  "_gegenereerd": "2026-05-25",
+  "_bron": "https://organisaties.overheid.nl/samenwerkingen/naam/Gemeenschappelijke_regelingen/",
+  "28221679": {
+    "naam": "1Stroom",
+    "naam_volledig": "Gemeenschappelijke regeling 1Stroom",
+    "url_slug": "Gemeenschappelijke_regeling_1Stroom"
+  },
+  "29530004": {
+    "naam": "ABG-organisatie",
+    "naam_volledig": "Gemeenschappelijke Regeling ABG-organisatie",
+    "url_slug": "Gemeenschappelijke_Regeling_ABG-organisatie"
+  },
+  "30405619": {
+    "naam": "Afeer 2025",
+    "naam_volledig": "Gemeenschappelijke Regeling Afeer 2025",
+    "url_slug": "Gemeenschappelijke_Regeling_Afeer_2025"
+  },
+  "24965334": {
+    "naam": "Afvalbeheer Regio Centraal Groningen 2016",
+    "naam_volledig": "Gemeenschappelijke regeling Afvalbeheer Regio Centraal Groningen 2016",
+    "url_slug": "Gemeenschappelijke_regeling_Afvalbeheer_Regio_Centraal_Groningen_2016"
+  },
+  "30285202": {
+    "naam": "Afvalbeheer Westfriesland 2020",
+    "naam_volledig": "Gemeenschappelijke Regeling Afvalbeheer Westfriesland 2020",
+    "url_slug": "Gemeenschappelijke_Regeling_Afvalbeheer_Westfriesland_2020"
+  },
+  "29430875": {
+    "naam": "Afvalverwijdering Utrecht",
+    "naam_volledig": "Gemeenschappelijke regeling afvalverwijdering Utrecht",
+    "url_slug": "Gemeenschappelijke_regeling_afvalverwijdering_Utrecht"
+  },
+  "24964544": {
+    "naam": "Amstelland en Meerlanden Werkorganisatie",
+    "naam_volledig": "Gemeenschappelijke regeling Amstelland en Meerlanden Werkorganisatie",
+    "url_slug": "Gemeenschappelijke_regeling_Amstelland_en_Meerlanden_Werkorganisatie"
+  },
+  "29924131": {
+    "naam": "Amstelland-Meerlandenoverleg",
+    "naam_volledig": "Gemeenschappelijke Regeling Amstelland-Meerlandenoverleg",
+    "url_slug": "Gemeenschappelijke_Regeling_Amstelland-Meerlandenoverleg"
+  },
+  "29943170": {
+    "naam": "Aqualysis",
+    "naam_volledig": "Gemeenschappelijke regeling Aqualysis",
+    "url_slug": "Gemeenschappelijke_regeling_Aqualysis"
+  },
+  "27596374": {
+    "naam": "AQUON 2018",
+    "naam_volledig": "Gemeenschappelijke regeling AQUON 2018",
+    "url_slug": "Gemeenschappelijke_regeling_AQUON_2018"
+  },
+  "28650913": {
+    "naam": "Archeologie Delft en Westland",
+    "naam_volledig": "Gemeenschappelijke regeling archeologie Delft en Westland",
+    "url_slug": "Gemeenschappelijke_regeling_archeologie_Delft_en_Westland"
+  },
+  "28830394": {
+    "naam": "Archeologie Hattem-Zwolle",
+    "naam_volledig": "Gemeenschappelijke regeling archeologie Hattem-Zwolle",
+    "url_slug": "Gemeenschappelijke_regeling_archeologie_Hattem-Zwolle"
+  },
+  "24966825": {
+    "naam": "Archeologie Hellevoetsluis-Rotterdam",
+    "naam_volledig": "Gemeenschappelijke Regeling Archeologie Hellevoetsluis-Rotterdam",
+    "url_slug": "Gemeenschappelijke_Regeling_Archeologie_Hellevoetsluis-Rotterdam"
+  },
+  "28830402": {
+    "naam": "Archeologie Kampen-Zwolle",
+    "naam_volledig": "Gemeenschappelijke regeling archeologie Kampen-Zwolle",
+    "url_slug": "Gemeenschappelijke_regeling_archeologie_Kampen-Zwolle"
+  },
+  "24962749": {
+    "naam": "Archeologie Midden-Delfland",
+    "naam_volledig": "Gemeenschappelijke regeling archeologie Midden-Delfland",
+    "url_slug": "Gemeenschappelijke_regeling_archeologie_Midden-Delfland"
+  },
+  "28256869": {
+    "naam": "Archeologie Pijnacker-Nootdorp",
+    "naam_volledig": "Gemeenschappelijke regeling archeologie Pijnacker-Nootdorp",
+    "url_slug": "Gemeenschappelijke_regeling_archeologie_Pijnacker-Nootdorp"
+  },
+  "24966206": {
+    "naam": "Archeologie Westfriese Gemeenten",
+    "naam_volledig": "Gemeenschappelijke Regeling Archeologie Westfriese Gemeenten",
+    "url_slug": "Gemeenschappelijke_Regeling_Archeologie_Westfriese_Gemeenten"
+  },
+  "28830385": {
+    "naam": "Archeologie Zwartewaterland-Zwolle",
+    "naam_volledig": "Gemeenschappelijke regeling archeologie Zwartewaterland-Zwolle",
+    "url_slug": "Gemeenschappelijke_regeling_archeologie_Zwartewaterland-Zwolle"
+  },
+  "30089958": {
+    "naam": "Archief Gooi en Vechtstreek. Hilversum",
+    "naam_volledig": "Gemeenschappelijke Regeling Archief Gooi en Vechtstreek. Hilversum",
+    "url_slug": "Gemeenschappelijke_Regeling_Archief_Gooi_en_Vechtstreek_Hilversum"
+  },
+  "29236110": {
+    "naam": "Archiefbeheer Maassluis",
+    "naam_volledig": "Gemeenschappelijke regeling archiefbeheer Maassluis",
+    "url_slug": "Gemeenschappelijke_regeling_archiefbeheer_Maassluis"
+  },
+  "28175753": {
+    "naam": "Archiefbeheer Midden-Delfland",
+    "naam_volledig": "Gemeenschappelijke regeling archiefbeheer Midden-Delfland",
+    "url_slug": "Gemeenschappelijke_regeling_archiefbeheer_Midden-Delfland"
+  },
+  "28175784": {
+    "naam": "Archiefbeheer Pijnacker-Nootdorp",
+    "naam_volledig": "Gemeenschappelijke regeling archiefbeheer Pijnacker-Nootdorp",
+    "url_slug": "Gemeenschappelijke_regeling_archiefbeheer_Pijnacker-Nootdorp"
+  },
+  "28175805": {
+    "naam": "Archiefbeheer Rijswijk",
+    "naam_volledig": "Gemeenschappelijke regeling archiefbeheer Rijswijk",
+    "url_slug": "Gemeenschappelijke_regeling_archiefbeheer_Rijswijk"
+  },
+  "29474942": {
+    "naam": "Avres",
+    "naam_volledig": "Gemeenschappelijke Regeling Avres",
+    "url_slug": "Gemeenschappelijke_Regeling_Avres"
+  },
+  "29528843": {
+    "naam": "Avri",
+    "naam_volledig": "Gemeenschappelijke regeling Avri",
+    "url_slug": "Gemeenschappelijke_regeling_Avri"
+  },
+  "29154924": {
+    "naam": "Bedrijfsvoering Bloemendaal en Heemstede 2023",
+    "naam_volledig": "Gemeenschappelijke Regeling Bedrijfsvoering Bloemendaal en Heemstede 2023",
+    "url_slug": "Gemeenschappelijke_Regeling_Bedrijfsvoering_Bloemendaal_en_Heemstede_2023"
+  },
+  "30020122": {
+    "naam": "Bedrijfsvoeringseenheid Bommelerwaard",
+    "naam_volledig": "Gemeenschappelijke Regeling Bedrijfsvoeringseenheid Bommelerwaard",
+    "url_slug": "Gemeenschappelijke_Regeling_Bedrijfsvoeringseenheid_Bommelerwaard"
+  },
+  "28114173": {
+    "naam": "Bedrijfsvoeringsorganisatie Centrum Jeugd en Gezin Drimmelen Geertruidenberg",
+    "naam_volledig": "Gemeenschappelijke regeling Bedrijfsvoeringsorganisatie Centrum Jeugd en Gezin Drimmelen Geertruidenberg",
+    "url_slug": "Gemeenschappelijke_regeling_Bedrijfsvoeringsorganisatie_Centrum_Jeugd_en_Gezin_Drimmelen_Geertruidenberg"
+  },
+  "28306597": {
+    "naam": "Bedrijfsvoeringsorganisatie Delft-Rijswijk",
+    "naam_volledig": "Gemeenschappelijke Regeling Bedrijfsvoeringsorganisatie Delft-Rijswijk",
+    "url_slug": "Gemeenschappelijke_Regeling_Bedrijfsvoeringsorganisatie_Delft-Rijswijk"
+  },
+  "30413154": {
+    "naam": "Bedrijfsvoeringsorganisatie Dienst Dommelvallei",
+    "naam_volledig": "Gemeenschappelijke regeling Bedrijfsvoeringsorganisatie Dienst Dommelvallei",
+    "url_slug": "Gemeenschappelijke_regeling_Bedrijfsvoeringsorganisatie_Dienst_Dommelvallei"
+  },
+  "28117274": {
+    "naam": "Regeling Bedrijfsvoeringsorganisatie Doelgroepenvervoer Regio Arnhem-Nijmegen (DRAN)",
+    "naam_volledig": "Regeling Bedrijfsvoeringsorganisatie Doelgroepenvervoer Regio Arnhem-Nijmegen (DRAN)",
+    "url_slug": "Regeling_Bedrijfsvoeringsorganisatie_Doelgroepenvervoer_Regio_Arnhem-Nijmegen_DRAN"
+  },
+  "30334682": {
+    "naam": "Regeling Bedrijfsvoeringsorganisatie H2O 2024",
+    "naam_volledig": "Regeling Bedrijfsvoeringsorganisatie H2O 2024",
+    "url_slug": "Regeling_Bedrijfsvoeringsorganisatie_H2O_2024"
+  },
+  "29482001": {
+    "naam": "Bedrijfsvoeringsorganisatie Havenschap Moerdijk",
+    "naam_volledig": "Gemeenschappelijke regeling bedrijfsvoeringsorganisatie Havenschap Moerdijk",
+    "url_slug": "Gemeenschappelijke_regeling_bedrijfsvoeringsorganisatie_Havenschap_Moerdijk"
+  },
+  "30489876": {
+    "naam": "Bedrijfsvoeringsorganisatie ICT-voorziening RegIT",
+    "naam_volledig": "Gemeenschappelijke Regeling Bedrijfsvoeringsorganisatie ICT-voorziening RegIT",
+    "url_slug": "Gemeenschappelijke_Regeling_Bedrijfsvoeringsorganisatie_ICT-voorziening_RegIT"
+  },
+  "29529638": {
+    "naam": "Bedrijfsvoeringsorganisatie Ingenieursbureau Krimpenerwaard",
+    "naam_volledig": "Gemeenschappelijke Regeling bedrijfsvoeringsorganisatie Ingenieursbureau Krimpenerwaard",
+    "url_slug": "Gemeenschappelijke_Regeling_bedrijfsvoeringsorganisatie_Ingenieursbureau_Krimpenerwaard"
+  },
+  "30019255": {
+    "naam": "Bedrijfsvoeringsorganisatie Mobiliteitsbureau Noordoost Fryslân",
+    "naam_volledig": "Gemeenschappelijke regeling Bedrijfsvoeringsorganisatie Mobiliteitsbureau Noordoost Fryslân",
+    "url_slug": "Gemeenschappelijke_regeling_Bedrijfsvoeringsorganisatie_Mobiliteitsbureau_Noordoost_Fryslan"
+  },
+  "29128446": {
+    "naam": "Bedrijfsvoeringsorganisatie Plassenschap Loosdrecht e.o.",
+    "naam_volledig": "Gemeenschappelijke regeling Bedrijfsvoeringsorganisatie Plassenschap Loosdrecht e.o.",
+    "url_slug": "Gemeenschappelijke_regeling_Bedrijfsvoeringsorganisatie_Plassenschap_Loosdrecht_eo"
+  },
+  "29925043": {
+    "naam": "Bedrijfsvoeringsorganisatie Reinigingsdienst Waardlanden",
+    "naam_volledig": "Gemeenschappelijke Regeling Bedrijfsvoeringsorganisatie Reinigingsdienst Waardlanden",
+    "url_slug": "Gemeenschappelijke_Regeling_Bedrijfsvoeringsorganisatie_Reinigingsdienst_Waardlanden"
+  },
+  "27752024": {
+    "naam": "Bedrijfsvoeringsorganisatie Rijn en Braassem",
+    "naam_volledig": "Gemeenschappelijke regeling Bedrijfsvoeringsorganisatie Rijn en Braassem",
+    "url_slug": "Gemeenschappelijke_regeling_Bedrijfsvoeringsorganisatie_Rijn_en_Braassem"
+  },
+  "29474068": {
+    "naam": "Bedrijfsvoeringsorganisatie Shared Service Centrum ONS",
+    "naam_volledig": "Gemeenschappelijke regeling Bedrijfsvoeringsorganisatie Shared Service Centrum ONS",
+    "url_slug": "Gemeenschappelijke_regeling_Bedrijfsvoeringsorganisatie_Shared_Service_Centrum_ONS"
+  },
+  "29165842": {
+    "naam": "Bedrijfsvoeringsorganisatie Syntrophos",
+    "naam_volledig": "Gemeenschappelijke regeling Bedrijfsvoeringsorganisatie Syntrophos",
+    "url_slug": "Gemeenschappelijke_regeling_Bedrijfsvoeringsorganisatie_Syntrophos"
+  },
+  "30155600": {
+    "naam": "Bedrijfsvoeringsorganisatie Valleihopper",
+    "naam_volledig": "Gemeenschappelijke Regeling Bedrijfsvoeringsorganisatie Valleihopper",
+    "url_slug": "Gemeenschappelijke_Regeling_Bedrijfsvoeringsorganisatie_Valleihopper"
+  },
+  "29529685": {
+    "naam": "Bedrijfsvoeringsorganisatie West-Betuwe",
+    "naam_volledig": "Gemeenschappelijke Regeling Bedrijfsvoeringsorganisatie West-Betuwe",
+    "url_slug": "Gemeenschappelijke_Regeling_Bedrijfsvoeringsorganisatie_West-Betuwe"
+  },
+  "29492016": {
+    "naam": "De Bedrijfsvoeringspartner",
+    "naam_volledig": "Gemeenschappelijke regeling De Bedrijfsvoeringspartner",
+    "url_slug": "Gemeenschappelijke_regeling_De_Bedrijfsvoeringspartner"
+  },
+  "29618854": {
+    "naam": "Bedrijvenparken A7 c.a. 2009",
+    "naam_volledig": "Gemeenschappelijke Regeling Bedrijvenparken A7 c.a. 2009",
+    "url_slug": "Gemeenschappelijke_Regeling_Bedrijvenparken_A7_ca_2009"
+  },
+  "24962510": {
+    "naam": "Bedrijvenschap Harnaschpolder",
+    "naam_volledig": "Gemeenschappelijke regeling Bedrijvenschap Harnaschpolder",
+    "url_slug": "Gemeenschappelijke_regeling_Bedrijvenschap_Harnaschpolder"
+  },
+  "24964918": {
+    "naam": "Bedrijvenschap Hoefweg",
+    "naam_volledig": "Gemeenschappelijke Regeling Bedrijvenschap Hoefweg",
+    "url_slug": "Gemeenschappelijke_Regeling_Bedrijvenschap_Hoefweg"
+  },
+  "30478770": {
+    "naam": "BEL Combinatie",
+    "naam_volledig": "Gemeenschappelijke regeling BEL Combinatie",
+    "url_slug": "Gemeenschappelijke_regeling_BEL_Combinatie"
+  },
+  "28981472": {
+    "naam": "Belastingsamenwerking gemeenten en hoogheemraadschap Utrecht 2020",
+    "naam_volledig": "Gemeenschappelijke regeling Belastingsamenwerking gemeenten en hoogheemraadschap Utrecht 2020",
+    "url_slug": "Gemeenschappelijke_regeling_Belastingsamenwerking_gemeenten_en_hoogheemraadschap_Utrecht_2020"
+  },
+  "29591364": {
+    "naam": "Belastingsamenwerking Gemeenten en Waterschappen",
+    "naam_volledig": "Gemeenschappelijke Regeling Belastingsamenwerking Gemeenten en Waterschappen",
+    "url_slug": "Gemeenschappelijke_Regeling_Belastingsamenwerking_Gemeenten_en_Waterschappen"
+  },
+  "30470869": {
+    "naam": "Belastingsamenwerking Gouwe-Rijnland",
+    "naam_volledig": "Gemeenschappelijke Regeling Belastingsamenwerking Gouwe-Rijnland",
+    "url_slug": "Gemeenschappelijke_Regeling_Belastingsamenwerking_Gouwe-Rijnland"
+  },
+  "30544521": {
+    "naam": "Belastingsamenwerking Oost-Brabant",
+    "naam_volledig": "Gemeenschappelijke Regeling Belastingsamenwerking Oost-Brabant",
+    "url_slug": "Gemeenschappelijke_Regeling_Belastingsamenwerking_Oost-Brabant"
+  },
+  "30272360": {
+    "naam": "Belastingsamenwerking Rivierenland",
+    "naam_volledig": "Gemeenschappelijke Regeling Belastingsamenwerking Rivierenland",
+    "url_slug": "Gemeenschappelijke_Regeling_Belastingsamenwerking_Rivierenland"
+  },
+  "30476725": {
+    "naam": "Belastingsamenwerking SaBeWa Zeeland",
+    "naam_volledig": "Gemeenschappelijke Regeling Belastingsamenwerking SaBeWa Zeeland",
+    "url_slug": "Gemeenschappelijke_Regeling_Belastingsamenwerking_SaBeWa_Zeeland"
+  },
+  "29753627": {
+    "naam": "Belastingsamenwerking West-Brabant",
+    "naam_volledig": "Gemeenschappelijke Regeling Belastingsamenwerking West-Brabant",
+    "url_slug": "Gemeenschappelijke_Regeling_Belastingsamenwerking_West-Brabant"
+  },
+  "29486609": {
+    "naam": "Bereikbaarheid Zuid-Kennemerland",
+    "naam_volledig": "Gemeenschappelijke Regeling Bereikbaarheid Zuid-Kennemerland",
+    "url_slug": "Gemeenschappelijke_Regeling_Bereikbaarheid_Zuid-Kennemerland"
+  },
+  "30005154": {
+    "naam": "Beschermd Wonen regio Breda",
+    "naam_volledig": "Gemeenschappelijke Regeling Beschermd Wonen regio Breda",
+    "url_slug": "Gemeenschappelijke_Regeling_Beschermd_Wonen_regio_Breda"
+  },
+  "29546244": {
+    "naam": "Beschermd Wonen regio Zuid-Kennemerland, IJmond en Haarlemmermeer",
+    "naam_volledig": "Gemeenschappelijke regeling Beschermd Wonen regio Zuid-Kennemerland, IJmond en Haarlemmermeer",
+    "url_slug": "Gemeenschappelijke_regeling_Beschermd_Wonen_regio_Zuid-Kennemerland_IJmond_en_Haarlemmermeer"
+  },
+  "24961576": {
+    "naam": "De Betho",
+    "naam_volledig": "Gemeenschappelijke regeling De Betho",
+    "url_slug": "Gemeenschappelijke_regeling_De_Betho"
+  },
+  "29561410": {
+    "naam": "Bijzonder Onderzoek Regio Zuid-Gelderland",
+    "naam_volledig": "Gemeenschappelijke Regeling Bijzonder Onderzoek Regio Zuid-Gelderland",
+    "url_slug": "Gemeenschappelijke_Regeling_Bijzonder_Onderzoek_Regio_Zuid-Gelderland"
+  },
+  "29529701": {
+    "naam": "Bleizo",
+    "naam_volledig": "Gemeenschappelijke Regeling Bleizo",
+    "url_slug": "Gemeenschappelijke_Regeling_Bleizo"
+  },
+  "30453543": {
+    "naam": "Brabants Historisch informatie Centrum 2024",
+    "naam_volledig": "Gemeenschappelijke Regeling Brabants Historisch informatie Centrum 2024",
+    "url_slug": "Gemeenschappelijke_Regeling_Brabants_Historisch_informatie_Centrum_2024"
+  },
+  "30196652": {
+    "naam": "Bureau Openbare Verlichting Lek-Merwede",
+    "naam_volledig": "Gemeenschappelijke Regeling Bureau Openbare Verlichting Lek-Merwede",
+    "url_slug": "Gemeenschappelijke_Regeling_Bureau_Openbare_Verlichting_Lek-Merwede"
+  },
+  "24347067": {
+    "naam": "Centraal Nautisch Beheer Noordzeekanaalgebied",
+    "naam_volledig": "Gemeenschappelijke regeling Centraal Nautisch Beheer Noordzeekanaalgebied",
+    "url_slug": "Gemeenschappelijke_regeling_Centraal_Nautisch_Beheer_Noordzeekanaalgebied"
+  },
+  "29801171": {
+    "naam": "Centrumgemeente regeling samenwerking Noardeast-Fryslân en Leeuwarden",
+    "naam_volledig": "Centrumgemeente regeling samenwerking Noardeast-Fryslân en Leeuwarden",
+    "url_slug": "Centrumgemeente_regeling_samenwerking_Noardeast-Fryslan_en_Leeuwarden"
+  },
+  "29528914": {
+    "naam": "Centrumgemeente regeling samenwerking Waadhoeke en Leeuwarden",
+    "naam_volledig": "Centrumgemeente regeling samenwerking Waadhoeke en Leeuwarden",
+    "url_slug": "Centrumgemeente_regeling_samenwerking_Waadhoeke_en_Leeuwarden"
+  },
+  "30477651": {
+    "naam": "Centrumgemeenteregeling De Connectie",
+    "naam_volledig": "Centrumgemeenteregeling De Connectie",
+    "url_slug": "Centrumgemeenteregeling_De_Connectie"
+  },
+  "29451612": {
+    "naam": "Centrumgemeenteregeling samenwerking Dantumadiel en Leeuwarden",
+    "naam_volledig": "Centrumgemeenteregeling samenwerking Dantumadiel en Leeuwarden",
+    "url_slug": "Centrumgemeenteregeling_samenwerking_Dantumadiel_en_Leeuwarden"
+  },
+  "30574620": {
+    "naam": "Centrumgemeenteregeling samenwerking I&amp;IT Hengelo",
+    "naam_volledig": "Centrumgemeenteregeling samenwerking I&amp;IT Hengelo",
+    "url_slug": "Centrumgemeenteregeling_samenwerking_IIT_Hengelo"
+  },
+  "30210780": {
+    "naam": "Centrumregeling Afvalbeheer Leidse regio",
+    "naam_volledig": "Centrumregeling Afvalbeheer Leidse regio",
+    "url_slug": "Centrumregeling_Afvalbeheer_Leidse_regio"
+  },
+  "24967672": {
+    "naam": "Centrumregeling ambtelijke samenwerking Aalsmeer en Amstelveen",
+    "naam_volledig": "Centrumregeling ambtelijke samenwerking Aalsmeer en Amstelveen",
+    "url_slug": "Centrumregeling_ambtelijke_samenwerking_Aalsmeer_en_Amstelveen"
+  },
+  "29469935": {
+    "naam": "Centrumregeling ambtelijke samenwerking Enschede – Losser",
+    "naam_volledig": "Centrumregeling ambtelijke samenwerking Enschede – Losser",
+    "url_slug": "Centrumregeling_ambtelijke_samenwerking_Enschede__Losser"
+  },
+  "24963981": {
+    "naam": "Centrumregeling ambtelijke samenwerking Tilburg ‐ Dongen",
+    "naam_volledig": "Centrumregeling ambtelijke samenwerking Tilburg ‐ Dongen",
+    "url_slug": "Centrumregeling_ambtelijke_samenwerking_Tilburg__Dongen"
+  },
+  "28856227": {
+    "naam": "Centrumregeling Bedrijfsvoering Leidse regio",
+    "naam_volledig": "Centrumregeling Bedrijfsvoering Leidse regio",
+    "url_slug": "Centrumregeling_Bedrijfsvoering_Leidse_regio"
+  },
+  "30478745": {
+    "naam": "Centrumregeling Beschermd wonen, maatschappelijke opvang en aanverwante taken Meierij-Bommelerwaard 2026-2030",
+    "naam_volledig": "Centrumregeling Beschermd wonen, maatschappelijke opvang en aanverwante taken Meierij-Bommelerwaard 2026-2030",
+    "url_slug": "Centrumregeling_Beschermd_wonen_maatschappelijke_opvang_en_aanverwante_taken_Meierij-Bommelerwaard_2026-2030"
+  },
+  "30087468": {
+    "naam": "Centrumregeling beschermd wonen, opvang en inloopvoorziening GGz Groningen 2024",
+    "naam_volledig": "Gemeenschappelijke regeling Centrumregeling beschermd wonen, opvang en inloopvoorziening GGz Groningen 2024",
+    "url_slug": "Gemeenschappelijke_regeling_Centrumregeling_beschermd_wonen_opvang_en_inloopvoorziening_GGz_Groningen_2024"
+  },
+  "29341002": {
+    "naam": "Centrumregeling Jeugdhulp Noordoost Brabant 2024",
+    "naam_volledig": "Centrumregeling Jeugdhulp Noordoost Brabant 2024",
+    "url_slug": "Centrumregeling_Jeugdhulp_Noordoost_Brabant_2024"
+  },
+  "29957230": {
+    "naam": "Centrumregeling Leerplicht en Regionale Meld- en Coördinatiefunctie Regio Brabant Noord Oost (Regio 36b)",
+    "naam_volledig": "Centrumregeling Leerplicht en Regionale Meld- en Coördinatiefunctie Regio Brabant Noord Oost (Regio 36b)",
+    "url_slug": "Centrumregeling_Leerplicht_en_Regionale_Meld-_en_Coordinatiefunctie_Regio_Brabant_Noord_Oost_Regio_36b"
+  },
+  "30272906": {
+    "naam": "Centrumregeling Meten en Monitoren Afvalwaterketen en Grondwater Vallei en Veluwe",
+    "naam_volledig": "Centrumregeling Meten en Monitoren Afvalwaterketen en Grondwater Vallei en Veluwe",
+    "url_slug": "Centrumregeling_Meten_en_Monitoren_Afvalwaterketen_en_Grondwater_Vallei_en_Veluwe"
+  },
+  "30465135": {
+    "naam": "Centrumregeling Regionale Energie Strategie Noord- en Midden Limburg",
+    "naam_volledig": "Gemeenschappelijke regeling Centrumregeling Regionale Energie Strategie Noord- en Midden Limburg",
+    "url_slug": "Gemeenschappelijke_regeling_Centrumregeling_Regionale_Energie_Strategie_Noord-_en_Midden_Limburg"
+  },
+  "29429421": {
+    "naam": "Centrumregeling regionale samenwerking Parkstad opvang en beschermd wonen Wmo 2015",
+    "naam_volledig": "Centrumregeling regionale samenwerking Parkstad opvang en beschermd wonen Wmo 2015",
+    "url_slug": "Centrumregeling_regionale_samenwerking_Parkstad_opvang_en_beschermd_wonen_Wmo_2015"
+  },
+  "29528879": {
+    "naam": "Centrumregeling samenwerking Dienst Sociale Zaken en Werkgelegenheid Noardwest Fryslân en de gemeente Leeuwarden",
+    "naam_volledig": "Centrumregeling samenwerking Dienst Sociale Zaken en Werkgelegenheid Noardwest Fryslân en de gemeente Leeuwarden",
+    "url_slug": "Centrumregeling_samenwerking_Dienst_Sociale_Zaken_en_Werkgelegenheid_Noardwest_Fryslan_en_de_gemeente_Leeuwarden"
+  },
+  "28182829": {
+    "naam": "Centrumregeling samenwerking gemalendiensten",
+    "naam_volledig": "Centrumregeling samenwerking gemalendiensten",
+    "url_slug": "Centrumregeling_samenwerking_gemalendiensten"
+  },
+  "30474119": {
+    "naam": "Centrumregeling samenwerking Sociaal Domein Fryslân 2022",
+    "naam_volledig": "Centrumregeling samenwerking Sociaal Domein Fryslân 2022",
+    "url_slug": "Centrumregeling_samenwerking_Sociaal_Domein_Fryslan_2022"
+  },
+  "29528892": {
+    "naam": "Centrumregeling samenwerking Vlieland, Ameland, Schiermonnikoog, Terschelling, Texel en Leeuwarden",
+    "naam_volledig": "Centrumregeling samenwerking Vlieland, Ameland, Schiermonnikoog, Terschelling, Texel en Leeuwarden",
+    "url_slug": "Centrumregeling_samenwerking_Vlieland_Ameland_Schiermonnikoog_Terschelling_Texel_en_Leeuwarden"
+  },
+  "28157123": {
+    "naam": "Centrumregeling Sociaal Domein Flevoland",
+    "naam_volledig": "Centrumregeling Sociaal Domein Flevoland",
+    "url_slug": "Centrumregeling_Sociaal_Domein_Flevoland"
+  },
+  "28983041": {
+    "naam": "Centrumregeling Sociaal domein Rijnstreek",
+    "naam_volledig": "Centrumregeling Sociaal domein Rijnstreek",
+    "url_slug": "Centrumregeling_Sociaal_domein_Rijnstreek"
+  },
+  "30462082": {
+    "naam": "Centrumregeling Uitvoering Sociaal Domein Regio Amersfoort",
+    "naam_volledig": "Centrumregeling Uitvoering Sociaal Domein Regio Amersfoort",
+    "url_slug": "Centrumregeling_Uitvoering_Sociaal_Domein_Regio_Amersfoort"
+  },
+  "28084121": {
+    "naam": "Centrumregeling Verwerving Jeugdhulp regio Zuid-Limburg 2019",
+    "naam_volledig": "Centrumregeling Verwerving Jeugdhulp regio Zuid-Limburg 2019",
+    "url_slug": "Centrumregeling_Verwerving_Jeugdhulp_regio_Zuid-Limburg_2019"
+  },
+  "29530278": {
+    "naam": "Centrumregeling Vidar 2020",
+    "naam_volledig": "Centrumregeling Vidar 2020",
+    "url_slug": "Centrumregeling_Vidar_2020"
+  },
+  "30487063": {
+    "naam": "Centrumregeling VVTH RegioVerte",
+    "naam_volledig": "Centrumregeling VVTH RegioVerte",
+    "url_slug": "Centrumregeling_VVTH_RegioVerte"
+  },
+  "29494998": {
+    "naam": "Centrumregeling Wmo Brabant Noordoost-oost 2024",
+    "naam_volledig": "Centrumregeling Wmo Brabant Noordoost-oost 2024",
+    "url_slug": "Centrumregeling_Wmo_Brabant_Noordoost-oost_2024"
+  },
+  "30151486": {
+    "naam": "Centrumregeling Zorgproducten Bommelerwaard",
+    "naam_volledig": "Centrumregeling Zorgproducten Bommelerwaard",
+    "url_slug": "Centrumregeling_Zorgproducten_Bommelerwaard"
+  },
+  "30476285": {
+    "naam": "Cocensus 2025",
+    "naam_volledig": "Gemeenschappelijke regeling Cocensus 2025",
+    "url_slug": "Gemeenschappelijke_regeling_Cocensus_2025"
+  },
+  "29459888": {
+    "naam": "– Collectief vervoer Zeeuws Vlaanderen",
+    "naam_volledig": "Gemeenschappelijke regeling – Collectief vervoer Zeeuws Vlaanderen",
+    "url_slug": "Gemeenschappelijke_regeling__Collectief_vervoer_Zeeuws_Vlaanderen"
+  },
+  "29989406": {
+    "naam": "De Connectie",
+    "naam_volledig": "Gemeenschappelijke regeling De Connectie",
+    "url_slug": "Gemeenschappelijke_regeling_De_Connectie"
+  },
+  "30418614": {
+    "naam": "Cure",
+    "naam_volledig": "Gemeenschappelijke regeling Cure",
+    "url_slug": "Gemeenschappelijke_regeling_Cure"
+  },
+  "30259979": {
+    "naam": "DCMR Milieudienst Rijnmond 2015",
+    "naam_volledig": "Gemeenschappelijke regeling DCMR Milieudienst Rijnmond 2015",
+    "url_slug": "Gemeenschappelijke_regeling_DCMR_Milieudienst_Rijnmond_2015"
+  },
+  "24967730": {
+    "naam": "Diamant-groep",
+    "naam_volledig": "Gemeenschappelijke Regeling Diamant-groep",
+    "url_slug": "Gemeenschappelijke_Regeling_Diamant-groep"
+  },
+  "29013518": {
+    "naam": "Dienst Gezondheid &amp; Jeugd Zuid-Holland Zuid",
+    "naam_volledig": "Gemeenschappelijke regeling Dienst Gezondheid &amp; Jeugd Zuid-Holland Zuid",
+    "url_slug": "Gemeenschappelijke_regeling_Dienst_Gezondheid__Jeugd_Zuid-Holland_Zuid"
+  },
+  "29516283": {
+    "naam": "Dienst Sociale Zaken en Werkgelegenheid Noardwest Fryslân 2022",
+    "naam_volledig": "Gemeenschappelijke regeling Dienst Sociale Zaken en Werkgelegenheid Noardwest Fryslân 2022",
+    "url_slug": "Gemeenschappelijke_regeling_Dienst_Sociale_Zaken_en_Werkgelegenheid_Noardwest_Fryslan_2022"
+  },
+  "28422938": {
+    "naam": "Digitale Informatievoorziening en Technologie (DIT) 2021",
+    "naam_volledig": "Gemeenschappelijke Regeling Digitale Informatievoorziening en Technologie (DIT) 2021",
+    "url_slug": "Gemeenschappelijke_Regeling_Digitale_Informatievoorziening_en_Technologie_DIT_2021"
+  },
+  "27763262": {
+    "naam": "Duo+",
+    "naam_volledig": "Gemeenschappelijke regeling Duo+",
+    "url_slug": "Gemeenschappelijke_regeling_Duo"
+  },
+  "30454591": {
+    "naam": "Eemkracht",
+    "naam_volledig": "Gemeenschappelijke regeling Eemkracht",
+    "url_slug": "Gemeenschappelijke_regeling_Eemkracht"
+  },
+  "30288263": {
+    "naam": "Erfgoedcentrum Achterhoek en Liemers",
+    "naam_volledig": "Gemeenschappelijke Regeling Erfgoedcentrum Achterhoek en Liemers",
+    "url_slug": "Gemeenschappelijke_Regeling_Erfgoedcentrum_Achterhoek_en_Liemers"
+  },
+  "27964803": {
+    "naam": "Exploitatiemaatschappij Bedrijvenpark Drachten",
+    "naam_volledig": "Gemeenschappelijke regeling Exploitatiemaatschappij Bedrijvenpark Drachten",
+    "url_slug": "Gemeenschappelijke_regeling_Exploitatiemaatschappij_Bedrijvenpark_Drachten"
+  },
+  "30514231": {
+    "naam": "Ferm Werk",
+    "naam_volledig": "Gemeenschappelijke regeling Ferm Werk",
+    "url_slug": "Gemeenschappelijke_regeling_Ferm_Werk"
+  },
+  "29481202": {
+    "naam": "Fijnder",
+    "naam_volledig": "Gemeenschappelijke Regeling Fijnder",
+    "url_slug": "Gemeenschappelijke_Regeling_Fijnder"
+  },
+  "30285704": {
+    "naam": "Financiele grondslag Stichting Regionaal Bureau voor Toerisme Arnhem Nijmegen Veluwe",
+    "naam_volledig": "Gemeenschappelijke regeling financiele grondslag Stichting Regionaal Bureau voor Toerisme Arnhem Nijmegen Veluwe",
+    "url_slug": "Gemeenschappelijke_regeling_financiele_grondslag_Stichting_Regionaal_Bureau_voor_Toerisme_Arnhem_Nijmegen_Veluwe"
+  },
+  "28833066": {
+    "naam": "Fryske Utfieringstsjinst Miljeu en Omjouwing - 2022",
+    "naam_volledig": "Gemeenschappelijke regeling Fryske Utfieringstsjinst Miljeu en Omjouwing - 2022",
+    "url_slug": "Gemeenschappelijke_regeling_Fryske_Utfieringstsjinst_Miljeu_en_Omjouwing_-_2022"
+  },
+  "30469626": {
+    "naam": "GBLT",
+    "naam_volledig": "Gemeenschappelijke regeling GBLT",
+    "url_slug": "Gemeenschappelijke_regeling_GBLT"
+  },
+  "28483608": {
+    "naam": "Gebiedsontwikkeling Oosterwold",
+    "naam_volledig": "Gemeenschappelijke regeling gebiedsontwikkeling Oosterwold",
+    "url_slug": "Gemeenschappelijke_regeling_gebiedsontwikkeling_Oosterwold"
+  },
+  "29491943": {
+    "naam": "Het Gegevenshuis",
+    "naam_volledig": "Gemeenschappelijke regeling Het Gegevenshuis",
+    "url_slug": "Gemeenschappelijke_regeling_Het_Gegevenshuis"
+  },
+  "24964242": {
+    "naam": "Gelders Archief, Ministerie van Onderwijs, Cultuur en Wetenschap",
+    "naam_volledig": "Gemeenschappelijke regeling Gelders Archief, Ministerie van Onderwijs, Cultuur en Wetenschap",
+    "url_slug": "Gemeenschappelijke_regeling_Gelders_Archief_Ministerie_van_Onderwijs_Cultuur_en_Wetenschap"
+  },
+  "24077696": {
+    "naam": "Regeling Gemeenschappelijk Belastingkantoor Beuningen",
+    "naam_volledig": "Regeling Gemeenschappelijk Belastingkantoor Beuningen",
+    "url_slug": "Regeling_Gemeenschappelijk_Belastingkantoor_Beuningen"
+  },
+  "29066100": {
+    "naam": "Beschermd wonen regio Rotterdam",
+    "naam_volledig": "Gemeenschappelijk regeling beschermd wonen regio Rotterdam",
+    "url_slug": "Gemeenschappelijk_regeling_beschermd_wonen_regio_Rotterdam"
+  },
+  "28199655": {
+    "naam": "Gemeenschappelijke Beheersregeling Amstel",
+    "naam_volledig": "Gemeenschappelijke Beheersregeling Amstel",
+    "url_slug": "Gemeenschappelijke_Beheersregeling_Amstel"
+  },
+  "28156643": {
+    "naam": "Gemeenschappelijke Gezondheidsdienst Zeeland",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeenschappelijke Gezondheidsdienst Zeeland",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeenschappelijke_Gezondheidsdienst_Zeeland"
+  },
+  "24967489": {
+    "naam": "EMCO-groep",
+    "naam_volledig": "Gemeenschappelijke regeling EMCO-groep",
+    "url_slug": "Gemeenschappelijke_regeling_EMCO-groep"
+  },
+  "24967788": {
+    "naam": "Gemeenschappelijke Vuilverwerking Dordrecht en Omstreken",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeenschappelijke Vuilverwerking Dordrecht en Omstreken",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeenschappelijke_Vuilverwerking_Dordrecht_en_Omstreken"
+  },
+  "27618168": {
+    "naam": "Gemeentebelastingen Amstelland",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeentebelastingen Amstelland",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeentebelastingen_Amstelland"
+  },
+  "28969306": {
+    "naam": "Gemeentebelastingen Baarn en Eemnes",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeentebelastingen Baarn en Eemnes",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeentebelastingen_Baarn_en_Eemnes"
+  },
+  "28969265": {
+    "naam": "Gemeentebelastingen Huizen, Blaricum en Laren",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeentebelastingen Huizen, Blaricum en Laren",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeentebelastingen_Huizen_Blaricum_en_Laren"
+  },
+  "29529781": {
+    "naam": "Gemeentebelastingen Kennemerland Zuid 2018",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeentebelastingen Kennemerland Zuid 2018",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeentebelastingen_Kennemerland_Zuid_2018"
+  },
+  "29755755": {
+    "naam": "Gemeentelijk Belastingkantoor Twente",
+    "naam_volledig": "Gemeenschappelijke Regeling Gemeentelijk Belastingkantoor Twente",
+    "url_slug": "Gemeenschappelijke_Regeling_Gemeentelijk_Belastingkantoor_Twente"
+  },
+  "24077711": {
+    "naam": "Gemeentelijke Belastingen Bollenstreek",
+    "naam_volledig": "Gemeenschappelijke Regeling Gemeentelijke Belastingen Bollenstreek",
+    "url_slug": "Gemeenschappelijke_Regeling_Gemeentelijke_Belastingen_Bollenstreek"
+  },
+  "29925064": {
+    "naam": "Gemeentelijke Gezondheidsdienst Amsterdam-Amstelland",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeentelijke Gezondheidsdienst Amsterdam-Amstelland",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeentelijke_Gezondheidsdienst_Amsterdam-Amstelland"
+  },
+  "29837044": {
+    "naam": "Gemeentelijke Gezondheidsdienst Flevoland",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeentelijke Gezondheidsdienst Flevoland",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeentelijke_Gezondheidsdienst_Flevoland"
+  },
+  "29516037": {
+    "naam": "Gemeentelijke Gezondheidsdienst Gelderland-Zuid",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeentelijke Gezondheidsdienst Gelderland-Zuid",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeentelijke_Gezondheidsdienst_Gelderland-Zuid"
+  },
+  "30241138": {
+    "naam": "Gemeentelijke Gezondheidsdienst Hollands Noorden",
+    "naam_volledig": "Gemeenschappelijke Regeling Gemeentelijke Gezondheidsdienst Hollands Noorden",
+    "url_slug": "Gemeenschappelijke_Regeling_Gemeentelijke_Gezondheidsdienst_Hollands_Noorden"
+  },
+  "30102542": {
+    "naam": "Gemeentelijke Gezondheidsdienst Regio Utrecht",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeentelijke Gezondheidsdienst Regio Utrecht",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeentelijke_Gezondheidsdienst_Regio_Utrecht"
+  },
+  "30288301": {
+    "naam": "Gemeentelijke Gezondheidsdienst Rotterdam-Rijnmond (GGD Rotterdam-Rijnmond)",
+    "naam_volledig": "Gemeenschappelijke regeling Gemeentelijke Gezondheidsdienst Rotterdam-Rijnmond (GGD Rotterdam-Rijnmond)",
+    "url_slug": "Gemeenschappelijke_regeling_Gemeentelijke_Gezondheidsdienst_Rotterdam-Rijnmond_GGD_Rotterdam-Rijnmond"
+  },
+  "27223376": {
+    "naam": "Gemeentelijke Kredietbank Drenthe",
+    "naam_volledig": "Gemeenschappelijke Regeling Gemeentelijke Kredietbank Drenthe",
+    "url_slug": "Gemeenschappelijke_Regeling_Gemeentelijke_Kredietbank_Drenthe"
+  },
+  "24963910": {
+    "naam": "Gesubsidieerde arbeid Kop van Noord-Holland",
+    "naam_volledig": "Gemeenschappelijke regeling Gesubsidieerde arbeid Kop van Noord-Holland",
+    "url_slug": "Gemeenschappelijke_regeling_Gesubsidieerde_arbeid_Kop_van_Noord-Holland"
+  },
+  "29516267": {
+    "naam": "Geul en Maas",
+    "naam_volledig": "Gemeenschappelijke regeling Geul en Maas",
+    "url_slug": "Gemeenschappelijke_regeling_Geul_en_Maas"
+  },
+  "29591319": {
+    "naam": "Voor Geweld in Afhankelijkheidsrelaties (GIA) en Meldpunt Crisiszorg West-Brabant",
+    "naam_volledig": "Gemeenschappelijke Regeling voor Geweld in Afhankelijkheidsrelaties (GIA) en Meldpunt Crisiszorg West-Brabant",
+    "url_slug": "Gemeenschappelijke_Regeling_voor_Geweld_in_Afhankelijkheidsrelaties_GIA_en_Meldpunt_Crisiszorg_West-Brabant"
+  },
+  "30439465": {
+    "naam": "Gezamenlijke brandweer voor het haven- en industriegebied van Rotterdam",
+    "naam_volledig": "Gemeenschappelijke regeling gezamenlijke brandweer voor het haven- en industriegebied van Rotterdam",
+    "url_slug": "Gemeenschappelijke_regeling_gezamenlijke_brandweer_voor_het_haven-_en_industriegebied_van_Rotterdam"
+  },
+  "30137571": {
+    "naam": "Gezamenlijke uitvoeringsorganisatie Sociale Zaken Maastricht – Heuvellandgemeenten 2025",
+    "naam_volledig": "Gemeenschappelijke regeling gezamenlijke uitvoeringsorganisatie Sociale Zaken Maastricht – Heuvellandgemeenten 2025",
+    "url_slug": "Gemeenschappelijke_regeling_gezamenlijke_uitvoeringsorganisatie_Sociale_Zaken_Maastricht__Heuvellandgemeenten_2025"
+  },
+  "29579787": {
+    "naam": "GGD Brabant-Zuidoost 2024",
+    "naam_volledig": "Gemeenschappelijke regeling GGD Brabant-Zuidoost 2024",
+    "url_slug": "Gemeenschappelijke_regeling_GGD_Brabant-Zuidoost_2024"
+  },
+  "30175736": {
+    "naam": "GGD Drenthe",
+    "naam_volledig": "Gemeenschappelijke Regeling GGD Drenthe",
+    "url_slug": "Gemeenschappelijke_Regeling_GGD_Drenthe"
+  },
+  "29973794": {
+    "naam": "GGD Groningen",
+    "naam_volledig": "Gemeenschappelijke regeling GGD Groningen",
+    "url_slug": "Gemeenschappelijke_regeling_GGD_Groningen"
+  },
+  "29663197": {
+    "naam": "GGD Hart voor Brabant",
+    "naam_volledig": "Gemeenschappelijke regeling GGD Hart voor Brabant",
+    "url_slug": "Gemeenschappelijke_regeling_GGD_Hart_voor_Brabant"
+  },
+  "30478873": {
+    "naam": "GGD IJsselland",
+    "naam_volledig": "Gemeenschappelijke regeling GGD IJsselland",
+    "url_slug": "Gemeenschappelijke_regeling_GGD_IJsselland"
+  },
+  "29499877": {
+    "naam": "GGD Noord- en Oost-Gelderland",
+    "naam_volledig": "Gemeenschappelijke regeling GGD Noord- en Oost-Gelderland",
+    "url_slug": "Gemeenschappelijke_regeling_GGD_Noord-_en_Oost-Gelderland"
+  },
+  "29728067": {
+    "naam": "GGD West-Brabant 2024",
+    "naam_volledig": "Gemeenschappelijke regeling GGD West-Brabant 2024",
+    "url_slug": "Gemeenschappelijke_regeling_GGD_West-Brabant_2024"
+  },
+  "29532056": {
+    "naam": "GGD Zaanstreek-Waterland",
+    "naam_volledig": "Gemeenschappelijke Regeling GGD Zaanstreek-Waterland",
+    "url_slug": "Gemeenschappelijke_Regeling_GGD_Zaanstreek-Waterland"
+  },
+  "29563125": {
+    "naam": "GGD Zuid-Limburg",
+    "naam_volledig": "Gemeenschappelijke Regeling GGD Zuid-Limburg",
+    "url_slug": "Gemeenschappelijke_Regeling_GGD_Zuid-Limburg"
+  },
+  "30372532": {
+    "naam": "GGD-VT Haaglanden",
+    "naam_volledig": "Gemeenschappelijke Regeling GGD-VT Haaglanden",
+    "url_slug": "Gemeenschappelijke_Regeling_GGD-VT_Haaglanden"
+  },
+  "30565838": {
+    "naam": "GISD Regio Alkmaar",
+    "naam_volledig": "Gemeenschappelijke regeling GISD Regio Alkmaar",
+    "url_slug": "Gemeenschappelijke_regeling_GISD_Regio_Alkmaar"
+  },
+  "29485688": {
+    "naam": "Groenalliantie Midden-Holland en omstreken",
+    "naam_volledig": "Gemeenschappelijke regeling Groenalliantie Midden-Holland en omstreken",
+    "url_slug": "Gemeenschappelijke_regeling_Groenalliantie_Midden-Holland_en_omstreken"
+  },
+  "29787082": {
+    "naam": "Groene Hart Rekenkamer",
+    "naam_volledig": "Gemeenschappelijke regeling Groene Hart Rekenkamer",
+    "url_slug": "Gemeenschappelijke_regeling_Groene_Hart_Rekenkamer"
+  },
+  "29679372": {
+    "naam": "Groengebied Amstelland",
+    "naam_volledig": "Gemeenschappelijke regeling Groengebied Amstelland",
+    "url_slug": "Gemeenschappelijke_regeling_Groengebied_Amstelland"
+  },
+  "24966881": {
+    "naam": "Grondbank RZG Zuidplas 2015",
+    "naam_volledig": "Gemeenschappelijke regeling Grondbank RZG Zuidplas 2015",
+    "url_slug": "Gemeenschappelijke_regeling_Grondbank_RZG_Zuidplas_2015"
+  },
+  "29894744": {
+    "naam": "Havenschap Groningen Seaports",
+    "naam_volledig": "Gemeenschappelijke regeling Havenschap Groningen Seaports",
+    "url_slug": "Gemeenschappelijke_regeling_Havenschap_Groningen_Seaports"
+  },
+  "30155626": {
+    "naam": "Hecht",
+    "naam_volledig": "Gemeenschappelijke Regeling Hecht",
+    "url_slug": "Gemeenschappelijke_Regeling_Hecht"
+  },
+  "30127526": {
+    "naam": "Heesch West",
+    "naam_volledig": "Gemeenschappelijke regeling Heesch West",
+    "url_slug": "Gemeenschappelijke_regeling_Heesch_West"
+  },
+  "28411272": {
+    "naam": "Historisch Centrum Limburg 2020",
+    "naam_volledig": "Gemeenschappelijke Regeling Historisch Centrum Limburg 2020",
+    "url_slug": "Gemeenschappelijke_Regeling_Historisch_Centrum_Limburg_2020"
+  },
+  "27685506": {
+    "naam": "Historisch Centrum Overijssel",
+    "naam_volledig": "Gemeenschappelijke regeling Historisch Centrum Overijssel",
+    "url_slug": "Gemeenschappelijke_regeling_Historisch_Centrum_Overijssel"
+  },
+  "29924175": {
+    "naam": "Huisvesting Voortgezet Onderwijs in de Liemers 2024",
+    "naam_volledig": "Gemeenschappelijke Regeling Huisvesting Voortgezet Onderwijs in de Liemers 2024",
+    "url_slug": "Gemeenschappelijke_Regeling_Huisvesting_Voortgezet_Onderwijs_in_de_Liemers_2024"
+  },
+  "25038262": {
+    "naam": "Hûs en hiem, welstandsadvisering en monumentenzorg",
+    "naam_volledig": "Gemeenschappelijke regeling hûs en hiem, welstandsadvisering en monumentenzorg",
+    "url_slug": "Gemeenschappelijke_regeling_hus_en_hiem_welstandsadvisering_en_monumentenzorg"
+  },
+  "29340237": {
+    "naam": "ICT Noord- en Midden-Limburg (ICT NML)",
+    "naam_volledig": "Gemeenschappelijke regeling ICT Noord- en Midden-Limburg (ICT NML)",
+    "url_slug": "Gemeenschappelijke_regeling_ICT_Noord-_en_Midden-Limburg_ICT_NML"
+  },
+  "29715530": {
+    "naam": "ICT samenwerking West-Brabant-West",
+    "naam_volledig": "Gemeenschappelijke regeling ICT samenwerking West-Brabant-West",
+    "url_slug": "Gemeenschappelijke_regeling_ICT_samenwerking_West-Brabant-West"
+  },
+  "29561394": {
+    "naam": "IJmond Werkt!",
+    "naam_volledig": "Gemeenschappelijke regeling IJmond Werkt!",
+    "url_slug": "Gemeenschappelijke_regeling_IJmond_Werkt"
+  },
+  "29562156": {
+    "naam": "IJSSELgemeenten 2023",
+    "naam_volledig": "Gemeenschappelijke regeling IJSSELgemeenten 2023",
+    "url_slug": "Gemeenschappelijke_regeling_IJSSELgemeenten_2023"
+  },
+  "30581002": {
+    "naam": "Impact",
+    "naam_volledig": "Gemeenschappelijke regeling Impact",
+    "url_slug": "Gemeenschappelijke_regeling_Impact"
+  },
+  "29942043": {
+    "naam": "Industrieschap Medel",
+    "naam_volledig": "Gemeenschappelijke Regeling Industrieschap Medel",
+    "url_slug": "Gemeenschappelijke_Regeling_Industrieschap_Medel"
+  },
+  "24967568": {
+    "naam": "Intergemeentelijke Sociale Dienst Brabantse Wal",
+    "naam_volledig": "Gemeenschappelijke regeling Intergemeentelijke Sociale Dienst Brabantse Wal",
+    "url_slug": "Gemeenschappelijke_regeling_Intergemeentelijke_Sociale_Dienst_Brabantse_Wal"
+  },
+  "26104560": {
+    "naam": "Intergemeentelijke Sociale Dienst Werkplein Hart van West-Brabant",
+    "naam_volledig": "Gemeenschappelijke Regeling Intergemeentelijke Sociale Dienst Werkplein Hart van West-Brabant",
+    "url_slug": "Gemeenschappelijke_Regeling_Intergemeentelijke_Sociale_Dienst_Werkplein_Hart_van_West-Brabant"
+  },
+  "29817892": {
+    "naam": "IPP Haaglanden",
+    "naam_volledig": "Gemeenschappelijke Regeling IPP Haaglanden",
+    "url_slug": "Gemeenschappelijke_Regeling_IPP_Haaglanden"
+  },
+  "30469577": {
+    "naam": "Van ISD BOL",
+    "naam_volledig": "Gemeenschappelijke regeling van ISD BOL",
+    "url_slug": "Gemeenschappelijke_regeling_van_ISD_BOL"
+  },
+  "29894675": {
+    "naam": "ISD Bollenstreek 2024",
+    "naam_volledig": "Gemeenschappelijke Regeling ISD Bollenstreek 2024",
+    "url_slug": "Gemeenschappelijke_Regeling_ISD_Bollenstreek_2024"
+  },
+  "29836103": {
+    "naam": "Jeugd en Wmo Midden-Holland 2024",
+    "naam_volledig": "Gemeenschappelijke regeling Jeugd en Wmo Midden-Holland 2024",
+    "url_slug": "Gemeenschappelijke_regeling_Jeugd_en_Wmo_Midden-Holland_2024"
+  },
+  "24965663": {
+    "naam": "Jeugdhulp Rijnmond",
+    "naam_volledig": "Gemeenschappelijke Regeling Jeugdhulp Rijnmond",
+    "url_slug": "Gemeenschappelijke_Regeling_Jeugdhulp_Rijnmond"
+  },
+  "30462589": {
+    "naam": "Jeugdhulpregio JeugdFV",
+    "naam_volledig": "Gemeenschappelijke Regeling Jeugdhulpregio JeugdFV",
+    "url_slug": "Gemeenschappelijke_Regeling_Jeugdhulpregio_JeugdFV"
+  },
+  "30457079": {
+    "naam": "Jeugdregio Een 10 voor de Jeugd",
+    "naam_volledig": "Gemeenschappelijke regeling Jeugdregio Een 10 voor de Jeugd",
+    "url_slug": "Gemeenschappelijke_regeling_Jeugdregio_Een_10_voor_de_Jeugd"
+  },
+  "30527884": {
+    "naam": "Kleinschalig collectief vervoer Brabant Noordoost",
+    "naam_volledig": "Gemeenschappelijke regeling Kleinschalig collectief vervoer Brabant Noordoost",
+    "url_slug": "Gemeenschappelijke_regeling_Kleinschalig_collectief_vervoer_Brabant_Noordoost"
+  },
+  "29419245": {
+    "naam": "Van Kompas, Gemeentelijk collectief voor werk, inkomen &amp; zorg",
+    "naam_volledig": "Gemeenschappelijke regeling van Kompas, Gemeentelijk collectief voor werk, inkomen &amp; zorg",
+    "url_slug": "Gemeenschappelijke_regeling_van_Kompas_Gemeentelijk_collectief_voor_werk_inkomen__zorg"
+  },
+  "29591941": {
+    "naam": "Lichte Gemeenschappelijke regeling inzake de samenwerking afvalwater in zuidelijk Zuid-Limburg: de regio Maas en Mergelland",
+    "naam_volledig": "Lichte Gemeenschappelijke regeling inzake de samenwerking afvalwater in zuidelijk Zuid-Limburg: de regio Maas en Mergelland",
+    "url_slug": "Lichte_Gemeenschappelijke_regeling_inzake_de_samenwerking_afvalwater_in_zuidelijk_Zuid-Limburg_de_regio_Maas_en_Mergelland"
+  },
+  "29559600": {
+    "naam": "Lucrato",
+    "naam_volledig": "Gemeenschappelijke regeling Lucrato",
+    "url_slug": "Gemeenschappelijke_regeling_Lucrato"
+  },
+  "29529800": {
+    "naam": "Maasveren Limburg-Noord",
+    "naam_volledig": "Gemeenschappelijke Regeling Maasveren Limburg-Noord",
+    "url_slug": "Gemeenschappelijke_Regeling_Maasveren_Limburg-Noord"
+  },
+  "30106127": {
+    "naam": "Marrekrite",
+    "naam_volledig": "Gemeenschappelijke regeling Marrekrite",
+    "url_slug": "Gemeenschappelijke_regeling_Marrekrite"
+  },
+  "26727858": {
+    "naam": "Meerinzicht",
+    "naam_volledig": "Gemeenschappelijke regeling Meerinzicht",
+    "url_slug": "Gemeenschappelijke_regeling_Meerinzicht"
+  },
+  "28844762": {
+    "naam": "Meerschap Paterswolde 2019",
+    "naam_volledig": "Gemeenschappelijke regeling Meerschap Paterswolde 2019",
+    "url_slug": "Gemeenschappelijke_regeling_Meerschap_Paterswolde_2019"
+  },
+  "29475077": {
+    "naam": "Meervoudige centrumregeling waterschappen Aa en Maas, Brabantse Delta, De Dommel",
+    "naam_volledig": "Meervoudige centrumregeling waterschappen Aa en Maas, Brabantse Delta, De Dommel",
+    "url_slug": "Meervoudige_centrumregeling_waterschappen_Aa_en_Maas_Brabantse_Delta_De_Dommel"
+  },
+  "29544570": {
+    "naam": "Metropoolregio Eindhoven 2024",
+    "naam_volledig": "Gemeenschappelijke Regeling Metropoolregio Eindhoven 2024",
+    "url_slug": "Gemeenschappelijke_Regeling_Metropoolregio_Eindhoven_2024"
+  },
+  "29530165": {
+    "naam": "Metropoolregio Rotterdam Den Haag 2014",
+    "naam_volledig": "Gemeenschappelijke Regeling Metropoolregio Rotterdam Den Haag 2014",
+    "url_slug": "Gemeenschappelijke_Regeling_Metropoolregio_Rotterdam_Den_Haag_2014"
+  },
+  "29529899": {
+    "naam": "Milieusamenwerking en Afvalverwerking Regio Nijmegen",
+    "naam_volledig": "Gemeenschappelijke Regeling Milieusamenwerking en Afvalverwerking Regio Nijmegen",
+    "url_slug": "Gemeenschappelijke_Regeling_Milieusamenwerking_en_Afvalverwerking_Regio_Nijmegen"
+  },
+  "24964519": {
+    "naam": "Milieustraat Oss",
+    "naam_volledig": "Gemeenschappelijke Regeling milieustraat Oss",
+    "url_slug": "Gemeenschappelijke_Regeling_milieustraat_Oss"
+  },
+  "29530130": {
+    "naam": "Modulaire Gemeenschappelijke Regeling Rijk van Nijmegen",
+    "naam_volledig": "Modulaire Gemeenschappelijke Regeling Rijk van Nijmegen",
+    "url_slug": "Modulaire_Gemeenschappelijke_Regeling_Rijk_van_Nijmegen"
+  },
+  "29457020": {
+    "naam": "Modulaire gemeenschappelijke regeling sociaal domein centraal Gelderland",
+    "naam_volledig": "Modulaire gemeenschappelijke regeling sociaal domein centraal Gelderland",
+    "url_slug": "Modulaire_gemeenschappelijke_regeling_sociaal_domein_centraal_Gelderland"
+  },
+  "30571453": {
+    "naam": "Modulaire gemeenschappelijke regeling sociaal domein Limburg-Noord",
+    "naam_volledig": "Modulaire gemeenschappelijke regeling sociaal domein Limburg-Noord",
+    "url_slug": "Modulaire_gemeenschappelijke_regeling_sociaal_domein_Limburg-Noord"
+  },
+  "30470919": {
+    "naam": "Muskusrattenbestrijding Noord-Brabant",
+    "naam_volledig": "Gemeenschappelijke Regeling Muskusrattenbestrijding Noord-Brabant",
+    "url_slug": "Gemeenschappelijke_Regeling_Muskusrattenbestrijding_Noord-Brabant"
+  },
+  "29496602": {
+    "naam": "Natuur- en recreatieschap IJsselmonde",
+    "naam_volledig": "Gemeenschappelijke regeling Natuur- en recreatieschap IJsselmonde",
+    "url_slug": "Gemeenschappelijke_regeling_Natuur-_en_recreatieschap_IJsselmonde"
+  },
+  "29544640": {
+    "naam": "Natuur- en Recreatieschap Lingegebied",
+    "naam_volledig": "Gemeenschappelijke Regeling Natuur- en Recreatieschap Lingegebied",
+    "url_slug": "Gemeenschappelijke_Regeling_Natuur-_en_Recreatieschap_Lingegebied"
+  },
+  "29678017": {
+    "naam": "Nazorg Gesloten Stortplaatsen Bavel-Dorst en Zevenbergen",
+    "naam_volledig": "Gemeenschappelijke Regeling Nazorg Gesloten Stortplaatsen Bavel-Dorst en Zevenbergen",
+    "url_slug": "Gemeenschappelijke_Regeling_Nazorg_Gesloten_Stortplaatsen_Bavel-Dorst_en_Zevenbergen"
+  },
+  "29529741": {
+    "naam": "Nieuw Reijerwaard",
+    "naam_volledig": "Gemeenschappelijke Regeling Nieuw Reijerwaard",
+    "url_slug": "Gemeenschappelijke_Regeling_Nieuw_Reijerwaard"
+  },
+  "29991127": {
+    "naam": "Noaberkracht Dinkelland Tubbergen",
+    "naam_volledig": "Gemeenschappelijke regeling Noaberkracht Dinkelland Tubbergen",
+    "url_slug": "Gemeenschappelijke_regeling_Noaberkracht_Dinkelland_Tubbergen"
+  },
+  "27620831": {
+    "naam": "Noord-Hollands Archief",
+    "naam_volledig": "Gemeenschappelijke Regeling Noord-Hollands Archief",
+    "url_slug": "Gemeenschappelijke_Regeling_Noord-Hollands_Archief"
+  },
+  "30209831": {
+    "naam": "Noord-Veluws Archief",
+    "naam_volledig": "Gemeenschappelijke Regeling Noord-Veluws Archief",
+    "url_slug": "Gemeenschappelijke_Regeling_Noord-Veluws_Archief"
+  },
+  "29516013": {
+    "naam": "Noordelijk Belastingkantoor",
+    "naam_volledig": "Gemeenschappelijke regeling Noordelijk Belastingkantoor",
+    "url_slug": "Gemeenschappelijke_regeling_Noordelijk_Belastingkantoor"
+  },
+  "29771679": {
+    "naam": "De Noordelijke Rekenkamer",
+    "naam_volledig": "Gemeenschappelijke regeling de Noordelijke Rekenkamer",
+    "url_slug": "Gemeenschappelijke_regeling_de_Noordelijke_Rekenkamer"
+  },
+  "28633700": {
+    "naam": "Noordmidden-Drentse samenwerking",
+    "naam_volledig": "Gemeenschappelijke regeling Noordmidden-Drentse samenwerking",
+    "url_slug": "Gemeenschappelijke_regeling_Noordmidden-Drentse_samenwerking"
+  },
+  "30479519": {
+    "naam": "Ombudsman metropool Amsterdam",
+    "naam_volledig": "Gemeenschappelijke regeling ombudsman metropool Amsterdam",
+    "url_slug": "Gemeenschappelijke_regeling_ombudsman_metropool_Amsterdam"
+  },
+  "30085681": {
+    "naam": "Omgevingsdienst Achterhoek",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Achterhoek",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Achterhoek"
+  },
+  "29894712": {
+    "naam": "Omgevingsdienst Brabant Noord",
+    "naam_volledig": "Gemeenschappelijke Regeling Omgevingsdienst Brabant Noord",
+    "url_slug": "Gemeenschappelijke_Regeling_Omgevingsdienst_Brabant_Noord"
+  },
+  "30210807": {
+    "naam": "Omgevingsdienst De Vallei",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst De Vallei",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_De_Vallei"
+  },
+  "29679169": {
+    "naam": "Omgevingsdienst Drenthe",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Drenthe",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Drenthe"
+  },
+  "30148383": {
+    "naam": "Omgevingsdienst Flevoland &amp; Gooi en Vechtstreek",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Flevoland &amp; Gooi en Vechtstreek",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Flevoland__Gooi_en_Vechtstreek"
+  },
+  "30478829": {
+    "naam": "Omgevingsdienst Groene Metropool",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Groene Metropool",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Groene_Metropool"
+  },
+  "29268027": {
+    "naam": "Omgevingsdienst Groningen",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Groningen",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Groningen"
+  },
+  "28539467": {
+    "naam": "Omgevingsdienst Haaglanden",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Haaglanden",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Haaglanden"
+  },
+  "29577614": {
+    "naam": "Omgevingsdienst IJmond",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst IJmond",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_IJmond"
+  },
+  "30426076": {
+    "naam": "Omgevingsdienst IJsselland",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst IJsselland",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_IJsselland"
+  },
+  "29925125": {
+    "naam": "Omgevingsdienst Midden- en West-Brabant",
+    "naam_volledig": "Gemeenschappelijke Regeling Omgevingsdienst Midden- en West-Brabant",
+    "url_slug": "Gemeenschappelijke_Regeling_Omgevingsdienst_Midden-_en_West-Brabant"
+  },
+  "29490352": {
+    "naam": "Omgevingsdienst Midden-Holland",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Midden-Holland",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Midden-Holland"
+  },
+  "30568139": {
+    "naam": "Omgevingsdienst Noord- en Midden-Limburg",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Noord- en Midden-Limburg",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Noord-_en_Midden-Limburg"
+  },
+  "29592716": {
+    "naam": "Omgevingsdienst Noord-Holland Noord",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Noord-Holland Noord",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Noord-Holland_Noord"
+  },
+  "30019278": {
+    "naam": "Omgevingsdienst Noordzeekanaalgebied 2024",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Noordzeekanaalgebied 2024",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Noordzeekanaalgebied_2024"
+  },
+  "29479827": {
+    "naam": "Omgevingsdienst regio Utrecht",
+    "naam_volledig": "Gemeenschappelijke Regeling Omgevingsdienst regio Utrecht",
+    "url_slug": "Gemeenschappelijke_Regeling_Omgevingsdienst_regio_Utrecht"
+  },
+  "29664019": {
+    "naam": "Omgevingsdienst Rivierenland",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Rivierenland",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Rivierenland"
+  },
+  "29772777": {
+    "naam": "Omgevingsdienst Twente",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Twente",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Twente"
+  },
+  "30432201": {
+    "naam": "Omgevingsdienst Utrecht",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Utrecht",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Utrecht"
+  },
+  "29847755": {
+    "naam": "Omgevingsdienst Veluwe",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Veluwe",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Veluwe"
+  },
+  "29494111": {
+    "naam": "Omgevingsdienst West-Holland",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst West-Holland",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_West-Holland"
+  },
+  "29990201": {
+    "naam": "Omgevingsdienst Zuid-Holland Zuid",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Zuid-Holland Zuid",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Zuid-Holland_Zuid"
+  },
+  "29474985": {
+    "naam": "Omgevingsdienst Zuid-Limburg",
+    "naam_volledig": "Gemeenschappelijke regeling Omgevingsdienst Zuid-Limburg",
+    "url_slug": "Gemeenschappelijke_regeling_Omgevingsdienst_Zuid-Limburg"
+  },
+  "29957254": {
+    "naam": "Omgevingsdienst Zuidoost-Brabant 2024",
+    "naam_volledig": "Gemeenschappelijke Regeling Omgevingsdienst Zuidoost-Brabant 2024",
+    "url_slug": "Gemeenschappelijke_Regeling_Omgevingsdienst_Zuidoost-Brabant_2024"
+  },
+  "29486733": {
+    "naam": "Omnibuzz",
+    "naam_volledig": "Gemeenschappelijke regeling Omnibuzz",
+    "url_slug": "Gemeenschappelijke_regeling_Omnibuzz"
+  },
+  "30500501": {
+    "naam": "Openbaar Lichaam Afvalstoffenverwerking Zeeland (OLAZ)",
+    "naam_volledig": "Gemeenschappelijke regeling Openbaar Lichaam Afvalstoffenverwerking Zeeland (OLAZ)",
+    "url_slug": "Gemeenschappelijke_regeling_Openbaar_Lichaam_Afvalstoffenverwerking_Zeeland_OLAZ"
+  },
+  "29681289": {
+    "naam": "Openbaar Lichaam Crematoria Twente (OLCT)",
+    "naam_volledig": "Gemeenschappelijke regeling Openbaar Lichaam Crematoria Twente (OLCT)",
+    "url_slug": "Gemeenschappelijke_regeling_Openbaar_Lichaam_Crematoria_Twente_OLCT"
+  },
+  "28141653": {
+    "naam": "Openbaar Lichaam OV-bureau van de gemeente Groningen en de provincies Groningen en Drenthe",
+    "naam_volledig": "Gemeenschappelijke Regeling Openbaar Lichaam OV-bureau van de gemeente Groningen en de provincies Groningen en Drenthe",
+    "url_slug": "Gemeenschappelijke_Regeling_Openbaar_Lichaam_OV-bureau_van_de_gemeente_Groningen_en_de_provincies_Groningen_en_Drenthe"
+  },
+  "30087411": {
+    "naam": "Openbaar lichaam Plusteam",
+    "naam_volledig": "Gemeenschappelijke regeling openbaar lichaam Plusteam",
+    "url_slug": "Gemeenschappelijke_regeling_openbaar_lichaam_Plusteam"
+  },
+  "30006959": {
+    "naam": "Openbaar lichaam Rogplus",
+    "naam_volledig": "Gemeenschappelijke regeling openbaar lichaam Rogplus",
+    "url_slug": "Gemeenschappelijke_regeling_openbaar_lichaam_Rogplus"
+  },
+  "28534802": {
+    "naam": "Openbaar Lichaam Vuilverwerking Noord Oost Achterhoek",
+    "naam_volledig": "Gemeenschappelijke regeling Openbaar Lichaam Vuilverwerking Noord Oost Achterhoek",
+    "url_slug": "Gemeenschappelijke_regeling_Openbaar_Lichaam_Vuilverwerking_Noord_Oost_Achterhoek"
+  },
+  "26408026": {
+    "naam": "Openbare Gezondheidszorg Amstelland",
+    "naam_volledig": "Gemeenschappelijke regeling openbare Gezondheidszorg Amstelland",
+    "url_slug": "Gemeenschappelijke_regeling_openbare_Gezondheidszorg_Amstelland"
+  },
+  "30509760": {
+    "naam": "Orionis Walcheren",
+    "naam_volledig": "Gemeenschappelijke regeling Orionis Walcheren",
+    "url_slug": "Gemeenschappelijke_regeling_Orionis_Walcheren"
+  },
+  "30581493": {
+    "naam": "OVER-gemeenten",
+    "naam_volledig": "Gemeenschappelijke regeling OVER-gemeenten",
+    "url_slug": "Gemeenschappelijke_regeling_OVER-gemeenten"
+  },
+  "28370975": {
+    "naam": "Park Lingezegen",
+    "naam_volledig": "Gemeenschappelijke regeling park Lingezegen",
+    "url_slug": "Gemeenschappelijke_regeling_park_Lingezegen"
+  },
+  "30176589": {
+    "naam": "“Participatiebedrijf KempenPlus”",
+    "naam_volledig": "Gemeenschappelijke Regeling “Participatiebedrijf KempenPlus”",
+    "url_slug": "Gemeenschappelijke_Regeling_Participatiebedrijf_KempenPlus"
+  },
+  "29772709": {
+    "naam": "Participatiebedrijf Zaanstad Purmerend",
+    "naam_volledig": "Gemeenschappelijke regeling participatiebedrijf Zaanstad Purmerend",
+    "url_slug": "Gemeenschappelijke_regeling_participatiebedrijf_Zaanstad_Purmerend"
+  },
+  "29695539": {
+    "naam": "Betreffende het Participatiebedrijf Zuid-Kennemerland",
+    "naam_volledig": "Gemeenschappelijke Regeling betreffende het Participatiebedrijf Zuid-Kennemerland",
+    "url_slug": "Gemeenschappelijke_Regeling_betreffende_het_Participatiebedrijf_Zuid-Kennemerland"
+  },
+  "29465749": {
+    "naam": "Peelgemeenten",
+    "naam_volledig": "Gemeenschappelijke regeling Peelgemeenten",
+    "url_slug": "Gemeenschappelijke_regeling_Peelgemeenten"
+  },
+  "30407386": {
+    "naam": "PlusOV",
+    "naam_volledig": "Gemeenschappelijke Regeling PlusOV",
+    "url_slug": "Gemeenschappelijke_Regeling_PlusOV"
+  },
+  "27965091": {
+    "naam": "Prolander",
+    "naam_volledig": "Gemeenschappelijke Regeling Prolander",
+    "url_slug": "Gemeenschappelijke_Regeling_Prolander"
+  },
+  "30104372": {
+    "naam": "Promen",
+    "naam_volledig": "Gemeenschappelijke regeling Promen",
+    "url_slug": "Gemeenschappelijke_regeling_Promen"
+  },
+  "27614747": {
+    "naam": "Randstedelijke Rekenkamer",
+    "naam_volledig": "Gemeenschappelijke regeling Randstedelijke Rekenkamer",
+    "url_slug": "Gemeenschappelijke_regeling_Randstedelijke_Rekenkamer"
+  },
+  "29530022": {
+    "naam": "Voor het recreatiegebied Voorne-Putten",
+    "naam_volledig": "Gemeenschappelijke regeling voor het recreatiegebied Voorne-Putten",
+    "url_slug": "Gemeenschappelijke_regeling_voor_het_recreatiegebied_Voorne-Putten"
+  },
+  "29560470": {
+    "naam": "Recreatieschap Alkmaarder- en Uitgeestermeer",
+    "naam_volledig": "Gemeenschappelijke regeling recreatieschap Alkmaarder- en Uitgeestermeer",
+    "url_slug": "Gemeenschappelijke_regeling_recreatieschap_Alkmaarder-_en_Uitgeestermeer"
+  },
+  "28355193": {
+    "naam": "Recreatieschap Drenthe",
+    "naam_volledig": "Gemeenschappelijke regeling recreatieschap Drenthe",
+    "url_slug": "Gemeenschappelijke_regeling_recreatieschap_Drenthe"
+  },
+  "29679292": {
+    "naam": "Recreatieschap Geestmerambacht",
+    "naam_volledig": "Gemeenschappelijke regeling Recreatieschap Geestmerambacht",
+    "url_slug": "Gemeenschappelijke_regeling_Recreatieschap_Geestmerambacht"
+  },
+  "30127487": {
+    "naam": "Recreatieschap Hitland",
+    "naam_volledig": "Gemeenschappelijke regeling Recreatieschap Hitland",
+    "url_slug": "Gemeenschappelijke_regeling_Recreatieschap_Hitland"
+  },
+  "30392731": {
+    "naam": "Recreatieschap Nederrijn, Lek en Waal",
+    "naam_volledig": "Gemeenschappelijke Regeling Recreatieschap Nederrijn, Lek en Waal",
+    "url_slug": "Gemeenschappelijke_Regeling_Recreatieschap_Nederrijn_Lek_en_Waal"
+  },
+  "30536179": {
+    "naam": "Recreatieschap Over-Betuwe",
+    "naam_volledig": "Gemeenschappelijke regeling Recreatieschap Over-Betuwe",
+    "url_slug": "Gemeenschappelijke_regeling_Recreatieschap_Over-Betuwe"
+  },
+  "29560335": {
+    "naam": "Recreatieschap Spaarnwoude",
+    "naam_volledig": "Gemeenschappelijke regeling recreatieschap Spaarnwoude",
+    "url_slug": "Gemeenschappelijke_regeling_recreatieschap_Spaarnwoude"
+  },
+  "29529817": {
+    "naam": "Recreatieschap Stichtse Groenlanden",
+    "naam_volledig": "Gemeenschappelijke regeling recreatieschap Stichtse Groenlanden",
+    "url_slug": "Gemeenschappelijke_regeling_recreatieschap_Stichtse_Groenlanden"
+  },
+  "28544646": {
+    "naam": "Regeling Recreatieschap Twente",
+    "naam_volledig": "Regeling Recreatieschap Twente",
+    "url_slug": "Regeling_Recreatieschap_Twente"
+  },
+  "29563201": {
+    "naam": "Recreatieschap Twiske-Waterland",
+    "naam_volledig": "Gemeenschappelijke regeling Recreatieschap Twiske-Waterland",
+    "url_slug": "Gemeenschappelijke_regeling_Recreatieschap_Twiske-Waterland"
+  },
+  "24966117": {
+    "naam": "Recreatieschap Westfriesland",
+    "naam_volledig": "Gemeenschappelijke regeling Recreatieschap Westfriesland",
+    "url_slug": "Gemeenschappelijke_regeling_Recreatieschap_Westfriesland"
+  },
+  "29605421": {
+    "naam": "Reestmond",
+    "naam_volledig": "Gemeenschappelijke regeling Reestmond",
+    "url_slug": "Gemeenschappelijke_regeling_Reestmond"
+  },
+  "30505949": {
+    "naam": "Regio Arnhem-Nijmegen",
+    "naam_volledig": "Gemeenschappelijke regeling Regio Arnhem-Nijmegen",
+    "url_slug": "Gemeenschappelijke_regeling_Regio_Arnhem-Nijmegen"
+  },
+  "30520136": {
+    "naam": "Regio De Baronie",
+    "naam_volledig": "Gemeenschappelijke regeling Regio De Baronie",
+    "url_slug": "Gemeenschappelijke_regeling_Regio_De_Baronie"
+  },
+  "29474096": {
+    "naam": "Regio De Vallei",
+    "naam_volledig": "Gemeenschappelijke Regeling Regio De Vallei",
+    "url_slug": "Gemeenschappelijke_Regeling_Regio_De_Vallei"
+  },
+  "29771733": {
+    "naam": "Regio Foodvalley",
+    "naam_volledig": "Gemeenschappelijke Regeling Regio Foodvalley",
+    "url_slug": "Gemeenschappelijke_Regeling_Regio_Foodvalley"
+  },
+  "29446305": {
+    "naam": "Regio Gooi en Vechtstreek",
+    "naam_volledig": "Gemeenschappelijke Regeling Regio Gooi en Vechtstreek",
+    "url_slug": "Gemeenschappelijke_Regeling_Regio_Gooi_en_Vechtstreek"
+  },
+  "29990242": {
+    "naam": "Regio Hart van Brabant",
+    "naam_volledig": "Gemeenschappelijke regeling Regio Hart van Brabant",
+    "url_slug": "Gemeenschappelijke_regeling_Regio_Hart_van_Brabant"
+  },
+  "30421654": {
+    "naam": "Regio Holland Rijnland",
+    "naam_volledig": "Gemeenschappelijke regeling Regio Holland Rijnland",
+    "url_slug": "Gemeenschappelijke_regeling_Regio_Holland_Rijnland"
+  },
+  "30512991": {
+    "naam": "Regio Midden-Holland",
+    "naam_volledig": "Gemeenschappelijke regeling Regio Midden-Holland",
+    "url_slug": "Gemeenschappelijke_regeling_Regio_Midden-Holland"
+  },
+  "30487008": {
+    "naam": "Regio Noord-Limburg",
+    "naam_volledig": "Gemeenschappelijke regeling Regio Noord-Limburg",
+    "url_slug": "Gemeenschappelijke_regeling_Regio_Noord-Limburg"
+  },
+  "30405547": {
+    "naam": "Regeling Regio Rivierenland",
+    "naam_volledig": "Regeling Regio Rivierenland",
+    "url_slug": "Regeling_Regio_Rivierenland"
+  },
+  "24967068": {
+    "naam": "Regeling regio Stedendriehoek",
+    "naam_volledig": "Regeling regio Stedendriehoek",
+    "url_slug": "Regeling_regio_Stedendriehoek"
+  },
+  "29695623": {
+    "naam": "Regio West-Brabant",
+    "naam_volledig": "Gemeenschappelijke Regeling Regio West-Brabant",
+    "url_slug": "Gemeenschappelijke_Regeling_Regio_West-Brabant"
+  },
+  "28573871": {
+    "naam": "Regionaal Archief Rivierenland",
+    "naam_volledig": "Gemeenschappelijke regeling Regionaal Archief Rivierenland",
+    "url_slug": "Gemeenschappelijke_regeling_Regionaal_Archief_Rivierenland"
+  },
+  "29606236": {
+    "naam": "Regionaal Archief Zuid-Utrecht",
+    "naam_volledig": "Gemeenschappelijke regeling Regionaal Archief Zuid-Utrecht",
+    "url_slug": "Gemeenschappelijke_regeling_Regionaal_Archief_Zuid-Utrecht"
+  },
+  "24961752": {
+    "naam": "Regionaal Bedrijventerrein Twente",
+    "naam_volledig": "Gemeenschappelijke regeling Regionaal Bedrijventerrein Twente",
+    "url_slug": "Gemeenschappelijke_regeling_Regionaal_Bedrijventerrein_Twente"
+  },
+  "29712457": {
+    "naam": "Regionaal Historisch Centrum Alkmaar",
+    "naam_volledig": "Gemeenschappelijke regeling Regionaal Historisch Centrum Alkmaar",
+    "url_slug": "Gemeenschappelijke_regeling_Regionaal_Historisch_Centrum_Alkmaar"
+  },
+  "30554450": {
+    "naam": "Regionaal Historisch Centrum Het Flevolands Archief, Ministerie van Onderwijs, Cultuur en Wetenschap",
+    "naam_volledig": "Gemeenschappelijke Regeling Regionaal Historisch Centrum Het Flevolands Archief, Ministerie van Onderwijs, Cultuur en Wetenschap",
+    "url_slug": "Gemeenschappelijke_Regeling_Regionaal_Historisch_Centrum_Het_Flevolands_Archief_Ministerie_van_Onderwijs_Cultuur_en_Wetenschap"
+  },
+  "29489613": {
+    "naam": "Regionaal Historisch Centrum Rijnstreek en Lopikerwaard",
+    "naam_volledig": "Gemeenschappelijke regeling Regionaal Historisch Centrum Rijnstreek en Lopikerwaard",
+    "url_slug": "Gemeenschappelijke_regeling_Regionaal_Historisch_Centrum_Rijnstreek_en_Lopikerwaard"
+  },
+  "24967977": {
+    "naam": "Regionaal Historisch Centrum Vecht en Venen",
+    "naam_volledig": "Gemeenschappelijke Regeling Regionaal Historisch Centrum Vecht en Venen",
+    "url_slug": "Gemeenschappelijke_Regeling_Regionaal_Historisch_Centrum_Vecht_en_Venen"
+  },
+  "30493963": {
+    "naam": "Regionaal Historisch Centrum Voorne-Putten Goeree-Overflakkee",
+    "naam_volledig": "Gemeenschappelijke regeling Regionaal Historisch Centrum Voorne-Putten Goeree-Overflakkee",
+    "url_slug": "Gemeenschappelijke_regeling_Regionaal_Historisch_Centrum_Voorne-Putten_Goeree-Overflakkee"
+  },
+  "27685468": {
+    "naam": "Regionaal Historisch Centrum ‘Groninger Archieven’",
+    "naam_volledig": "Gemeenschappelijke regeling Regionaal Historisch Centrum ‘Groninger Archieven’",
+    "url_slug": "Gemeenschappelijke_regeling_Regionaal_Historisch_Centrum_Groninger_Archieven"
+  },
+  "29476426": {
+    "naam": "Regionaal Reinigingsbedrijf Avalex 2018",
+    "naam_volledig": "Gemeenschappelijke regeling Regionaal Reinigingsbedrijf Avalex 2018",
+    "url_slug": "Gemeenschappelijke_regeling_Regionaal_Reinigingsbedrijf_Avalex_2018"
+  },
+  "24967301": {
+    "naam": "Regeling Regionaal samenwerkingsverband openbaar basisonderwijs De Kempen",
+    "naam_volledig": "Regeling Regionaal samenwerkingsverband openbaar basisonderwijs De Kempen",
+    "url_slug": "Regeling_Regionaal_samenwerkingsverband_openbaar_basisonderwijs_De_Kempen"
+  },
+  "24963429": {
+    "naam": "Betreffende het Regionaal Sociaal Werkvoorzieningsschap Amersfoort en omgeving RWA te Amersfoort",
+    "naam_volledig": "Gemeenschappelijke regeling betreffende het Regionaal Sociaal Werkvoorzieningsschap Amersfoort en omgeving RWA te Amersfoort",
+    "url_slug": "Gemeenschappelijke_regeling_betreffende_het_Regionaal_Sociaal_Werkvoorzieningsschap_Amersfoort_en_omgeving_RWA_te_Amersfoort"
+  },
+  "29657265": {
+    "naam": "Regionale Ambulancevoorziening Brabant Midden-West-Noord",
+    "naam_volledig": "Gemeenschappelijke regeling Regionale Ambulancevoorziening Brabant Midden-West-Noord",
+    "url_slug": "Gemeenschappelijke_regeling_Regionale_Ambulancevoorziening_Brabant_Midden-West-Noord"
+  },
+  "30503008": {
+    "naam": "Regionale Belasting Groep",
+    "naam_volledig": "Gemeenschappelijke regeling Regionale Belasting Groep",
+    "url_slug": "Gemeenschappelijke_regeling_Regionale_Belasting_Groep"
+  },
+  "29529958": {
+    "naam": "Regionale Dienst Werk en Inkomen Kromme Rijn Heuvelrug",
+    "naam_volledig": "Gemeenschappelijke regeling Regionale Dienst Werk en Inkomen Kromme Rijn Heuvelrug",
+    "url_slug": "Gemeenschappelijke_regeling_Regionale_Dienst_Werk_en_Inkomen_Kromme_Rijn_Heuvelrug"
+  },
+  "30489847": {
+    "naam": "Regionale ICT-dienst Utrecht",
+    "naam_volledig": "Gemeenschappelijke regeling Regionale ICT-dienst Utrecht",
+    "url_slug": "Gemeenschappelijke_regeling_Regionale_ICT-dienst_Utrecht"
+  },
+  "24967271": {
+    "naam": "Regionale samenwerking Leerplicht en RMC, Maastricht en Mergelland",
+    "naam_volledig": "Gemeenschappelijke regeling Regionale samenwerking Leerplicht en RMC, Maastricht en Mergelland",
+    "url_slug": "Gemeenschappelijke_regeling_Regionale_samenwerking_Leerplicht_en_RMC_Maastricht_en_Mergelland"
+  },
+  "28059612": {
+    "naam": "Regionale uitvoeringsdienst Utrecht 2.0",
+    "naam_volledig": "Gemeenschappelijke regeling Regionale uitvoeringsdienst Utrecht 2.0",
+    "url_slug": "Gemeenschappelijke_regeling_Regionale_uitvoeringsdienst_Utrecht_20"
+  },
+  "28083579": {
+    "naam": "Regionale uitvoeringsdienst Zeeland",
+    "naam_volledig": "Gemeenschappelijke regeling Regionale uitvoeringsdienst Zeeland",
+    "url_slug": "Gemeenschappelijke_regeling_Regionale_uitvoeringsdienst_Zeeland"
+  },
+  "29991178": {
+    "naam": "Reiniging Blink 2025",
+    "naam_volledig": "Gemeenschappelijke regeling reiniging Blink 2025",
+    "url_slug": "Gemeenschappelijke_regeling_reiniging_Blink_2025"
+  },
+  "29730417": {
+    "naam": "Reinigingsbedrijf Midden Nederland",
+    "naam_volledig": "Gemeenschappelijke Regeling Reinigingsbedrijf Midden Nederland",
+    "url_slug": "Gemeenschappelijke_Regeling_Reinigingsbedrijf_Midden_Nederland"
+  },
+  "28189690": {
+    "naam": "Reinigingsdienst De Liemers",
+    "naam_volledig": "Gemeenschappelijke regeling Reinigingsdienst De Liemers",
+    "url_slug": "Gemeenschappelijke_regeling_Reinigingsdienst_De_Liemers"
+  },
+  "30070657": {
+    "naam": "Reinigingsdienst Maasland",
+    "naam_volledig": "Gemeenschappelijke Regeling Reinigingsdienst Maasland",
+    "url_slug": "Gemeenschappelijke_Regeling_Reinigingsdienst_Maasland"
+  },
+  "30271856": {
+    "naam": "Reinigingsdiensten Rd4",
+    "naam_volledig": "Gemeenschappelijke Regeling Reinigingsdiensten Rd4",
+    "url_slug": "Gemeenschappelijke_Regeling_Reinigingsdiensten_Rd4"
+  },
+  "27964947": {
+    "naam": "ReinUnie",
+    "naam_volledig": "Gemeenschappelijke regeling ReinUnie",
+    "url_slug": "Gemeenschappelijke_regeling_ReinUnie"
+  },
+  "29616286": {
+    "naam": "Rekenkamer Amsterdam-Zaanstad",
+    "naam_volledig": "Gemeenschappelijke regeling Rekenkamer Amsterdam-Zaanstad",
+    "url_slug": "Gemeenschappelijke_regeling_Rekenkamer_Amsterdam-Zaanstad"
+  },
+  "29819693": {
+    "naam": "Rekenkamer Medemblik Opmeer",
+    "naam_volledig": "Gemeenschappelijke regeling Rekenkamer Medemblik Opmeer",
+    "url_slug": "Gemeenschappelijke_regeling_Rekenkamer_Medemblik_Opmeer"
+  },
+  "29430205": {
+    "naam": "Rekenkamer Oost-Nederland",
+    "naam_volledig": "Gemeenschappelijke regeling Rekenkamer Oost-Nederland",
+    "url_slug": "Gemeenschappelijke_regeling_Rekenkamer_Oost-Nederland"
+  },
+  "30465973": {
+    "naam": "Rekenkamer Rivierenland 2025",
+    "naam_volledig": "Gemeenschappelijke regeling Rekenkamer Rivierenland 2025",
+    "url_slug": "Gemeenschappelijke_regeling_Rekenkamer_Rivierenland_2025"
+  },
+  "29546214": {
+    "naam": "Rekenkamer Wassenaar, Voorschoten, Oegstgeest en Leidschendam-Voorburg",
+    "naam_volledig": "Gemeenschappelijke regeling Rekenkamer Wassenaar, Voorschoten, Oegstgeest en Leidschendam-Voorburg",
+    "url_slug": "Gemeenschappelijke_regeling_Rekenkamer_Wassenaar_Voorschoten_Oegstgeest_en_Leidschendam-Voorburg"
+  },
+  "29749033": {
+    "naam": "Rekenkamer Zundert en Rucphen 2024",
+    "naam_volledig": "Gemeenschappelijke regeling Rekenkamer Zundert en Rucphen 2024",
+    "url_slug": "Gemeenschappelijke_regeling_Rekenkamer_Zundert_en_Rucphen_2024"
+  },
+  "27948951": {
+    "naam": "Regeling RHC Drents Archief",
+    "naam_volledig": "Regeling RHC Drents Archief",
+    "url_slug": "Regeling_RHC_Drents_Archief"
+  },
+  "29495820": {
+    "naam": "Rottemeren",
+    "naam_volledig": "Gemeenschappelijke Regeling Rottemeren",
+    "url_slug": "Gemeenschappelijke_Regeling_Rottemeren"
+  },
+  "29619618": {
+    "naam": "Sallcon",
+    "naam_volledig": "Gemeenschappelijke regeling Sallcon",
+    "url_slug": "Gemeenschappelijke_regeling_Sallcon"
+  },
+  "29516186": {
+    "naam": "SamenTwente",
+    "naam_volledig": "Gemeenschappelijke Regeling SamenTwente",
+    "url_slug": "Gemeenschappelijke_Regeling_SamenTwente"
+  },
+  "29516167": {
+    "naam": "Samenwerking A2-gemeenten",
+    "naam_volledig": "Gemeenschappelijke Regeling Samenwerking A2-gemeenten",
+    "url_slug": "Gemeenschappelijke_Regeling_Samenwerking_A2-gemeenten"
+  },
+  "28501261": {
+    "naam": "Samenwerking De Bevelanden",
+    "naam_volledig": "Gemeenschappelijke regeling Samenwerking De Bevelanden",
+    "url_slug": "Gemeenschappelijke_regeling_Samenwerking_De_Bevelanden"
+  },
+  "24965997": {
+    "naam": "Samenwerking De Liemers",
+    "naam_volledig": "Gemeenschappelijke Regeling Samenwerking De Liemers",
+    "url_slug": "Gemeenschappelijke_Regeling_Samenwerking_De_Liemers"
+  },
+  "29436968": {
+    "naam": "Samenwerking Kempengemeenten",
+    "naam_volledig": "Gemeenschappelijke Regeling Samenwerking Kempengemeenten",
+    "url_slug": "Gemeenschappelijke_Regeling_Samenwerking_Kempengemeenten"
+  },
+  "30572665": {
+    "naam": "Samenwerking Sociaal Domein Huizen, Blaricum, Eemnes en Laren 2026",
+    "naam_volledig": "Gemeenschappelijke regeling samenwerking Sociaal Domein Huizen, Blaricum, Eemnes en Laren 2026",
+    "url_slug": "Gemeenschappelijke_regeling_samenwerking_Sociaal_Domein_Huizen_Blaricum_Eemnes_en_Laren_2026"
+  },
+  "28559069": {
+    "naam": "Samenwerking Sociale Zaken 2008",
+    "naam_volledig": "Gemeenschappelijke regeling Samenwerking Sociale Zaken 2008",
+    "url_slug": "Gemeenschappelijke_regeling_Samenwerking_Sociale_Zaken_2008"
+  },
+  "29482012": {
+    "naam": "Samenwerking Sociale Zaken 2016",
+    "naam_volledig": "Gemeenschappelijke regeling Samenwerking Sociale Zaken 2016",
+    "url_slug": "Gemeenschappelijke_regeling_Samenwerking_Sociale_Zaken_2016"
+  },
+  "24962769": {
+    "naam": "Samenwerking sociale zaken Borne, Haaksbergen en Hengelo",
+    "naam_volledig": "Gemeenschappelijke regeling samenwerking sociale zaken Borne, Haaksbergen en Hengelo",
+    "url_slug": "Gemeenschappelijke_regeling_samenwerking_sociale_zaken_Borne_Haaksbergen_en_Hengelo"
+  },
+  "29575099": {
+    "naam": "Samenwerkingsorganisatie Boxtel – Sint-Michielsgestel",
+    "naam_volledig": "Gemeenschappelijke Regeling samenwerkingsorganisatie Boxtel – Sint-Michielsgestel",
+    "url_slug": "Gemeenschappelijke_Regeling_samenwerkingsorganisatie_Boxtel__Sint-Michielsgestel"
+  },
+  "29040233": {
+    "naam": "Samenwerkingsorganisatie De Wolden Hoogeveen",
+    "naam_volledig": "Samenwerkingsorganisatie De Wolden Hoogeveen",
+    "url_slug": "Samenwerkingsorganisatie_De_Wolden_Hoogeveen"
+  },
+  "28306633": {
+    "naam": "Samenwerkingsorganisatie Publiek Vervoer Groningen Drenthe",
+    "naam_volledig": "Gemeenschappelijke Regeling Samenwerkingsorganisatie Publiek Vervoer Groningen Drenthe",
+    "url_slug": "Gemeenschappelijke_Regeling_Samenwerkingsorganisatie_Publiek_Vervoer_Groningen_Drenthe"
+  },
+  "30117189": {
+    "naam": "Samenwerkingsovereenkomst Maatschappelijke zorg 2023 Holland Rijnland",
+    "naam_volledig": "Samenwerkingsovereenkomst Maatschappelijke zorg 2023 Holland Rijnland",
+    "url_slug": "Samenwerkingsovereenkomst_Maatschappelijke_zorg_2023_Holland_Rijnland"
+  },
+  "30117235": {
+    "naam": "Samenwerkingsovereenkomst Maatschappelijke Zorg Leidse regio 2023",
+    "naam_volledig": "Samenwerkingsovereenkomst Maatschappelijke Zorg Leidse regio 2023",
+    "url_slug": "Samenwerkingsovereenkomst_Maatschappelijke_Zorg_Leidse_regio_2023"
+  },
+  "29469185": {
+    "naam": "Samenwerkingsregeling Regio Achterhoek",
+    "naam_volledig": "Samenwerkingsregeling Regio Achterhoek",
+    "url_slug": "Samenwerkingsregeling_Regio_Achterhoek"
+  },
+  "24964477": {
+    "naam": "Samenwerkingsverband afvalstoffenverwijdering Oost- en Zuidoost Groningen",
+    "naam_volledig": "Gemeenschappelijke Regeling Samenwerkingsverband afvalstoffenverwijdering Oost- en Zuidoost Groningen",
+    "url_slug": "Gemeenschappelijke_Regeling_Samenwerkingsverband_afvalstoffenverwijdering_Oost-_en_Zuidoost_Groningen"
+  },
+  "28463982": {
+    "naam": "Samenwerkingsverband Welzijnszorg Oosterschelderegio",
+    "naam_volledig": "Gemeenschappelijke Regeling Samenwerkingsverband Welzijnszorg Oosterschelderegio",
+    "url_slug": "Gemeenschappelijke_Regeling_Samenwerkingsverband_Welzijnszorg_Oosterschelderegio"
+  },
+  "28575800": {
+    "naam": "Schadevergoedingsschap HSL-Zuid, A16 en A4",
+    "naam_volledig": "Gemeenschappelijke regeling schadevergoedingsschap HSL-Zuid, A16 en A4",
+    "url_slug": "Gemeenschappelijke_regeling_schadevergoedingsschap_HSL-Zuid_A16_en_A4"
+  },
+  "28141753": {
+    "naam": "Schoolverzuim en Voortijdig Schoolverlaten regio West-Kennemerland",
+    "naam_volledig": "Gemeenschappelijke Regeling Schoolverzuim en Voortijdig Schoolverlaten regio West-Kennemerland",
+    "url_slug": "Gemeenschappelijke_Regeling_Schoolverzuim_en_Voortijdig_Schoolverlaten_regio_West-Kennemerland"
+  },
+  "30387031": {
+    "naam": "Schoolverzuim en VSV regio West-Brabant",
+    "naam_volledig": "Gemeenschappelijke regeling schoolverzuim en VSV regio West-Brabant",
+    "url_slug": "Gemeenschappelijke_regeling_schoolverzuim_en_VSV_regio_West-Brabant"
+  },
+  "25978678": {
+    "naam": "SED organisatie",
+    "naam_volledig": "Gemeenschappelijke Regeling SED organisatie",
+    "url_slug": "Gemeenschappelijke_Regeling_SED_organisatie"
+  },
+  "30574598": {
+    "naam": "Senzer 2025",
+    "naam_volledig": "Gemeenschappelijke Regeling Senzer 2025",
+    "url_slug": "Gemeenschappelijke_Regeling_Senzer_2025"
+  },
+  "29484696": {
+    "naam": "Servicebureau Jeugdhulp Haaglanden",
+    "naam_volledig": "Gemeenschappelijke regeling Servicebureau Jeugdhulp Haaglanden",
+    "url_slug": "Gemeenschappelijke_regeling_Servicebureau_Jeugdhulp_Haaglanden"
+  },
+  "29529763": {
+    "naam": "Servicecentrum MER",
+    "naam_volledig": "Gemeenschappelijke Regeling Servicecentrum MER",
+    "url_slug": "Gemeenschappelijke_Regeling_Servicecentrum_MER"
+  },
+  "29421845": {
+    "naam": "Serviceorganisatie Zorg Holland Rijnland",
+    "naam_volledig": "Gemeenschappelijke Regeling Serviceorganisatie Zorg Holland Rijnland",
+    "url_slug": "Gemeenschappelijke_Regeling_Serviceorganisatie_Zorg_Holland_Rijnland"
+  },
+  "29659594": {
+    "naam": "Shared Service Center DeSom",
+    "naam_volledig": "Gemeenschappelijke Regeling Shared Service Center DeSom",
+    "url_slug": "Gemeenschappelijke_Regeling_Shared_Service_Center_DeSom"
+  },
+  "29529940": {
+    "naam": "Siteholderschap werelderfgoed Hollandse Waterlinies",
+    "naam_volledig": "Gemeenschappelijke regeling siteholderschap werelderfgoed Hollandse Waterlinies",
+    "url_slug": "Gemeenschappelijke_regeling_siteholderschap_werelderfgoed_Hollandse_Waterlinies"
+  },
+  "30303593": {
+    "naam": "Slibverwerking 2009",
+    "naam_volledig": "Gemeenschappelijke regeling Slibverwerking 2009",
+    "url_slug": "Gemeenschappelijke_regeling_Slibverwerking_2009"
+  },
+  "30352920": {
+    "naam": "SNN",
+    "naam_volledig": "Gemeenschappelijke Regeling SNN",
+    "url_slug": "Gemeenschappelijke_Regeling_SNN"
+  },
+  "28847885": {
+    "naam": "Sociaal",
+    "naam_volledig": "Gemeenschappelijke Regeling Sociaal",
+    "url_slug": "Gemeenschappelijke_Regeling_Sociaal"
+  },
+  "30241973": {
+    "naam": "Sociaal Werkleerbedrijf “Midden Twente”",
+    "naam_volledig": "Gemeenschappelijke Regeling Sociaal Werkleerbedrijf “Midden Twente”",
+    "url_slug": "Gemeenschappelijke_Regeling_Sociaal_Werkleerbedrijf_Midden_Twente"
+  },
+  "27164566": {
+    "naam": "Sociaal Werkvoorzieningsschap Zeeuwsch-Vlaanderen",
+    "naam_volledig": "Gemeenschappelijke regeling Sociaal Werkvoorzieningsschap Zeeuwsch-Vlaanderen",
+    "url_slug": "Gemeenschappelijke_regeling_Sociaal_Werkvoorzieningsschap_Zeeuwsch-Vlaanderen"
+  },
+  "29484672": {
+    "naam": "Voor Sociale Kredietverlening en Schuldhulpverlening in Limburg",
+    "naam_volledig": "Gemeenschappelijke Regeling voor Sociale Kredietverlening en Schuldhulpverlening in Limburg",
+    "url_slug": "Gemeenschappelijke_Regeling_voor_Sociale_Kredietverlening_en_Schuldhulpverlening_in_Limburg"
+  },
+  "29728321": {
+    "naam": "Sociale Recherche IJssel-Vechtstreek",
+    "naam_volledig": "Gemeenschappelijke Regeling Sociale Recherche IJssel-Vechtstreek",
+    "url_slug": "Gemeenschappelijke_Regeling_Sociale_Recherche_IJssel-Vechtstreek"
+  },
+  "26870268": {
+    "naam": "Sociale werkvoorziening Fryslân",
+    "naam_volledig": "Gemeenschappelijke regeling Sociale werkvoorziening Fryslân",
+    "url_slug": "Gemeenschappelijke_regeling_Sociale_werkvoorziening_Fryslan"
+  },
+  "29560633": {
+    "naam": "Regeling sociale werkvoorziening Zuid-Oost Utrecht",
+    "naam_volledig": "Regeling sociale werkvoorziening Zuid-Oost Utrecht",
+    "url_slug": "Regeling_sociale_werkvoorziening_Zuid-Oost_Utrecht"
+  },
+  "30092751": {
+    "naam": "Solido",
+    "naam_volledig": "Gemeenschappelijke regeling Solido",
+    "url_slug": "Gemeenschappelijke_regeling_Solido"
+  },
+  "24967838": {
+    "naam": "Sportpark Souburgh",
+    "naam_volledig": "Gemeenschappelijke Regeling Sportpark Souburgh",
+    "url_slug": "Gemeenschappelijke_Regeling_Sportpark_Souburgh"
+  },
+  "29641913": {
+    "naam": "Stadsbank Oost Nederland 2023",
+    "naam_volledig": "Gemeenschappelijke Regeling Stadsbank Oost Nederland 2023",
+    "url_slug": "Gemeenschappelijke_Regeling_Stadsbank_Oost_Nederland_2023"
+  },
+  "30006908": {
+    "naam": "Stadsgewest &#39;s Hertogenbosch",
+    "naam_volledig": "Gemeenschappelijke regeling Stadsgewest &#39;s Hertogenbosch",
+    "url_slug": "Gemeenschappelijke_regeling_Stadsgewest_s_Hertogenbosch"
+  },
+  "24967602": {
+    "naam": "Stadsgewestelijke brandweer",
+    "naam_volledig": "Gemeenschappelijke regeling stadsgewestelijke brandweer",
+    "url_slug": "Gemeenschappelijke_regeling_stadsgewestelijke_brandweer"
+  },
+  "29496578": {
+    "naam": "Stadsregio Parkstad Limburg",
+    "naam_volledig": "Gemeenschappelijke Regeling Stadsregio Parkstad Limburg",
+    "url_slug": "Gemeenschappelijke_Regeling_Stadsregio_Parkstad_Limburg"
+  },
+  "27230785": {
+    "naam": "Stark",
+    "naam_volledig": "Gemeenschappelijke Regeling Stark",
+    "url_slug": "Gemeenschappelijke_Regeling_Stark"
+  },
+  "24966255": {
+    "naam": "Stichting Primair Openbaar Onderwijs in de Regio Waterland en Oostzaan (SPOOR-raad)",
+    "naam_volledig": "Gemeenschappelijke regeling Stichting Primair Openbaar Onderwijs in de Regio Waterland en Oostzaan (SPOOR-raad)",
+    "url_slug": "Gemeenschappelijke_regeling_Stichting_Primair_Openbaar_Onderwijs_in_de_Regio_Waterland_en_Oostzaan_SPOOR-raad"
+  },
+  "29486633": {
+    "naam": "Streekarchief Langstraat Heusden Altena 2024",
+    "naam_volledig": "Gemeenschappelijke regeling Streekarchief Langstraat Heusden Altena 2024",
+    "url_slug": "Gemeenschappelijke_regeling_Streekarchief_Langstraat_Heusden_Altena_2024"
+  },
+  "30068827": {
+    "naam": "Regeling Streekarchief Midden-Holland",
+    "naam_volledig": "Regeling Streekarchief Midden-Holland",
+    "url_slug": "Regeling_Streekarchief_Midden-Holland"
+  },
+  "30150112": {
+    "naam": "Streekarchivariaat de Liemers en Doesburg",
+    "naam_volledig": "Gemeenschappelijke regeling Streekarchivariaat de Liemers en Doesburg",
+    "url_slug": "Gemeenschappelijke_regeling_Streekarchivariaat_de_Liemers_en_Doesburg"
+  },
+  "29942061": {
+    "naam": "Stroomopwaarts MVS",
+    "naam_volledig": "Gemeenschappelijke regeling Stroomopwaarts MVS",
+    "url_slug": "Gemeenschappelijke_regeling_Stroomopwaarts_MVS"
+  },
+  "24965188": {
+    "naam": "Subsidiëring ADV-Limburg",
+    "naam_volledig": "Gemeenschappelijke regeling subsidiëring ADV-Limburg",
+    "url_slug": "Gemeenschappelijke_regeling_subsidiering_ADV-Limburg"
+  },
+  "29750093": {
+    "naam": "SVHW 2023",
+    "naam_volledig": "Gemeenschappelijke Regeling SVHW 2023",
+    "url_slug": "Gemeenschappelijke_Regeling_SVHW_2023"
+  },
+  "28223317": {
+    "naam": "Technology Base",
+    "naam_volledig": "Gemeenschappelijke regeling Technology Base",
+    "url_slug": "Gemeenschappelijke_regeling_Technology_Base"
+  },
+  "30571866": {
+    "naam": "Ter bevordering democratische verankering raden en staten bij implementatie en uitvoering Nij Begun",
+    "naam_volledig": "Gemeenschappelijke regeling ter bevordering democratische verankering raden en staten bij implementatie en uitvoering Nij Begun",
+    "url_slug": "Gemeenschappelijke_regeling_ter_bevordering_democratische_verankering_raden_en_staten_bij_implementatie_en_uitvoering_Nij_Begun"
+  },
+  "29159831": {
+    "naam": "Regeling Toezicht op het Primair Openbaar Onderwijs",
+    "naam_volledig": "Regeling Toezicht op het Primair Openbaar Onderwijs",
+    "url_slug": "Regeling_Toezicht_op_het_Primair_Openbaar_Onderwijs"
+  },
+  "28839536": {
+    "naam": "Toezicht openbaar onderwijs gemeenten Bergen, Gennep en Land van Cuijk 2022",
+    "naam_volledig": "Gemeenschappelijke regeling toezicht openbaar onderwijs gemeenten Bergen, Gennep en Land van Cuijk 2022",
+    "url_slug": "Gemeenschappelijke_regeling_toezicht_openbaar_onderwijs_gemeenten_Bergen_Gennep_en_Land_van_Cuijk_2022"
+  },
+  "24965172": {
+    "naam": "Toezichthoudend orgaan openbaar primair onderwijs Olst-Wijhe en Raalte",
+    "naam_volledig": "Gemeenschappelijke regeling toezichthoudend orgaan openbaar primair onderwijs Olst-Wijhe en Raalte",
+    "url_slug": "Gemeenschappelijke_regeling_toezichthoudend_orgaan_openbaar_primair_onderwijs_Olst-Wijhe_en_Raalte"
+  },
+  "28474228": {
+    "naam": "Tresoar",
+    "naam_volledig": "Gemeenschappelijke regeling Tresoar",
+    "url_slug": "Gemeenschappelijke_regeling_Tresoar"
+  },
+  "30444676": {
+    "naam": "Tribuut belastingsamenwerking",
+    "naam_volledig": "Gemeenschappelijke Regeling Tribuut belastingsamenwerking",
+    "url_slug": "Gemeenschappelijke_Regeling_Tribuut_belastingsamenwerking"
+  },
+  "29592001": {
+    "naam": "Uitvoeringsorganisatie Baanbrekers",
+    "naam_volledig": "Gemeenschappelijke Regeling Uitvoeringsorganisatie Baanbrekers",
+    "url_slug": "Gemeenschappelijke_Regeling_Uitvoeringsorganisatie_Baanbrekers"
+  },
+  "29559644": {
+    "naam": "Uitvoeringsorganisatie Breedbandnetwerk Rivierenland",
+    "naam_volledig": "Gemeenschappelijke regeling Uitvoeringsorganisatie Breedbandnetwerk Rivierenland",
+    "url_slug": "Gemeenschappelijke_regeling_Uitvoeringsorganisatie_Breedbandnetwerk_Rivierenland"
+  },
+  "29324511": {
+    "naam": "Uitvoeringsorganisatie Laborijn",
+    "naam_volledig": "Gemeenschappelijke regeling Uitvoeringsorganisatie Laborijn",
+    "url_slug": "Gemeenschappelijke_regeling_Uitvoeringsorganisatie_Laborijn"
+  },
+  "30555770": {
+    "naam": "Het Utrechts Archief",
+    "naam_volledig": "Gemeenschappelijke regeling Het Utrechts Archief",
+    "url_slug": "Gemeenschappelijke_regeling_Het_Utrechts_Archief"
+  },
+  "29480503": {
+    "naam": "Voor Veilig Thuis Groningen",
+    "naam_volledig": "Gemeenschappelijke Regeling voor Veilig Thuis Groningen",
+    "url_slug": "Gemeenschappelijke_Regeling_voor_Veilig_Thuis_Groningen"
+  },
+  "30034849": {
+    "naam": "Veiligheids- en Gezondheidsregio Gelderland-Midden",
+    "naam_volledig": "Gemeenschappelijke Regeling Veiligheids- en Gezondheidsregio Gelderland-Midden",
+    "url_slug": "Gemeenschappelijke_Regeling_Veiligheids-_en_Gezondheidsregio_Gelderland-Midden"
+  },
+  "30573490": {
+    "naam": "Veiligheidsregio Amsterdam-Amstelland 2024",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Amsterdam-Amstelland 2024",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Amsterdam-Amstelland_2024"
+  },
+  "29491068": {
+    "naam": "Veiligheidsregio Brabant-Noord 2024",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Brabant-Noord 2024",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Brabant-Noord_2024"
+  },
+  "29786190": {
+    "naam": "Veiligheidsregio Drenthe",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Drenthe",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Drenthe"
+  },
+  "29486556": {
+    "naam": "Veiligheidsregio en Gemeentelijke Gezondheidsdienst Limburg-Noord",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio en Gemeentelijke Gezondheidsdienst Limburg-Noord",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_en_Gemeentelijke_Gezondheidsdienst_Limburg-Noord"
+  },
+  "29491919": {
+    "naam": "Veiligheidsregio Flevoland 2023",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Flevoland 2023",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Flevoland_2023"
+  },
+  "28442403": {
+    "naam": "Veiligheidsregio Fryslân",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Fryslân",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Fryslan"
+  },
+  "30495227": {
+    "naam": "Veiligheidsregio Gelderland-Zuid",
+    "naam_volledig": "Gemeenschappelijke Regeling Veiligheidsregio Gelderland-Zuid",
+    "url_slug": "Gemeenschappelijke_Regeling_Veiligheidsregio_Gelderland-Zuid"
+  },
+  "29491896": {
+    "naam": "Veiligheidsregio Gooi en Vechtstreek 2023",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Gooi en Vechtstreek 2023",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Gooi_en_Vechtstreek_2023"
+  },
+  "23862467": {
+    "naam": "Veiligheidsregio Groningen",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Groningen",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Groningen"
+  },
+  "30090871": {
+    "naam": "Veiligheidsregio Haaglanden 2025",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Haaglanden 2025",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Haaglanden_2025"
+  },
+  "30005176": {
+    "naam": "Veiligheidsregio Hollands Midden",
+    "naam_volledig": "Gemeenschappelijke Regeling Veiligheidsregio Hollands Midden",
+    "url_slug": "Gemeenschappelijke_Regeling_Veiligheidsregio_Hollands_Midden"
+  },
+  "29750042": {
+    "naam": "Veiligheidsregio IJsselland 2024",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio IJsselland 2024",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_IJsselland_2024"
+  },
+  "30152313": {
+    "naam": "Veiligheidsregio Kennemerland",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Kennemerland",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Kennemerland"
+  },
+  "29591210": {
+    "naam": "Veiligheidsregio Midden- en West-Brabant",
+    "naam_volledig": "Gemeenschappelijke Regeling Veiligheidsregio Midden- en West-Brabant",
+    "url_slug": "Gemeenschappelijke_Regeling_Veiligheidsregio_Midden-_en_West-Brabant"
+  },
+  "29560366": {
+    "naam": "Veiligheidsregio Noord- en Oost-Gelderland 2024",
+    "naam_volledig": "Gemeenschappelijke Regeling Veiligheidsregio Noord- en Oost-Gelderland 2024",
+    "url_slug": "Gemeenschappelijke_Regeling_Veiligheidsregio_Noord-_en_Oost-Gelderland_2024"
+  },
+  "29694430": {
+    "naam": "Veiligheidsregio Noord-Holland Noord",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Noord-Holland Noord",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Noord-Holland_Noord"
+  },
+  "29892834": {
+    "naam": "Voor de Veiligheidsregio Rotterdam-Rijnmond",
+    "naam_volledig": "Gemeenschappelijke Regeling Voor de Veiligheidsregio Rotterdam-Rijnmond",
+    "url_slug": "Gemeenschappelijke_Regeling_Voor_de_Veiligheidsregio_Rotterdam-Rijnmond"
+  },
+  "29515888": {
+    "naam": "Veiligheidsregio Twente",
+    "naam_volledig": "Gemeenschappelijke Regeling Veiligheidsregio Twente",
+    "url_slug": "Gemeenschappelijke_Regeling_Veiligheidsregio_Twente"
+  },
+  "28426877": {
+    "naam": "Veiligheidsregio Utrecht",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Utrecht",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Utrecht"
+  },
+  "29529652": {
+    "naam": "Veiligheidsregio Zaanstreek-Waterland",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Zaanstreek-Waterland",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Zaanstreek-Waterland"
+  },
+  "30257943": {
+    "naam": "Veiligheidsregio Zeeland 2025",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Zeeland 2025",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Zeeland_2025"
+  },
+  "29991089": {
+    "naam": "Veiligheidsregio Zuid-Holland Zuid (VRZHZ)",
+    "naam_volledig": "Gemeenschappelijke regeling Veiligheidsregio Zuid-Holland Zuid (VRZHZ)",
+    "url_slug": "Gemeenschappelijke_regeling_Veiligheidsregio_Zuid-Holland_Zuid_VRZHZ"
+  },
+  "29562392": {
+    "naam": "Veiligheidsregio Zuid-Limburg",
+    "naam_volledig": "Gemeenschappelijke Regeling Veiligheidsregio Zuid-Limburg",
+    "url_slug": "Gemeenschappelijke_Regeling_Veiligheidsregio_Zuid-Limburg"
+  },
+  "29786045": {
+    "naam": "Vervoerregio Amsterdam",
+    "naam_volledig": "Gemeenschappelijke regeling Vervoerregio Amsterdam",
+    "url_slug": "Gemeenschappelijke_regeling_Vervoerregio_Amsterdam"
+  },
+  "30402775": {
+    "naam": "Vidar Wsw",
+    "naam_volledig": "Gemeenschappelijke Regeling Vidar Wsw",
+    "url_slug": "Gemeenschappelijke_Regeling_Vidar_Wsw"
+  },
+  "28432513": {
+    "naam": "Volkskredietbank Noord-Oost Groningen",
+    "naam_volledig": "Gemeenschappelijke Regeling Volkskredietbank Noord-Oost Groningen",
+    "url_slug": "Gemeenschappelijke_Regeling_Volkskredietbank_Noord-Oost_Groningen"
+  },
+  "28516617": {
+    "naam": "Voorne-Putten Werkt 2017",
+    "naam_volledig": "Gemeenschappelijke regeling Voorne-Putten Werkt 2017",
+    "url_slug": "Gemeenschappelijke_regeling_Voorne-Putten_Werkt_2017"
+  },
+  "28842217": {
+    "naam": "Vuilafvoerbedrijf Duin- en Bollenstreek",
+    "naam_volledig": "Gemeenschappelijke regeling Vuilafvoerbedrijf Duin- en Bollenstreek",
+    "url_slug": "Gemeenschappelijke_regeling_Vuilafvoerbedrijf_Duin-_en_Bollenstreek"
+  },
+  "29728202": {
+    "naam": "Vuilverbrandingsinstallatie Alkmaar en omstreken",
+    "naam_volledig": "Gemeenschappelijke regeling vuilverbrandingsinstallatie Alkmaar en omstreken",
+    "url_slug": "Gemeenschappelijke_regeling_vuilverbrandingsinstallatie_Alkmaar_en_omstreken"
+  },
+  "30317788": {
+    "naam": "De Waddeneilanden 2024",
+    "naam_volledig": "Gemeenschappelijke regeling De Waddeneilanden 2024",
+    "url_slug": "Gemeenschappelijke_regeling_De_Waddeneilanden_2024"
+  },
+  "30512624": {
+    "naam": "Waddenfonds",
+    "naam_volledig": "Gemeenschappelijke regeling Waddenfonds",
+    "url_slug": "Gemeenschappelijke_regeling_Waddenfonds"
+  },
+  "29927030": {
+    "naam": "Waterlands Archief",
+    "naam_volledig": "Gemeenschappelijke Regeling Waterlands Archief",
+    "url_slug": "Gemeenschappelijke_Regeling_Waterlands_Archief"
+  },
+  "29469100": {
+    "naam": "Het Waterschapshuis",
+    "naam_volledig": "Gemeenschappelijke regeling Het Waterschapshuis",
+    "url_slug": "Gemeenschappelijke_regeling_Het_Waterschapshuis"
+  },
+  "28662754": {
+    "naam": "WEDEKA Bedrijven",
+    "naam_volledig": "Gemeenschappelijke regeling WEDEKA Bedrijven",
+    "url_slug": "Gemeenschappelijke_regeling_WEDEKA_Bedrijven"
+  },
+  "28445692": {
+    "naam": "Voor het Wegschap tunnel Dordtse Kil",
+    "naam_volledig": "Gemeenschappelijke regeling voor het Wegschap tunnel Dordtse Kil",
+    "url_slug": "Gemeenschappelijke_regeling_voor_het_Wegschap_tunnel_Dordtse_Kil"
+  },
+  "29515976": {
+    "naam": "Werk en Inkomen Lekstroom",
+    "naam_volledig": "Gemeenschappelijke regeling Werk en Inkomen Lekstroom",
+    "url_slug": "Gemeenschappelijke_regeling_Werk_en_Inkomen_Lekstroom"
+  },
+  "24963891": {
+    "naam": "Werk-/Leerbedrijf NoardEast Fryslân",
+    "naam_volledig": "Gemeenschappelijke Regeling Werk-/Leerbedrijf NoardEast Fryslân",
+    "url_slug": "Gemeenschappelijke_Regeling_Werk-Leerbedrijf_NoardEast_Fryslan"
+  },
+  "29575287": {
+    "naam": "Werkbedrijf Arbeid Voor Allen (WAVA) 2024",
+    "naam_volledig": "Gemeenschappelijke Regeling Werkbedrijf Arbeid Voor Allen (WAVA) 2024",
+    "url_slug": "Gemeenschappelijke_Regeling_Werkbedrijf_Arbeid_Voor_Allen_WAVA_2024"
+  },
+  "30241104": {
+    "naam": "Werkbedrijven Kust-, Duin- en Bollenstreek (GR KDB)",
+    "naam_volledig": "Gemeenschappelijke regeling werkbedrijven Kust-, Duin- en Bollenstreek (GR KDB)",
+    "url_slug": "Gemeenschappelijke_regeling_werkbedrijven_Kust-_Duin-_en_Bollenstreek_GR_KDB"
+  },
+  "29470760": {
+    "naam": "Werkgeversservicepunt Parkstad",
+    "naam_volledig": "Gemeenschappelijke Regeling Werkgeversservicepunt Parkstad",
+    "url_slug": "Gemeenschappelijke_Regeling_Werkgeversservicepunt_Parkstad"
+  },
+  "30471469": {
+    "naam": "Werkmaatschappij 8KTD",
+    "naam_volledig": "Gemeenschappelijke regeling Werkmaatschappij 8KTD",
+    "url_slug": "Gemeenschappelijke_regeling_Werkmaatschappij_8KTD"
+  },
+  "29576839": {
+    "naam": "Werkorganisatie BUCH",
+    "naam_volledig": "Gemeenschappelijke Regeling Werkorganisatie BUCH",
+    "url_slug": "Gemeenschappelijke_Regeling_Werkorganisatie_BUCH"
+  },
+  "29561427": {
+    "naam": "Werkorganisatie Druten Wijchen",
+    "naam_volledig": "Gemeenschappelijke Regeling Werkorganisatie Druten Wijchen",
+    "url_slug": "Gemeenschappelijke_Regeling_Werkorganisatie_Druten_Wijchen"
+  },
+  "29516249": {
+    "naam": "Werkorganisatie HLTsamen",
+    "naam_volledig": "Gemeenschappelijke Regeling werkorganisatie HLTsamen",
+    "url_slug": "Gemeenschappelijke_Regeling_werkorganisatie_HLTsamen"
+  },
+  "30242860": {
+    "naam": "Werkplein Drentsche Aa",
+    "naam_volledig": "Gemeenschappelijke regeling Werkplein Drentsche Aa",
+    "url_slug": "Gemeenschappelijke_regeling_Werkplein_Drentsche_Aa"
+  },
+  "29619579": {
+    "naam": "WerkSaam Westfriesland",
+    "naam_volledig": "Gemeenschappelijke Regeling WerkSaam Westfriesland",
+    "url_slug": "Gemeenschappelijke_Regeling_WerkSaam_Westfriesland"
+  },
+  "29892807": {
+    "naam": "Werkvoorzieningschap Fryslân-West",
+    "naam_volledig": "Gemeenschappelijke regeling werkvoorzieningschap Fryslân-West",
+    "url_slug": "Gemeenschappelijke_regeling_werkvoorzieningschap_Fryslan-West"
+  },
+  "29118157": {
+    "naam": "Werkvoorzieningschap IJsselmeergroep 2020",
+    "naam_volledig": "Gemeenschappelijke Regeling Werkvoorzieningschap IJsselmeergroep 2020",
+    "url_slug": "Gemeenschappelijke_Regeling_Werkvoorzieningschap_IJsselmeergroep_2020"
+  },
+  "24967413": {
+    "naam": "Werkvoorzieningschap Noord-Limburg West",
+    "naam_volledig": "Gemeenschappelijke Regeling Werkvoorzieningschap Noord-Limburg West",
+    "url_slug": "Gemeenschappelijke_Regeling_Werkvoorzieningschap_Noord-Limburg_West"
+  },
+  "30470992": {
+    "naam": "Werkvoorzieningschap Noordoost-Brabant",
+    "naam_volledig": "Gemeenschappelijke regeling Werkvoorzieningschap Noordoost-Brabant",
+    "url_slug": "Gemeenschappelijke_regeling_Werkvoorzieningschap_Noordoost-Brabant"
+  },
+  "29470729": {
+    "naam": "Werkvoorzieningschap Oostelijk Zuid Limburg",
+    "naam_volledig": "Gemeenschappelijke Regeling Werkvoorzieningschap Oostelijk Zuid Limburg",
+    "url_slug": "Gemeenschappelijke_Regeling_Werkvoorzieningschap_Oostelijk_Zuid_Limburg"
+  },
+  "29495866": {
+    "naam": "Werkvoorzieningschap Regio Eindhoven",
+    "naam_volledig": "Gemeenschappelijke Regeling Werkvoorzieningschap Regio Eindhoven",
+    "url_slug": "Gemeenschappelijke_Regeling_Werkvoorzieningschap_Regio_Eindhoven"
+  },
+  "28583319": {
+    "naam": "Werkvoorzieningschap Risse Groep",
+    "naam_volledig": "Gemeenschappelijke regeling Werkvoorzieningschap Risse Groep",
+    "url_slug": "Gemeenschappelijke_regeling_Werkvoorzieningschap_Risse_Groep"
+  },
+  "29649646": {
+    "naam": "Werkvoorzieningschap Venlo en omstreken",
+    "naam_volledig": "Gemeenschappelijke regeling werkvoorzieningschap Venlo en omstreken",
+    "url_slug": "Gemeenschappelijke_regeling_werkvoorzieningschap_Venlo_en_omstreken"
+  },
+  "29528928": {
+    "naam": "Werkvoorzieningsschap Tomingroep",
+    "naam_volledig": "Gemeenschappelijke regeling Werkvoorzieningsschap Tomingroep",
+    "url_slug": "Gemeenschappelijke_regeling_Werkvoorzieningsschap_Tomingroep"
+  },
+  "28562183": {
+    "naam": "Werkzaak Rivierenland",
+    "naam_volledig": "Gemeenschappelijke Regeling Werkzaak Rivierenland",
+    "url_slug": "Gemeenschappelijke_Regeling_Werkzaak_Rivierenland"
+  },
+  "29529865": {
+    "naam": "West-Brabants Archief",
+    "naam_volledig": "Gemeenschappelijke Regeling West-Brabants Archief",
+    "url_slug": "Gemeenschappelijke_Regeling_West-Brabants_Archief"
+  },
+  "29924106": {
+    "naam": "Westfries Archief, Regionaal Historisch Centrum voor West-Friesland",
+    "naam_volledig": "Gemeenschappelijke regeling Westfries Archief, Regionaal Historisch Centrum voor West-Friesland",
+    "url_slug": "Gemeenschappelijke_regeling_Westfries_Archief_Regionaal_Historisch_Centrum_voor_West-Friesland"
+  },
+  "30481954": {
+    "naam": "Westrom",
+    "naam_volledig": "Gemeenschappelijke Regeling Westrom",
+    "url_slug": "Gemeenschappelijke_Regeling_Westrom"
+  },
+  "30158285": {
+    "naam": "WSD",
+    "naam_volledig": "Gemeenschappelijke regeling WSD",
+    "url_slug": "Gemeenschappelijke_regeling_WSD"
+  },
+  "29502107": {
+    "naam": "WVS",
+    "naam_volledig": "Gemeenschappelijke Regeling WVS",
+    "url_slug": "Gemeenschappelijke_Regeling_WVS"
+  },
+  "29516095": {
+    "naam": "Zaffier",
+    "naam_volledig": "Gemeenschappelijke regeling Zaffier",
+    "url_slug": "Gemeenschappelijke_regeling_Zaffier"
+  },
+  "30504482": {
+    "naam": "Zeeuws archief",
+    "naam_volledig": "Gemeenschappelijke regeling Zeeuws archief",
+    "url_slug": "Gemeenschappelijke_regeling_Zeeuws_archief"
+  },
+  "30500968": {
+    "naam": "De Zeeuwse Muziekschool",
+    "naam_volledig": "Gemeenschappelijke Regeling de Zeeuwse Muziekschool",
+    "url_slug": "Gemeenschappelijke_Regeling_de_Zeeuwse_Muziekschool"
+  },
+  "28128324": {
+    "naam": "Zonder Meer",
+    "naam_volledig": "Gemeenschappelijke regeling Zonder Meer",
+    "url_slug": "Gemeenschappelijke_regeling_Zonder_Meer"
+  },
+  "29404550": {
+    "naam": "Zonder Meer Maatschappelijke Zorg Duin- en Bollenstreek",
+    "naam_volledig": "Gemeenschappelijke regeling Zonder Meer Maatschappelijke Zorg Duin- en Bollenstreek",
+    "url_slug": "Gemeenschappelijke_regeling_Zonder_Meer_Maatschappelijke_Zorg_Duin-_en_Bollenstreek"
+  },
+  "29445598": {
+    "naam": "Zorg- en Veiligheidshuis Parkstad",
+    "naam_volledig": "Gemeenschappelijke regeling Zorg- en Veiligheidshuis Parkstad",
+    "url_slug": "Gemeenschappelijke_regeling_Zorg-_en_Veiligheidshuis_Parkstad"
+  },
+  "29576053": {
+    "naam": "Zuidelijke Rekenkamer Noord-Brabant en Limburg 2024",
+    "naam_volledig": "Gemeenschappelijke regeling Zuidelijke Rekenkamer Noord-Brabant en Limburg 2024",
+    "url_slug": "Gemeenschappelijke_regeling_Zuidelijke_Rekenkamer_Noord-Brabant_en_Limburg_2024"
+  }
+}

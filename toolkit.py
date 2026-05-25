@@ -12,6 +12,8 @@ Gebruik:
     python3 toolkit.py check                 controleer installatie
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sqlite3
@@ -23,6 +25,10 @@ from pathlib import Path
 
 TOOLKIT_MAP = Path(__file__).parent
 PYTHON = sys.executable
+
+BRONNEN_MAP             = TOOLKIT_MAP / "bronnen"
+GR_INDEX_PAD            = BRONNEN_MAP / "regelingen_overheid.json"
+VEROUDERD_DREMPEL_DAGEN = 180  # 6 maanden
 
 
 def _lees_config() -> dict:
@@ -434,6 +440,55 @@ def ververs_notubiz_catalogus():
 
 # ── GR-detectie via overheid.nl ───────────────────────────────────────────────
 
+# ── Brondata-beheer ───────────────────────────────────────────────────────────
+
+def _brondata_leeftijd_dagen():
+    """Geef het aantal dagen sinds de laatste GR-index-update, of None als onbekend."""
+    if not GR_INDEX_PAD.exists():
+        return None
+    try:
+        data = json.loads(GR_INDEX_PAD.read_text(encoding="utf-8"))
+        gegenereerd = data.get("_gegenereerd", "")
+        if gegenereerd:
+            dt = datetime.strptime(gegenereerd, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            return (datetime.now(timezone.utc) - dt).days
+    except Exception:
+        pass
+    return None
+
+
+def _controleer_brondata():
+    """Waarschuw als de GR-index verouderd is en bied aan om bij te werken."""
+    dagen = _brondata_leeftijd_dagen()
+    if dagen is None or dagen < VEROUDERD_DREMPEL_DAGEN:
+        return
+
+    maanden = round(dagen / 30)
+    print()
+    print(f"  Let op: de GR-index is {maanden} maanden oud.")
+    print(f"  Nieuwe of hernoemde gemeenschappelijke regelingen worden")
+    print(f"  mogelijk niet herkend. Bijwerken duurt enkele seconden.")
+    print()
+    antwoord = input("  Nu bijwerken? (j/n) [j]: ").strip().lower() or "j"
+    if antwoord == "j":
+        brondata_bijwerken(stil=False)
+    else:
+        print()
+
+
+def brondata_bijwerken(stil=False):
+    """Ververs de GR-index en vul ontbrekende overheid_ids bij in regelingen.json."""
+    if not stil:
+        print()
+        print("  Brondata bijwerken…")
+    script = TOOLKIT_MAP / "bouw_gr_index.py"
+    result = subprocess.run([PYTHON, str(script), "--update-catalogus"])
+    if result.returncode != 0 and not stil:
+        print("  ! Bijwerken mislukt. Controleer je internetverbinding.")
+    if not stil:
+        print()
+
+
 def haal_grs_voor_gemeente(slug: str) -> list[dict]:
     """Haal de GRs op waaraan een gemeente deelneemt via organisaties.overheid.nl."""
     mapping_pad = TOOLKIT_MAP / "bronnen" / "gemeenten_overheid.json"
@@ -457,6 +512,18 @@ def haal_grs_voor_gemeente(slug: str) -> list[dict]:
     except Exception:
         return []
 
+    # Laad GR-index voor nette namen (indien beschikbaar)
+    gr_index = {}
+    if GR_INDEX_PAD.exists():
+        try:
+            gr_index = {
+                k: v for k, v in
+                json.loads(GR_INDEX_PAD.read_text(encoding="utf-8")).items()
+                if not k.startswith("_")
+            }
+        except Exception:
+            pass
+
     # Haal alle GR-links op (/samenwerkingen/ID/Naam/)
     grs = []
     for m in re.finditer(
@@ -464,9 +531,15 @@ def haal_grs_voor_gemeente(slug: str) -> list[dict]:
         html
     ):
         overheid_gr_id, slug_raw = m.group(1), m.group(2)
-        naam = re.sub(r"_+", " ", slug_raw).strip()
-        naam = re.sub(r"^Gemeenschappelijk[e]?\s+[Rr]egeling\s+", "", naam)
-        naam = naam[0].upper() + naam[1:] if naam else naam
+
+        # Gebruik de index voor een nette naam; val terug op URL-afleiding
+        if overheid_gr_id in gr_index:
+            naam = gr_index[overheid_gr_id]["naam"]
+        else:
+            naam = re.sub(r"_+", " ", slug_raw).strip()
+            naam = re.sub(r"^Gemeenschappelijk[e]?\s+[Rr]egeling\s+", "", naam)
+            naam = naam[0].upper() + naam[1:] if naam else naam
+
         gr_slug = re.sub(r"^gemeenschappelijk[e]?-regeling-", "", slug_raw.lower().replace("_", "-"))
         grs.append({
             "slug": gr_slug,
@@ -1717,6 +1790,8 @@ def verkennen(args: list):
         print("\nGebruik: python3 toolkit.py verkennen <gemeente>\n")
         return
 
+    _controleer_brondata()
+
     gemeente = args[0].lower()
     naam = gemeente.capitalize()
 
@@ -2067,7 +2142,9 @@ def main():
             print(HELP_ALGEMEEN)
         return
 
-    if commando == "verkennen":
+    if commando == "brondata-bijwerken":
+        brondata_bijwerken()
+    elif commando == "verkennen":
         verkennen(rest)
     elif commando == "nieuw-dossier":
         nieuw_dossier()

@@ -277,6 +277,19 @@ def haal_grs_overheid(gemeente_slug: str) -> list:
     except Exception:
         return []
 
+    # Laad de volledige GR-index voor naamopzoek (indien beschikbaar)
+    gr_index = {}
+    gr_index_pad = BRONNEN_MAP / "regelingen_overheid.json"
+    if gr_index_pad.exists():
+        try:
+            gr_index = {
+                k: v for k, v in
+                json.loads(gr_index_pad.read_text(encoding="utf-8")).items()
+                if not k.startswith("_")
+            }
+        except Exception:
+            pass
+
     grs  = []
     seen = set()
     for m in re.finditer(r'href="[^"]*?/samenwerkingen/(\d+)/([^/"]+)/"', html):
@@ -285,9 +298,15 @@ def haal_grs_overheid(gemeente_slug: str) -> list:
             continue
         seen.add(overheid_gr_id)
         slug_raw = m.group(2)
-        naam = re.sub(r"_+", " ", slug_raw).strip()
-        naam = re.sub(r"^Gemeenschappelijk[e]?\s+[Rr]egeling\s+", "", naam)
-        naam = naam[0].upper() + naam[1:] if naam else naam
+
+        # Gebruik de GR-index voor een nette naam; val terug op URL-afleiding
+        if overheid_gr_id in gr_index:
+            naam = gr_index[overheid_gr_id]["naam"]
+        else:
+            naam = re.sub(r"_+", " ", slug_raw).strip()
+            naam = re.sub(r"^Gemeenschappelijk[e]?\s+[Rr]egeling\s+", "", naam)
+            naam = naam[0].upper() + naam[1:] if naam else naam
+
         gr_slug = slug_raw.lower().replace("_", "-")
         gr_slug = re.sub(r"^gemeenschappelijk[e]?-regeling-", "", gr_slug)
         grs.append({"naam": naam, "slug": gr_slug, "overheid_id": overheid_gr_id})
@@ -423,7 +442,7 @@ def api_scrapen_start():
     if not scraper:
         return jsonify({"fout": f"Onbekend type: {org_type}"}), 400
 
-    jaren = max(1, (periode + 11) // 12)
+    jaren = round(periode / 12, 4)          # bijv. 6 mnd → 0.5, 18 mnd → 1.5
     cmd   = [PYTHON, str(scraper), orgaan, "--jaren", str(jaren)]
     if simuleer:
         cmd.append("--droog")
@@ -565,7 +584,7 @@ def api_verkennen():
                       if not k.startswith("_")}
             for slug, info in vr_cfg.items():
                 if gemeente in info.get("gemeenten", []):
-                    veiligheidsregio = info.get("naam", slug)
+                    veiligheidsregio = {"naam": info.get("naam", slug), "slug": slug}
                     break
         except Exception:
             pass
@@ -579,7 +598,7 @@ def api_verkennen():
                         if not k.startswith("_")}
             for slug, info in prov_cfg.items():
                 if gemeente in info.get("gemeenten", []):
-                    provincie = info.get("naam", slug)
+                    provincie = {"naam": info.get("naam", slug), "slug": slug}
                     break
         except Exception:
             pass
@@ -593,19 +612,24 @@ def api_verkennen():
                 if slug.startswith("_"):
                     continue
                 if gemeente in info.get("gemeenten", []):
-                    waterschappen.append(info.get("naam", slug))
+                    waterschappen.append({"naam": info.get("naam", slug), "slug": slug})
         except Exception:
             pass
 
     # Gemeenschappelijke regelingen — live via overheid.nl, catalogus als vlag
     reg_pad = BRONNEN_MAP / "regelingen.json"
-    catalogus_slugs = set()
+    catalogus_slugs      = set()           # slug → aanwezig
+    catalogus_namen      = {}              # slug → naam
+    catalogus_overheid_ids = {}            # overheid_id (str) → catalog-slug
     if reg_pad.exists():
         try:
             for slug, info in json.loads(reg_pad.read_text(encoding="utf-8")).items():
                 if not slug.startswith("_") and isinstance(info, dict):
                     if gemeente in info.get("gemeenten", []):
                         catalogus_slugs.add(slug)
+                        catalogus_namen[slug] = info.get("naam", slug)
+                        if "overheid_id" in info:
+                            catalogus_overheid_ids[str(info["overheid_id"])] = slug
         except Exception:
             pass
 
@@ -613,14 +637,18 @@ def api_verkennen():
     live_grs = haal_grs_overheid(gemeente)
 
     if live_grs:
-        regelingen_lijst = [
-            {
-                "naam":        gr["naam"],
-                "slug":        gr["slug"],
-                "in_catalogus": gr["slug"] in catalogus_slugs,
-            }
-            for gr in live_grs
-        ]
+        regelingen_lijst = []
+        for gr in live_grs:
+            # Match op overheid_id (betrouwbaar) of slug (als fallback)
+            cat_slug = catalogus_overheid_ids.get(str(gr["overheid_id"]))
+            if cat_slug is None and gr["slug"] in catalogus_slugs:
+                cat_slug = gr["slug"]
+            in_cat = cat_slug is not None
+            regelingen_lijst.append({
+                "naam":        catalogus_namen.get(cat_slug, gr["naam"]) if in_cat else gr["naam"],
+                "slug":        cat_slug if in_cat else gr["slug"],
+                "in_catalogus": in_cat,
+            })
     else:
         # Fallback: alleen wat in onze catalogus staat
         regelingen_lijst = []
