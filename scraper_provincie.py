@@ -20,6 +20,8 @@ Output: ~/Documents/notulen/provincies/<naam>/
 Vereisten: geen externe bibliotheken (alleen standaard Python 3)
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sys

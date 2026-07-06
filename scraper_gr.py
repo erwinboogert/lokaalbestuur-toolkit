@@ -31,6 +31,8 @@ Output: ~/Documents/notulen/regelingen/<naam>/
 Vereisten: geen externe bibliotheken (alleen standaard Python 3)
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sys
