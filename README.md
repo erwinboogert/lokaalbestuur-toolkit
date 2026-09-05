@@ -104,6 +104,16 @@ Lees context.md
 
 Claude leest de briefing en weet meteen welke bronnen er zijn en hoe hij moet zoeken. Stel daarna je vraag. Zie `prompts/vrije-vraag.md` voor een sjabloon.
 
+**Met een andere AI (NotebookLM, ChatGPT, Claude via de webapp):**
+
+Geen Claude Code geïnstalleerd, of liever in de browser werken? Dan mis je de automatische zoekindex en de directe toegang tot je bestandssysteem, maar je kunt de contextbriefing en de PDF's zelf meegeven aan een andere AI:
+
+- **NotebookLM (Google)** — upload `context.md` en de gedownloade PDF's als bronnen in een notebook. NotebookLM beantwoordt vragen uitsluitend op basis van die documenten en citeert per antwoord de bronpagina, wat nuttig is voor herleidbaarheid in journalistiek werk.
+- **Claude via de webapp of Cowork (claude.ai)** — upload dezelfde bestanden in een project of gesprek en begin met: "Lees eerst context.md, dat beschrijft welke bronnen dit zijn en hoe ze samenhangen." Handig als je met een team wilt samenwerken of niet vanaf de terminal wilt werken.
+- **ChatGPT (OpenAI)** — upload de PDF's en `context.md` rechtstreeks in een gesprek, of — met een betaald abonnement — in een "Project" zodat ze voor meerdere gesprekken beschikbaar blijven. Anders dan NotebookLM citeert ChatGPT niet standaard de bronpagina per antwoord; vraag daar expliciet om als herleidbaarheid belangrijk is.
+
+Stel je vraag net als bij Claude Code in gewone taal (zie `prompts/vrije-vraag.md` voor een sjabloon) — het verschil is alleen dat je de bestanden zelf moet uploaden in plaats van dat de AI ze rechtstreeks van schijf leest. Let op: geen van deze drie kan zelf nieuwe stukken downloaden of de zoekindex bijwerken zoals Claude Code dat kan — dat blijft de rol van de scrapers en `index.py`. Bij veel documenten (meerdere jaren of meerdere organen) werkt het bovendien prettiger om per dossier een apart gesprek of project te openen dan alles in één keer te uploaden.
+
 Het verschil: zonder AI krijg je treffers op trefwoorden. Met Claude Code kun je vragen stellen als: "welke besluiten over jeugdhulp zijn er genomen in de afgelopen drie jaar, en wat ontbreekt er in de verantwoording?" — en Claude leest zelf de relevante stukken.
 
 ---
