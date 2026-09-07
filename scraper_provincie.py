@@ -1,12 +1,19 @@
 """
 Scraper voor vergaderstukken van Nederlandse provincies
-Bronnen: Open Raadsinformatie API (osi_-prefix) en Notubiz API
+Bronnen: Open Raadsinformatie API (osi_-prefix), Notubiz API en het publieke
+iBabs-portaal (bestuurlijkeinformatie.nl)
 
 Provincies zijn democratisch gekozen bestuursorganen verantwoordelijk voor
 ruimtelijke ordening, natuur, infrastructuur en regionaal economisch beleid.
-Hun vergaderingen zijn openbaar. 8 van de 12 provincies zijn ontsloten via
-de ORI API, 2 via Notubiz, en 2 (Drenthe, Zeeland) hebben geen
-geautomatiseerde bron.
+Hun vergaderingen zijn openbaar. 11 van de 12 provincies zijn geautomatiseerd
+ontsloten: 8 via de ORI API, 1 via Notubiz (Gelderland), 2 via het publieke
+iBabs-portaal (Zeeland, Noord-Brabant — Noord-Brabant's Notubiz-feed viel op
+onbekende datum stil zonder foutmelding, zie de _opmerking bij noord-brabant
+in provincies.json). Alleen Drenthe heeft geen geautomatiseerde bron.
+
+Deze scraper haalt Provinciale Staten, Statencommissies en overige
+commissies op — niet Gedeputeerde Staten (het dagelijks bestuur). Daarvoor:
+python3 scraper_gs.py <provincie> (aparte bron, meestal geen vergaderportaal).
 
 Gebruik:
     python3 scraper_provincie.py zuid-holland           # download vergaderstukken
@@ -32,8 +39,8 @@ from api import (
     setup_logging, log, log_samenvatting, vraag_doorzoekbaar_maken, parse_jaren_arg,
     toon_deelnemende_gemeenten,
     alle_indices,
-    haal_vergaderingen_ori, haal_vergaderingen_notubiz,
-    download_vergaderingen_ori, download_vergaderingen_notubiz,
+    haal_vergaderingen_ori, haal_vergaderingen_notubiz, haal_vergaderingen_ibabs_portaal,
+    download_vergaderingen_ori, download_vergaderingen_notubiz, download_vergaderingen_ibabs,
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -42,7 +49,6 @@ from api import (
 
 STANDAARD_VERGADERTYPEN = {
     "provinciale staten":   True,
-    "gedeputeerde staten":  True,
     "statencommissie":      True,
     "commissie":            True,
 }
@@ -109,6 +115,8 @@ def lijst_provincies():
             bron = f"ori: osi_{data['ori_index']}"
         elif "notubiz_id" in data:
             bron = f"notubiz: id {data['notubiz_id']}"
+        elif "ibabs_naam" in data:
+            bron = f"ibabs: {data['ibabs_naam']}"
         else:
             bron = data.get("brontype", "geen")
         print(f"  {slug:<25} {naam:<30} ({bron})")
@@ -192,6 +200,25 @@ def main():
             log(f"Actieve types: {', '.join(k for k, v in vergadertypen.items() if v)}")
 
         nieuw, overgeslagen, fouten = download_vergaderingen_notubiz(
+            vergaderingen, output_map, droog)
+        log_samenvatting(nieuw, overgeslagen, fouten, output_map)
+        if not droog:
+            vraag_doorzoekbaar_maken(nieuw, output_map)
+        toon_deelnemende_gemeenten("provincie", naam)
+        return
+
+    # iBabs Publieksportaal
+    ibabs_naam = config.get("ibabs_naam")
+    if ibabs_naam:
+        log(f"Bron: iBabs Publieksportaal (sitename={ibabs_naam})")
+        vergaderingen = haal_vergaderingen_ibabs_portaal(
+            ibabs_naam, vergadertypen, terugkijk_dagen=terugkijk_dagen)
+        log(f"{len(vergaderingen)} vergaderingen gevonden")
+        if not vergaderingen:
+            log("Geen vergaderingen gevonden met de geconfigureerde vergadertypen.")
+            log(f"Actieve types: {', '.join(k for k, v in vergadertypen.items() if v)}")
+
+        nieuw, overgeslagen, fouten = download_vergaderingen_ibabs(
             vergaderingen, output_map, droog)
         log_samenvatting(nieuw, overgeslagen, fouten, output_map)
         if not droog:

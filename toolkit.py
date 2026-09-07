@@ -23,7 +23,7 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-from api import haal_bestuurlijke_context, haal_grs_voor_gemeente
+from api import haal_bestuurlijke_context, haal_grs_voor_gemeente, GS_EIGEN_WEBSITE_BACKENDS
 
 TOOLKIT_MAP = Path(__file__).parent
 PYTHON = sys.executable
@@ -257,6 +257,16 @@ def _toon_bronnen_status():
             )
             if n_prov:
                 regels.append(f"  Provincies      {n_prov} gedownload")
+
+            n_gs = sum(
+                1 for k, v in prov_cfg.items()
+                if not k.startswith("_")
+                and (OUTPUT_BASIS / "gs" / k).exists()
+                and (any((OUTPUT_BASIS / "gs" / k).rglob("*.pdf"))
+                     or any((OUTPUT_BASIS / "gs" / k).rglob("*.txt")))
+            )
+            if n_gs:
+                regels.append(f"  Gedeputeerde St. {n_gs} gedownload")
         except Exception:
             pass
 
@@ -765,7 +775,7 @@ def nieuwe_provincie():
 
     provincies = {k: v for k, v in config.items() if not k.startswith("_")}
     beschikbaar = [(s, p) for s, p in sorted(provincies.items())
-                   if p.get("ori_index") or p.get("notubiz_id")]
+                   if p.get("ori_index") or p.get("notubiz_id") or p.get("ibabs_naam")]
 
     if not beschikbaar:
         print("  Geen provincies met geautomatiseerde bron gevonden.")
@@ -778,6 +788,8 @@ def nieuwe_provincie():
             bron = "ORI"
         elif "notubiz_id" in info:
             bron = "Notubiz"
+        elif "ibabs_naam" in info:
+            bron = "iBabs"
         else:
             bron = "?"
         print(f"    {i:2}.  {naam:<30} ({bron})")
@@ -810,7 +822,8 @@ def scrape_provincies():
         return
 
     provincies = {k: v for k, v in config.items()
-                  if not k.startswith("_") and (v.get("ori_index") or v.get("notubiz_id"))}
+                  if not k.startswith("_")
+                  and (v.get("ori_index") or v.get("notubiz_id") or v.get("ibabs_naam"))}
     if not provincies:
         print("\nGeen provincies met geautomatiseerde bron geconfigureerd.\n")
         return
@@ -819,6 +832,38 @@ def scrape_provincies():
     for slug in provincies:
         print(f"  → {slug}")
         subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper_provincie.py"), slug])
+        print()
+
+
+def scrape_gs():
+    """Download nieuwe GS-besluiten voor alle provincies met een geautomatiseerde bron."""
+    pad = TOOLKIT_MAP / "bronnen" / "provincies.json"
+    if not pad.exists():
+        print("\nGeen bronnen/provincies.json gevonden.\n")
+        return
+    try:
+        config = json.loads(pad.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"\nFout bij lezen provincies.json: {e}\n")
+        return
+
+    slugs = []
+    for slug, info in config.items():
+        if slug.startswith("_"):
+            continue
+        gs = info.get("gs", {})
+        heeft_bron = any(gs.get(v) for v in ("notubiz_id", "ibabs_naam"))
+        if heeft_bron or gs.get("backend") in GS_EIGEN_WEBSITE_BACKENDS:
+            slugs.append(slug)
+
+    if not slugs:
+        print("\nGeen provincies met geautomatiseerde GS-bron geconfigureerd.\n")
+        return
+
+    print(f"\n{len(slugs)} provincies (GS) scrapen…\n")
+    for slug in slugs:
+        print(f"  → {slug}")
+        subprocess.run([PYTHON, str(TOOLKIT_MAP / "scraper_gs.py"), slug])
         print()
 
 
@@ -891,6 +936,7 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list, gevon
                 "waterschap": "Waterschap",
                 "veiligheidsregio": "Veiligheidsregio",
                 "provincie": "Provincie",
+                "gs": "Gedeputeerde Staten",
             }
             label = type_labels.get(b["type"], b["type"])
             regels.append(f"**{b['naam']}** ({label}) — {b['n_docs']} documenten")
@@ -901,7 +947,7 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list, gevon
                     f"`python3 {TOOLKIT_MAP}/index.py {gemeente} \"zoekterm\"`"
                 )
             else:
-                regels.append("- Lees PDF's direct via Read-tool of Bash")
+                regels.append("- Lees documenten direct via Read-tool of Bash (meestal PDF, GS-Utrecht is platte tekst)")
             regels.append("")
 
     regels.append("### Domeinkennis over de bronnen")
@@ -926,7 +972,10 @@ def _genereer_briefing(gemeente: str, beschikbaar: list, ontbrekend: list, gevon
     regels.append(
         "Provincies zijn relevant bij: ruimtelijke ordening, natuur en stikstof, "
         "woningbouwafspraken, regionale infrastructuur (wegen, OV), economisch beleid, "
-        "energietransitie, cultureel erfgoed en interbestuurlijk toezicht op gemeenten."
+        "energietransitie, cultureel erfgoed en interbestuurlijk toezicht op gemeenten. "
+        "Provinciale Staten stelt kaders en controleert; Gedeputeerde Staten (het "
+        "dagelijks bestuur, aparte bron via scraper_gs.py) voert uit — vergunningen, "
+        "subsidies, grondaankoop, contracten. Niet elk GS-besluit is openbaar."
     )
     regels.append("")
 
@@ -1203,7 +1252,7 @@ def onderzoek(args: list):
                 gevonden_grs.append({"naam": m.group(1), "vermeldingen": int(m.group(2))})
 
     # Map context-items naar beschikbaar/ontbrekend lijsten
-    for orgaan_type in ("gr", "waterschap", "veiligheidsregio", "provincie"):
+    for orgaan_type in ("gr", "waterschap", "veiligheidsregio", "provincie", "gs"):
         for item in context[orgaan_type]:
             if item["gedownload"]:
                 beschikbaar.append({
@@ -1671,6 +1720,10 @@ def verkennen(args: list):
     else:
         print(f"  Provincie         niet gevonden in catalogus")
 
+    if context["gs"]:
+        for gs in context["gs"]:
+            print(f"  Gedeputeerde St.  {gs['naam']} ({_status_label(gs)})")
+
     if context["veiligheidsregio"]:
         for v in context["veiligheidsregio"]:
             print(f"  Veiligheidsregio  {v['naam']} ({_status_label(v)})")
@@ -1780,7 +1833,8 @@ Lokaalbestuur Toolkit — download en doorzoek vergaderstukken van Nederlandse o
 Werkwijze voor een nieuwe gemeente:
   1. python3 toolkit.py verkennen <gemeente>   toon provincie, VR, GRs en waterschap
   2. python3 scraper.py <gemeente>             raadsdocumenten downloaden
-  3. python3 scraper_provincie.py <slug>       optioneel: provincie
+  3. python3 scraper_provincie.py <slug>       optioneel: provincie (Provinciale Staten)
+     python3 scraper_gs.py <slug>              optioneel: Gedeputeerde Staten van die provincie
      python3 scraper_vr.py <slug>              optioneel: veiligheidsregio
      python3 scraper_gr.py <slug>              optioneel: gemeenschappelijke regeling
      python3 scraper_waterschap.py <slug>      optioneel: waterschap
@@ -1810,10 +1864,15 @@ Veiligheidsregio's (scraper_vr.py):
   python3 scraper_vr.py --welke <gemeente>    welke VR hoort bij deze gemeente?
   python3 scraper_vr.py <slug>                download vergaderstukken
 
-Provincies (scraper_provincie.py):
+Provincies (scraper_provincie.py — Provinciale Staten):
   python3 scraper_provincie.py --lijst         toon alle provincies en hun bron
   python3 scraper_provincie.py --lijst-ori     toon provincies in ORI API
   python3 scraper_provincie.py <slug>          download vergaderstukken
+
+Gedeputeerde Staten (scraper_gs.py — dagelijks bestuur van een provincie):
+  python3 scraper_gs.py --lijst                toon GS-status per provincie
+  python3 scraper_gs.py <slug>                 download GS-besluiten
+  python3 toolkit.py scrape-gs                 alle geconfigureerde GS-bronnen bijwerken
 
 Typ 'python3 toolkit.py <commando> --help' voor meer informatie over een commando.
 """
@@ -1966,6 +2025,8 @@ def main():
         nieuwe_provincie()
     elif commando == "scrape-provincies":
         scrape_provincies()
+    elif commando == "scrape-gs":
+        scrape_gs()
     elif commando == "onderzoek":
         onderzoek(rest)
     elif commando == "scrape":

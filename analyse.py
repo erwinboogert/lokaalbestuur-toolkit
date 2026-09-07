@@ -23,6 +23,8 @@ Standaard map voor documenten: ~/Documents/notulen/<orgaan>/
 Gebruik --docs-map om een andere map op te geven.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import subprocess

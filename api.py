@@ -16,9 +16,11 @@ import logging
 import re
 import subprocess
 import sys
+import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
+from html import unescape as html_unescape
 from pathlib import Path
 
 
@@ -423,6 +425,122 @@ def haal_vergaderingen_ibabs(sitename: str, vergadertypen: dict[str, bool],
     return vergaderingen
 
 
+# ── iBabs Publieksportaal (HTML, gebruikt voor Gedeputeerde Staten) ─────────
+#
+# Naast de SOAP-API hierboven heeft iBabs ook een publiek, ongeauthenticeerd
+# webportaal op https://<sitename>.bestuurlijkeinformatie.nl/ — hetzelfde
+# portaal waar burgers vergaderstukken op inzien. Voor GS-besluiten (deze
+# sectie) is dat de enige route: sommige provincies gebruiken voor GS een
+# apart iBabs-portaal dat niet in de SOAP-directory staat (bijv. Limburg's
+# limburggs.bestuurlijkeinformatie.nl) of publiceren de besluiten als platte
+# tekst op de portaalpagina zelf zonder documentbijlagen (Utrecht). Bewust
+# los gehouden van haal_vergaderingen_ibabs (SOAP) hierboven: andere bron,
+# ander functienaam-suffix "_portaal" om verwarring te voorkomen.
+
+IBABS_PORTAAL = "https://{sitename}.bestuurlijkeinformatie.nl"
+
+_DUTCH_MAANDEN = {
+    "januari": 1, "februari": 2, "maart": 3, "april": 4, "mei": 5, "juni": 6,
+    "juli": 7, "augustus": 8, "september": 9, "oktober": 10, "november": 11,
+    "december": 12,
+}
+
+
+def _ibabs_portaal_get(sitename: str, pad: str) -> str:
+    """Haal een pagina op van het publieke iBabs-portaal van een organisatie."""
+    url = f"{IBABS_PORTAAL.format(sitename=sitename)}{pad}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return r.read().decode("utf-8", errors="replace")
+
+
+def haal_categorieen_ibabs_portaal(sitename: str) -> dict[str, str]:
+    """Geeft {agendatypeId: naam} van alle vergadercategorieën op het portaal."""
+    html = _ibabs_portaal_get(sitename, "/Calendar")
+    return dict(re.findall(r'href="/Calendar/OpenCategory/(\d+)"[^>]*>([^<]+)</a>', html))
+
+
+def haal_vergaderingen_ibabs_portaal(sitename: str, vergadertypen: dict[str, bool],
+                                      terugkijk_dagen: int = 730) -> list[dict]:
+    """Haal vergaderingen + documenten op via het publieke iBabs-portaal.
+
+    Geeft [{id, naam, datum, documenten: [{naam, url}]}] — zelfde vorm als
+    haal_vergaderingen_ibabs (SOAP), dus bruikbaar met dezelfde
+    download_vergaderingen_ibabs()-downloadlus.
+    """
+    try:
+        categorieen = haal_categorieen_ibabs_portaal(sitename)
+    except Exception as e:
+        log(f"  ! iBabs-portaal onbereikbaar voor '{sitename}': {e}")
+        return []
+
+    relevante_categorieen = {
+        cat_id: naam.strip() for cat_id, naam in categorieen.items()
+        if wil_vergadering(naam, vergadertypen)
+    }
+    if not relevante_categorieen:
+        return []
+
+    vandaag = datetime.now()
+    vroegste = vandaag - timedelta(days=terugkijk_dagen)
+
+    vergaderingen = []
+    for cat_id, cat_naam in relevante_categorieen.items():
+        for jaar in range(vroegste.year, vandaag.year + 1):
+            try:
+                jaar_html = _ibabs_portaal_get(
+                    sitename, f"/Agenda/RetrieveAgendasForYear?agendatypeId={cat_id}&year={jaar}")
+            except Exception as e:
+                log(f"  ! iBabs-fout bij ophalen {jaar} voor '{sitename}': {e}")
+                continue
+
+            for guid, dag, maand, jaartal in re.findall(
+                r'href="/Agenda/Index/([0-9a-f-]{36})"[^>]*>\s*'
+                r'<div class="agenda-link-title">\w+ (\d{1,2}) ([a-zA-Zéï]+) '
+                r'<span class="sr-only">(\d{4})</span></div>',
+                jaar_html,
+            ):
+                maand_nr = _DUTCH_MAANDEN.get(maand.lower())
+                if not maand_nr:
+                    continue
+                try:
+                    datum_obj = datetime(int(jaartal), maand_nr, int(dag))
+                except ValueError:
+                    continue
+                if not (vroegste <= datum_obj <= vandaag):
+                    continue
+
+                try:
+                    detail_html = _ibabs_portaal_get(sitename, f"/Agenda/Index/{guid}")
+                except Exception as e:
+                    log(f"  ! iBabs-fout bij ophalen vergadering {guid} voor '{sitename}': {e}")
+                    continue
+
+                documenten = []
+                for doc_id, ruwe_naam in re.findall(
+                    rf'href="/Agenda/Document/{re.escape(guid)}\?documentId='
+                    r'([0-9a-f-]{36})[^"]*"[^>]*>(?:\s*<span[^>]*></span>)?\s*(.*?)\s*<span class="badge',
+                    detail_html, re.DOTALL,
+                ):
+                    naam = " ".join(re.sub(r"<[^>]+>", "", ruwe_naam).split())
+                    if not naam:
+                        naam = f"document-{doc_id}"
+                    if not naam.lower().endswith(".pdf"):
+                        naam += ".pdf"
+                    url = (f"{IBABS_PORTAAL.format(sitename=sitename)}"
+                           f"/Document/LoadAgendaDocument/{doc_id}?agendaId={guid}")
+                    documenten.append({"naam": naam, "url": url})
+
+                vergaderingen.append({
+                    "id": guid,
+                    "naam": cat_naam,
+                    "datum": datum_obj.strftime("%Y-%m-%d"),
+                    "documenten": documenten,
+                })
+
+    return vergaderingen
+
+
 # ── Download-lus (gedeeld patroon) ──────────────────────────────────────────
 
 def download_vergaderingen_ori(vergaderingen: list[dict], index: str,
@@ -596,6 +714,512 @@ def log_samenvatting(nieuw: int, overgeslagen: int, fouten: int, output_map: Pat
     log("─" * 60)
 
 
+# ── Gedeputeerde Staten: eigen-website-backends (geen vergaderportaal) ──────
+#
+# Een deel van de provincies publiceert GS-besluiten niet via een
+# vergaderportaal (Notubiz/iBabs/ORI) maar als eigen website: een simpele
+# PDF-index (Flevoland, Groningen, Noord-Brabant, Noord-Holland), een
+# jaar->maand-geneste index (Drenthe), een doorzoekbare Woo-index (Zeeland),
+# een per-besluit-pagina (Zuid-Holland) of één statische pagina per jaar
+# (Fryslân). Gebruikt door scraper_gs.py; zie het geneste "gs"-veld per
+# provincie in bronnen/provincies.json voor welke backend van toepassing is.
+
+GS_EIGEN_WEBSITE_BACKENDS = (
+    "zuid-holland-website", "pdf-index", "pdf-index-genest",
+    "fryslan-website", "utrecht-tekst", "zeeland-website",
+)
+
+
+def _http_get_text(url: str) -> str:
+    """Haal een pagina op als tekst (gebruikt door de losse GS-website-backends)."""
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return r.read().decode("utf-8", errors="replace")
+
+
+def _besluitenlijst_datum(tekst: str, fallback_jaar_maand: tuple[int, int] | None = None) -> str:
+    """Best-effort datum-extractie uit een bestandsnaam/linktekst.
+
+    Probeert 'dd-maandnaam-yyyy' (met -, _ of spatie), 'yyyy-mm-dd',
+    'dd-mm-yyyy', 'yyyymmdd' (geen scheidingstekens, bijv. Noord-Brabants
+    '20260831_obl_activiteiten.pdf') en 'yyyy ... week nn' (ISO-weeknummer,
+    maandag als datum). Geeft 'YYYY-MM-DD'.
+
+    Als niets herkend wordt: met fallback_jaar_maand (jaar, maand) — gebruikt
+    door de geneste crawl (haal_besluiten_pdf_index_genest), waar de
+    maand-subpagina zelf al een betrouwbare jaar/maand-context geeft — de 1e
+    van die maand; anders 'onbekende-datum' (document wordt alsnog
+    gedownload, alleen niet op datum gegroepeerd).
+    """
+    tekst_laag = tekst.lower()
+    maandpatroon = "|".join(_DUTCH_MAANDEN.keys())
+
+    m = re.search(rf'(\d{{1,2}})[-_ ](' + maandpatroon + r')[-_ ](\d{4})', tekst_laag)
+    if m:
+        dag, maand_naam, jaar = m.groups()
+        try:
+            return datetime(int(jaar), _DUTCH_MAANDEN[maand_naam], int(dag)).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+
+    m = re.search(r'(?<!\d)(20\d{2})-(\d{1,2})-(\d{1,2})(?!\d)', tekst)
+    if m:
+        jaar, maand, dag = m.groups()
+        try:
+            return datetime(int(jaar), int(maand), int(dag)).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+
+    m = re.search(r'(\d{1,2})-(\d{1,2})-(\d{4})', tekst)
+    if m:
+        dag, maand, jaar = m.groups()
+        try:
+            return datetime(int(jaar), int(maand), int(dag)).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+
+    m = re.search(r'(?<!\d)(20\d{2})(\d{2})(\d{2})(?!\d)', tekst)
+    if m:
+        jaar, maand, dag = m.groups()
+        try:
+            return datetime(int(jaar), int(maand), int(dag)).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+
+    m = re.search(r'(\d{4}).*?week[_\s-]*(\d{1,2})', tekst_laag)
+    if m:
+        jaar, week = int(m.group(1)), int(m.group(2))
+        try:
+            return datetime.fromisocalendar(jaar, week, 1).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+
+    if fallback_jaar_maand:
+        jaar, maand = fallback_jaar_maand
+        return datetime(jaar, maand, 1).strftime("%Y-%m-%d")
+
+    return "onbekende-datum"
+
+
+def haal_besluiten_pdf_index(basis_url: str, terugkijk_dagen: int = 730,
+                              pagina_param: str | None = None) -> list[dict]:
+    """Haal GS-besluiten op van een simpele PDF-index-pagina.
+
+    Groepeert alle gevonden PDF-links per herkende datum tot 'vergadering'-
+    achtige items ({id, naam, datum, documenten}), zodat de bestaande
+    downloadlus (download_vergaderingen_ibabs) hergebruikt kan worden.
+
+    Als pagina_param is gegeven (bijv. 'tx_bwibabs_overview[currentPage]'),
+    wordt doorgebladerd (pagina=2, 3, ...) totdat een pagina geen documenten
+    meer oplevert binnen het tijdvenster — dit gaat ervan uit dat de index
+    nieuwste-eerst gesorteerd is, zoals bij de bekende gevallen.
+    """
+    vroegste = datetime.now() - timedelta(days=terugkijk_dagen)
+    per_datum: dict[str, list[dict]] = {}
+
+    pagina = 1
+    while True:
+        if pagina == 1 or not pagina_param:
+            url = basis_url
+        else:
+            sep = "&" if "?" in basis_url else "?"
+            url = f"{basis_url}{sep}{urllib.parse.quote(pagina_param)}={pagina}"
+
+        html = _http_get_text(url)
+
+        nieuw_binnen_venster = 0
+        for match in re.finditer(r'<a\s+[^>]*href="([^"]+\.pdf)"[^>]*>(.*?)</a>',
+                                  html, re.IGNORECASE | re.DOTALL):
+            href, binnentekst = match.groups()
+            titel_attr = re.search(r'title="([^"]*)"', match.group(0))
+            binnentekst_schoon = re.sub(r"<[^>]+>", " ", binnentekst).strip()
+            bestandsnaam = href.rsplit("/", 1)[-1]
+            datum_bron = " ".join(filter(None, [
+                bestandsnaam, binnentekst_schoon, titel_attr.group(1) if titel_attr else ""]))
+            datum = _besluitenlijst_datum(datum_bron)
+
+            if datum != "onbekende-datum":
+                if datetime.strptime(datum, "%Y-%m-%d") < vroegste:
+                    continue
+                nieuw_binnen_venster += 1
+
+            volledige_url = urllib.parse.urljoin(url, href)
+            per_datum.setdefault(datum, []).append({"naam": bestandsnaam, "url": volledige_url})
+
+        if not pagina_param or nieuw_binnen_venster == 0:
+            break
+        pagina += 1
+        if pagina > 100:
+            break
+
+    return [
+        {"id": datum, "naam": "GS-besluiten", "datum": datum, "documenten": docs}
+        for datum, docs in per_datum.items()
+    ]
+
+
+def haal_besluiten_pdf_index_genest(overzicht_url: str, terugkijk_dagen: int = 730) -> list[dict]:
+    """Haal GS-besluiten op van een tweetraps-index: jaaroverzicht met
+    maand-subpagina's, elk met besluitenlijst-PDF's (bijv. Drenthe).
+
+    Anders dan haal_besluiten_pdf_index staan de PDF's niet direct op de
+    overzichtspagina maar op per-maand-subpagina's (linktekst 'Januari
+    2026' e.d., iprox-CMS 'siteLink'-patroon). De bestandsnamen zelf zijn
+    inconsistent (soms zonder jaar of dag) — de maand-subpagina is de enige
+    betrouwbare datumbron, dus een PDF zonder herkenbare eigen datum krijgt
+    de 1e van die maand toegewezen via _besluitenlijst_datum's
+    fallback_jaar_maand (weekprecisie is voor dit doel voldoende).
+    """
+    vroegste = datetime.now() - timedelta(days=terugkijk_dagen)
+
+    html = _http_get_text(overzicht_url)
+    maand_links = []
+    for url, linktekst in re.findall(r'<a class="siteLink" href="([^"]+)">([^<]+)</a>', html):
+        m = re.search(r'([a-zA-Z]+)\s+(\d{4})', linktekst)
+        if not m:
+            continue
+        maand_nr = _DUTCH_MAANDEN.get(m.group(1).lower())
+        if not maand_nr:
+            continue
+        jaar = int(m.group(2))
+        try:
+            if datetime(jaar, maand_nr, 1) < vroegste.replace(day=1):
+                continue
+        except ValueError:
+            continue
+        maand_links.append((url, jaar, maand_nr))
+
+    per_datum: dict[str, list[dict]] = {}
+    for maand_url, jaar, maand_nr in maand_links:
+        try:
+            maand_html = _http_get_text(maand_url)
+        except Exception as e:
+            log(f"  ! FOUT bij ophalen maandpagina '{maand_url}': {e}")
+            continue
+
+        for match in re.finditer(r'<a\s+[^>]*href="([^"]+\.pdf)"[^>]*>(.*?)</a>',
+                                  maand_html, re.IGNORECASE | re.DOTALL):
+            href, binnentekst = match.groups()
+            titel_attr = re.search(r'title="([^"]*)"', match.group(0))
+            binnentekst_schoon = re.sub(r"<[^>]+>", " ", binnentekst).strip()
+            bestandsnaam = href.rsplit("/", 1)[-1]
+            datum_bron = " ".join(filter(None, [
+                bestandsnaam, binnentekst_schoon, titel_attr.group(1) if titel_attr else ""]))
+            datum = _besluitenlijst_datum(datum_bron, fallback_jaar_maand=(jaar, maand_nr))
+
+            if datetime.strptime(datum, "%Y-%m-%d") < vroegste:
+                continue
+
+            volledige_url = urllib.parse.urljoin(maand_url, href)
+            per_datum.setdefault(datum, []).append({"naam": bestandsnaam, "url": volledige_url})
+
+    return [
+        {"id": datum, "naam": "GS-besluiten", "datum": datum, "documenten": docs}
+        for datum, docs in per_datum.items()
+    ]
+
+
+def haal_besluiten_fryslan(terugkijk_dagen: int = 730) -> list[dict]:
+    """Haal GS-besluiten van Fryslân op via hun eigen website.
+
+    Elk jaar staat op een eigen, voorspelbare statische pagina
+    (`/besluitenlijsten-<jaar>`, bijv. `besluitenlijsten-2026`) in plaats van
+    één doorlopende of geneste index. De pagina is een Next.js-app maar de
+    PDF-links staan gewoon server-side-gerenderd in de HTML (geen
+    JS-uitvoering nodig). De bestandsnaam bevat altijd een dd-mm-yyyy-datum
+    ('GS Besluitenlijst 02-06-2026.pdf' / 'gs_besluitenlijst_17-12-2024_0.pdf'),
+    dus _besluitenlijst_datum() vindt hem zonder fallback. Fryslân verwijst
+    zelf naar een eigen webarchief voor besluiten van vóór 2021 — die jaren
+    worden hier niet opgehaald.
+    """
+    vroegste = datetime.now() - timedelta(days=terugkijk_dagen)
+    jaar_van = max(vroegste.year, 2021)
+
+    per_datum: dict[str, list[dict]] = {}
+    for jaar in range(datetime.now().year, jaar_van - 1, -1):
+        url = f"https://www.fryslan.frl/besluitenlijsten-{jaar}"
+        try:
+            html = _http_get_text(url)
+        except Exception as e:
+            log(f"  ! FOUT bij ophalen '{url}': {e}")
+            continue
+
+        for href in re.findall(r'<a\s+[^>]*href="([^"]+\.pdf[^"]*)"[^>]*>', html, re.IGNORECASE):
+            href_schoon = urllib.parse.unquote(href)
+            bestandsnaam = href_schoon.rsplit("/", 1)[-1].split("?")[0]
+            datum = _besluitenlijst_datum(bestandsnaam)
+
+            if datum != "onbekende-datum" and datetime.strptime(datum, "%Y-%m-%d") < vroegste:
+                continue
+
+            per_datum.setdefault(datum, []).append({"naam": bestandsnaam, "url": href})
+
+    return [
+        {"id": datum, "naam": "GS-besluiten", "datum": datum, "documenten": docs}
+        for datum, docs in per_datum.items()
+    ]
+
+
+ZEELAND_WOO_URL = "https://www.zeeland.nl/loket/woo/agendas-en-besluitenlijsten-gedeputeerde-staten"
+
+
+def haal_besluiten_zeeland(terugkijk_dagen: int = 730) -> list[dict]:
+    """Haal GS-agenda's en -besluitenlijsten van Zeeland op via hun Woo-index.
+
+    Zeeland publiceert GS-agenda's en -besluitenlijsten niet via een
+    vergaderportaal maar als doorzoekbare Woo-index (Drupal Search API +
+    Facets), gepagineerd met '?page=0,1,2,...' (nul-geïndexeerd — anders dan
+    de 1-geïndexeerde pagina_param van haal_besluiten_pdf_index, vandaar een
+    eigen functie). Elk resultaat linkt rechtstreeks naar het PDF-bestand
+    zelf (geen tussenliggende detailpagina, geen '.pdf'-extensie in de URL —
+    Content-Type bepaalt het bestandstype, niet de padnaam). De titel bevat
+    de datum ('Besluitenlijst Gedeputeerde Staten van Zeeland 30 juni 2026').
+    """
+    vroegste = datetime.now() - timedelta(days=terugkijk_dagen)
+    per_datum: dict[str, list[dict]] = {}
+
+    pagina = 0
+    while True:
+        url = ZEELAND_WOO_URL if pagina == 0 else f"{ZEELAND_WOO_URL}?page={pagina}"
+        html = _http_get_text(url)
+
+        nieuw_binnen_venster = 0
+        for href, titel in re.findall(
+            r'<a href="(/digitaal-archief/[^"]+)"\s*class="search-result[^"]*"\s*>\s*'
+            r'<h3 class="search-result__title[^"]*">\s*([^<]+?)\s*</h3>',
+            html,
+        ):
+            titel = titel.strip()
+            datum = _besluitenlijst_datum(titel)
+            if datum != "onbekende-datum":
+                if datetime.strptime(datum, "%Y-%m-%d") < vroegste:
+                    continue
+                nieuw_binnen_venster += 1
+
+            volledige_url = urllib.parse.urljoin(url, href)
+            per_datum.setdefault(datum, []).append({"naam": titel, "url": volledige_url})
+
+        if nieuw_binnen_venster == 0:
+            break
+        pagina += 1
+        if pagina > 100:
+            break
+
+    return [
+        {"id": datum, "naam": "GS-besluiten", "datum": datum, "documenten": docs}
+        for datum, docs in per_datum.items()
+    ]
+
+
+ZH_BESLUITEN_URL = "https://www.zuid-holland.nl/politiek-bestuur/gedeputeerde-staten/besluiten/"
+
+
+def haal_besluiten_zuid_holland(terugkijk_dagen: int = 730) -> list[dict]:
+    """Haal GS-besluiten van Zuid-Holland op via hun eigen website.
+
+    Anders dan de andere provincies publiceert Zuid-Holland GS-besluiten niet
+    via een vergaderportaal maar als los doorzoekbare, individuele pagina's —
+    elk besluit met eigen bijlagen, geen vergaderdatum met meerdere
+    agendapunten. Geeft dezelfde [{id, naam, datum, documenten: [{naam, url}]}]
+    -vorm terug als de vergadering-gebaseerde bronnen (één 'besluit' per
+    item), zodat de bestaande downloadlus (download_vergaderingen_ibabs)
+    hergebruikt kan worden. Traag door het ontbreken van een bulk-API: één
+    verzoek per indexpagina (10 besluiten) plus één verzoek per besluit voor
+    de bijlagen — voor het standaard-tijdvenster van 2 jaar al gauw honderden
+    verzoeken.
+    """
+    date_from = (datetime.now() - timedelta(days=terugkijk_dagen)).strftime("%d-%m-%Y")
+
+    eerste_pagina = _http_get_text(f"{ZH_BESLUITEN_URL}?date_from={date_from}")
+    laatste_pagina = max(
+        (int(p) for p in re.findall(r'data-page="(\d+)"', eerste_pagina)), default=0)
+
+    besluiten = []
+    for pagina in range(laatste_pagina + 1):
+        html = eerste_pagina if pagina == 0 else _http_get_text(
+            f"{ZH_BESLUITEN_URL}?date_from={date_from}&pager_page={pagina}")
+
+        for url, titel, datum_tekst in re.findall(
+            r'<a class="siteLink" href="([^"]+)">([^<]+)</a>.*?'
+            r'class="iprox-content iprox-date date">([^<]+)</div>',
+            html, re.DOTALL,
+        ):
+            delen = datum_tekst.strip().split()
+            if len(delen) != 3:
+                continue
+            dag, maand_naam, jaar = delen
+            maand_nr = _DUTCH_MAANDEN.get(maand_naam.lower())
+            if not maand_nr:
+                continue
+            try:
+                datum_obj = datetime(int(jaar), maand_nr, int(dag))
+            except ValueError:
+                continue
+
+            try:
+                detail_html = _http_get_text(url)
+            except Exception as e:
+                log(f"  ! FOUT bij ophalen besluit '{titel.strip()}': {e}")
+                continue
+
+            documenten = [
+                {
+                    "naam": pdf_url.rsplit("/", 1)[-1],
+                    "url": f"https://www.zuid-holland.nl{pdf_url}" if pdf_url.startswith("/") else pdf_url,
+                }
+                for pdf_url in re.findall(r'href="([^"]+\.pdf)"', detail_html, re.IGNORECASE)
+            ]
+
+            besluiten.append({
+                "id": url.rsplit("/", 1)[-1],
+                "naam": titel.strip(),
+                "datum": datum_obj.strftime("%Y-%m-%d"),
+                "documenten": documenten,
+            })
+
+    return besluiten
+
+
+def haal_besluiten_utrecht(terugkijk_dagen: int = 730) -> list[dict]:
+    """Haal GS-besluiten van Utrecht op — als platte tekst, niet als PDF.
+
+    Utrecht heeft een eigen iBabs-portaal (provincieutrecht.bestuurlijkeinformatie.nl,
+    los van het ORI-portaal dat voor Provinciale Staten gebruikt wordt) met een
+    categorie 'GS-Besluiten' en wekelijkse vergaderingen sinds 2023. Anders dan
+    bij elke andere bron in dit project hangen daar geen documenten aan de
+    vergaderingen — maar de volledige besluitenlijst (per agendapunt: nummer,
+    titel, essentie/samenvatting, besluit) staat gewoon als platte,
+    server-gerenderde HTML op de vergaderpagina zelf.
+
+    Geeft [{id, naam, datum, documenten: [{naam, tekst}]}] terug — met 'tekst'
+    in plaats van 'url', want er valt niets te downloaden. Wordt daarom niet
+    met download_vergaderingen_ibabs verwerkt maar met de eigen
+    schrijf_besluiten_utrecht().
+    """
+    sitename = "provincieutrecht"
+    categorieen = haal_categorieen_ibabs_portaal(sitename)
+    gs_categorieen = [cid for cid, naam in categorieen.items()
+                       if "gs-besluiten" in naam.strip().lower()]
+    if not gs_categorieen:
+        return []
+
+    vandaag = datetime.now()
+    vroegste = vandaag - timedelta(days=terugkijk_dagen)
+
+    vergaderingen = []
+    for cat_id in gs_categorieen:
+        for jaar in range(vroegste.year, vandaag.year + 1):
+            try:
+                jaar_html = _ibabs_portaal_get(
+                    sitename, f"/Agenda/RetrieveAgendasForYear?agendatypeId={cat_id}&year={jaar}")
+            except Exception as e:
+                log(f"  ! iBabs-fout bij ophalen {jaar}: {e}")
+                continue
+
+            for guid, dag, maand, jaartal in re.findall(
+                r'href="/Agenda/Index/([0-9a-f-]{36})"[^>]*>\s*'
+                r'<div class="agenda-link-title">\w+ (\d{1,2}) ([a-zA-Zéï]+) '
+                r'<span class="sr-only">(\d{4})</span></div>',
+                jaar_html,
+            ):
+                maand_nr = _DUTCH_MAANDEN.get(maand.lower())
+                if not maand_nr:
+                    continue
+                try:
+                    datum_obj = datetime(int(jaartal), maand_nr, int(dag))
+                except ValueError:
+                    continue
+                if not (vroegste <= datum_obj <= vandaag):
+                    continue
+
+                try:
+                    detail_html = _ibabs_portaal_get(sitename, f"/Agenda/Index/{guid}")
+                except Exception as e:
+                    log(f"  ! iBabs-fout bij ophalen vergadering {guid}: {e}")
+                    continue
+
+                agendapunten = []
+                for chunk in re.split(
+                        r'<div\s+class="panel panel-default agenda-item"', detail_html)[1:]:
+                    chunk = re.sub(r'^[^<]*>', '', chunk, count=1)
+                    m_id = re.search(r'class="panel-id">([^<]*)</div>', chunk)
+                    m_titel = re.search(
+                        r'class="panel-title-label"[^>]*>\s*(.*?)\s*</span>', chunk, re.DOTALL)
+                    nummer = m_id.group(1).strip() if m_id else ""
+                    titel = html_unescape(re.sub(r'\s+', ' ', m_titel.group(1)).strip()) if m_titel else "agendapunt"
+
+                    tekst = re.sub(r'<[^>]+>', ' ', chunk)
+                    tekst = tekst.replace('\xa0', ' ').replace('\r\n', '\n').replace('\r', '\n')
+                    tekst = re.sub(r'[ \t]+', ' ', tekst)
+                    tekst = re.sub(r' *\n *', '\n', tekst)
+                    tekst = re.sub(r'\n{2,}', '\n\n', tekst).strip()
+                    tekst = html_unescape(tekst)
+
+                    bestandsnaam = f"{nummer}-{titel}".strip("-") if nummer else titel
+                    agendapunten.append({"naam": bestandsnaam, "tekst": tekst})
+
+                vergaderingen.append({
+                    "id": guid,
+                    "naam": "GS-Besluiten",
+                    "datum": datum_obj.strftime("%Y-%m-%d"),
+                    "documenten": agendapunten,
+                })
+
+    return vergaderingen
+
+
+def schrijf_besluiten_utrecht(vergaderingen: list[dict], output_map: Path,
+                               droog: bool = False) -> tuple[int, int, int]:
+    """Schrijf Utrechts GS-besluiten (platte tekst per agendapunt) naar bestand.
+
+    Analoog aan download_vergaderingen_ibabs, maar schrijft tekst rechtstreeks
+    weg in plaats van een URL te downloaden — Utrecht's bron heeft geen
+    document-bijlagen (zie haal_besluiten_utrecht).
+    """
+    totaal_nieuw = totaal_overgeslagen = totaal_fout = 0
+
+    for verg in vergaderingen:
+        agendapunten = verg["documenten"]
+        if not agendapunten:
+            continue
+
+        doelmap = output_map / veilige_naam(verg["naam"]) / verg["datum"]
+        nieuwe = [a for a in agendapunten
+                  if not (doelmap / (veilige_naam(a["naam"]) + ".txt")).exists()]
+
+        if not nieuwe:
+            totaal_overgeslagen += len(agendapunten)
+            continue
+
+        log(f"\n  {verg['naam']} ({verg['datum']}) — {len(nieuwe)} nieuw van {len(agendapunten)}")
+
+        if not droog:
+            doelmap.mkdir(parents=True, exist_ok=True)
+
+        for punt in agendapunten:
+            bestandsnaam = veilige_naam(punt["naam"]) + ".txt"
+            bestemming = doelmap / bestandsnaam
+
+            if bestemming.exists():
+                totaal_overgeslagen += 1
+                continue
+
+            if droog:
+                log(f"    [DROOG] {bestandsnaam}")
+                totaal_nieuw += 1
+                continue
+
+            try:
+                bestemming.write_text(punt["tekst"], encoding="utf-8")
+                log(f"    + {bestandsnaam} ({len(punt['tekst'])} tekens)")
+                totaal_nieuw += 1
+            except Exception as e:
+                log(f"    ! FOUT bij schrijven {bestandsnaam}: {e}")
+                totaal_fout += 1
+
+    return totaal_nieuw, totaal_overgeslagen, totaal_fout
+
+
 def vraag_doorzoekbaar_maken(nieuw: int, output_map: Path):
     """Vraag interactief of nieuwe documenten doorzoekbaar gemaakt moeten worden.
 
@@ -629,7 +1253,47 @@ def vraag_doorzoekbaar_maken(nieuw: int, output_map: Path):
 
     print()
     index_script = TOOLKIT_MAP / "index.py"
-    subprocess.run([sys.executable, str(index_script), output_map.name])
+    # output_map.name alleen zou de submap laten vallen (bijv. "gs" of
+    # "provincies") — bij een provincie bestaan PS en GS onder dezelfde slug,
+    # dus zonder submap-voorvoegsel kan index.py niet weten welke van de twee
+    # bedoeld is. relative_to(OUTPUT_BASIS) geeft de volledige, ondubbelzinnige
+    # vorm (bijv. "gs/utrecht").
+    orgaan_pad = output_map.relative_to(OUTPUT_BASIS)
+    subprocess.run([sys.executable, str(index_script), str(orgaan_pad)])
+
+
+# ── Documentenmap-resolutie (gedeeld door index.py, server.py) ──────────────
+
+ORGAAN_SUBMAPPEN = ("regelingen", "waterschappen", "veiligheidsregios", "provincies", "gs")
+
+
+def resolveer_docs_map(orgaan: str) -> tuple[Path | None, list[Path]]:
+    """Zoek de documentenmap voor een orgaan-slug of expliciet 'submap/slug'-pad.
+
+    Probeert eerst OUTPUT_BASIS/orgaan direct — dat dekt zowel gemeenten (kale
+    slug) als een expliciete submap-vorm zoals 'gs/utrecht' of
+    'provincies/utrecht' (Path behandelt de '/' gewoon als padscheiding).
+    Bestaat dat niet, dan wordt gezocht in de bekende submappen.
+
+    Geeft (pad, kandidaten) terug:
+      - 1 kandidaat gevonden:  pad = die kandidaat.
+      - 0 kandidaten:          pad = None, kandidaten = [].
+      - 2+ kandidaten:         pad = None (ambigu — bijv. een provincie met
+                               zowel PS als GS gedownload, zelfde slug in twee
+                               submappen). De aanroeper moet de gebruiker dan
+                               vragen de submap/slug-vorm expliciet te gebruiken.
+    """
+    direct = OUTPUT_BASIS / orgaan
+    if direct.exists():
+        return direct, [direct]
+
+    kandidaten = [
+        pad for submap in ORGAAN_SUBMAPPEN
+        if (pad := OUTPUT_BASIS / submap / orgaan).exists()
+    ]
+    if len(kandidaten) == 1:
+        return kandidaten[0], kandidaten
+    return None, kandidaten
 
 
 # ── Bestuurlijke context (provincie, VR, waterschap, GRs per gemeente) ───────
@@ -828,7 +1492,7 @@ def haal_bestuurlijke_context(gemeente: str, gebruik_cache: bool = True) -> dict
     lokale catalogus voor provincie/VR/waterschap. Per orgaan: of er al
     documenten zijn gedownload, en hoe je het zou downloaden.
 
-    Geeft een dict met sleutels 'provincie', 'veiligheidsregio',
+    Geeft een dict met sleutels 'provincie', 'gs', 'veiligheidsregio',
     'waterschap', 'gr'. Elke waarde is een lijst van dicts met:
         slug:         str   — voor scraper-commando en folder
         naam:         str   — voor display
@@ -845,6 +1509,7 @@ def haal_bestuurlijke_context(gemeente: str, gebruik_cache: bool = True) -> dict
     """
     context: dict[str, list[dict]] = {
         "provincie": [],
+        "gs": [],
         "veiligheidsregio": [],
         "waterschap": [],
         "gr": [],
@@ -877,6 +1542,28 @@ def haal_bestuurlijke_context(gemeente: str, gebruik_cache: bool = True) -> dict
                     "downloadbaar": downloadbaar,
                     "scraper_cmd": scraper_cmd,
                     "brontype": brontype,
+                })
+
+                # Gedeputeerde Staten (dagelijks bestuur) — zelfde provincie,
+                # aparte bron/scraper (scraper_gs.py), zie het geneste
+                # "gs"-veld in provincies.json.
+                gs_info = info.get("gs", {})
+                gs_pad = OUTPUT_BASIS / "gs" / slug
+                gs_gedownload, gs_n_docs = _orgaan_status(gs_pad)
+                gs_heeft_bron = any(gs_info.get(v) for v in ("notubiz_id", "ibabs_naam"))
+                gs_downloadbaar = gs_heeft_bron or gs_info.get("backend") in GS_EIGEN_WEBSITE_BACKENDS
+                gs_scraper_cmd = (
+                    f"python3 scraper_gs.py {slug}" if gs_downloadbaar
+                    else f"(geen geautomatiseerde bron: {gs_info.get('reden', 'onbekend')})"
+                )
+                context["gs"].append({
+                    "slug": slug,
+                    "naam": f"Gedeputeerde Staten {info.get('naam', slug)}",
+                    "gedownload": gs_gedownload,
+                    "n_docs": gs_n_docs,
+                    "pad": gs_pad,
+                    "downloadbaar": gs_downloadbaar,
+                    "scraper_cmd": gs_scraper_cmd,
                 })
         except Exception:
             pass

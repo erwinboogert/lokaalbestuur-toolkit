@@ -10,7 +10,8 @@ Een journalistiek onderzoekstool waarmee je openbare vergaderstukken van Nederla
 - `scraper_waterschap.py` — downloadt vergaderstukken van waterschappen via ORI API
 - `scraper_gr.py` — downloadt vergaderstukken van gemeenschappelijke regelingen
 - `scraper_vr.py` — downloadt vergaderstukken van alle 25 veiligheidsregio's (website/Notubiz/iBabs)
-- `scraper_provincie.py` — downloadt vergaderstukken van provincies (ORI/Notubiz)
+- `scraper_provincie.py` — downloadt vergaderstukken van Provinciale Staten (ORI/Notubiz/iBabs)
+- `scraper_gs.py` — downloadt besluiten van Gedeputeerde Staten (dagelijks bestuur van een provincie); aparte bron per provincie, meestal geen vergaderportaal
 - `analyse.py` — doorzoekt PDF's op trefwoorden, genereert wekelijkse alerts
 - `index.py` — bouwt lokale full-text zoekindex (SQLite FTS5)
 - `organen/` — configuratie per orgaan (JSON): naam, type, vergadertypen
@@ -44,7 +45,8 @@ Na scrapen: `~/Documents/notulen/<orgaan>/`
 Waterschappen: `~/Documents/notulen/waterschappen/<naam>/`
 GRs: `~/Documents/notulen/regelingen/<naam>/`
 Veiligheidsregio's: `~/Documents/notulen/veiligheidsregios/<naam>/`
-Provincies: `~/Documents/notulen/provincies/<naam>/`
+Provincies (Provinciale Staten): `~/Documents/notulen/provincies/<naam>/`
+Gedeputeerde Staten: `~/Documents/notulen/gs/<naam>/`
 
 ## De primaire werkwijze
 
@@ -56,7 +58,8 @@ python3 scraper.py <gemeente> --vanaf 2024-01-01 # of vanaf een specifieke datum
 python3 scraper_vr.py <slug>                     # optioneel: veiligheidsregio downloaden
 python3 scraper_gr.py <slug>                     # optioneel: GR downloaden
 python3 scraper_waterschap.py <slug>             # optioneel: waterschap downloaden
-python3 scraper_provincie.py <slug>              # optioneel: provincie downloaden
+python3 scraper_provincie.py <slug>              # optioneel: provincie downloaden (Provinciale Staten)
+python3 scraper_gs.py <slug>                     # optioneel: Gedeputeerde Staten van die provincie
 python3 toolkit.py onderzoek <gemeente>          # zoekindex + Claude-briefing
 claude ~/Documents/notulen/<gemeente>            # Claude Code openen
 ```

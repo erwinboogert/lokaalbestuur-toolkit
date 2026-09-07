@@ -22,6 +22,8 @@ Zoekresultaten in: ~/Documents/notulen/<orgaan>/zoekresultaten/
 Vereisten: pdfplumber
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sqlite3
@@ -30,6 +32,8 @@ from datetime import datetime
 from pathlib import Path
 
 import pdfplumber
+
+from api import OUTPUT_BASIS, resolveer_docs_map
 
 _toolkit_map = Path(__file__).parent
 _config_pad = _toolkit_map / "config.local.json"
@@ -42,7 +46,6 @@ if _config_pad.exists():
     except Exception:
         pass
 
-OUTPUT_BASIS = _data_map if _data_map else (Path.home() / "Documents" / "notulen")
 _DOSSIERS_MAP = (_data_map / "dossiers") if _data_map else (_toolkit_map / "dossiers")
 
 
@@ -108,9 +111,16 @@ def open_db(docs_map: Path) -> sqlite3.Connection:
 
 # ── Hulpfuncties ──────────────────────────────────────────────────────────────
 
-def extraheer_tekst(pdf_pad: Path) -> str:
+def extraheer_tekst(pad: Path) -> str:
+    if pad.suffix.lower() == ".txt":
+        # Utrecht's GS-backend schrijft platte tekst (geen PDF-bijlagen),
+        # zie schrijf_besluiten_utrecht() in api.py.
+        try:
+            return pad.read_text(encoding="utf-8").strip()
+        except Exception:
+            return ""
     try:
-        with pdfplumber.open(str(pdf_pad)) as pdf:
+        with pdfplumber.open(str(pad)) as pdf:
             return "\n".join(p.extract_text() or "" for p in pdf.pages).strip()
     except Exception:
         return ""
@@ -132,8 +142,9 @@ def vergadertype_uit_pad(pdf_pad: Path, docs_map: Path) -> str:
 
 def bouw_index(docs_map: Path, con: sqlite3.Connection):
     al_geindexeerd = {r[0] for r in con.execute("SELECT pad FROM geindexeerd")}
-    pdfs = sorted(docs_map.rglob("*.pdf"))
-    nieuw = [p for p in pdfs if str(p) not in al_geindexeerd]
+    # *.txt: Utrecht's GS-bron levert platte tekst i.p.v. PDF's, zie extraheer_tekst().
+    bestanden = sorted(docs_map.rglob("*.pdf")) + sorted(docs_map.rglob("*.txt"))
+    nieuw = [p for p in bestanden if str(p) not in al_geindexeerd]
 
     print(f"Index: {len(al_geindexeerd)} al geïndexeerd, {len(nieuw)} nieuw")
 
@@ -274,18 +285,18 @@ def main():
         print(__doc__)
         sys.exit(0)
 
-    docs_map = OUTPUT_BASIS / orgaan
-    if not docs_map.exists():
-        # Probeer ook submappen voor regelingen, waterschappen en veiligheidsregio's
-        for submap in ("regelingen", "waterschappen", "veiligheidsregios", "provincies"):
-            kandidaat = OUTPUT_BASIS / submap / orgaan
-            if kandidaat.exists():
-                docs_map = kandidaat
-                break
+    docs_map, kandidaten = resolveer_docs_map(orgaan)
+    if docs_map is None:
+        if len(kandidaten) > 1:
+            print(f"'{orgaan}' bestaat in meerdere archieven — welke bedoel je?\n")
+            for k in kandidaten:
+                print(f"  {k.relative_to(OUTPUT_BASIS)}")
+            print(f"\nGebruik de volledige vorm, bijv.: python3 index.py "
+                  f"{kandidaten[0].relative_to(OUTPUT_BASIS)}")
         else:
-            print(f"Archiefmap niet gevonden: {docs_map}")
+            print(f"Archiefmap niet gevonden voor '{orgaan}'.")
             print("Zorg dat de scraper al heeft gedraaid voor dit orgaan.")
-            sys.exit(1)
+        sys.exit(1)
 
     con = open_db(docs_map)
 
