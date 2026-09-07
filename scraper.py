@@ -16,6 +16,8 @@ Zonder orgaan-config worden de standaard vergadertypen gebruikt (zie CONFIGURATI
 Vereisten: geen externe bibliotheken (alleen standaard Python 3)
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sys
@@ -29,6 +31,7 @@ from api import (
     alle_indices, find_index,
     haal_vergaderingen_ori, haal_documenten_ori,
     haal_vergaderingen_notubiz, haal_documenten_notubiz,
+    haal_bestuurlijke_context,
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -90,6 +93,30 @@ def laad_orgaan_config(orgaan_naam: str) -> tuple[dict[str, bool], int | None]:
     return vergadertypen, config.get("notubiz_id")
 
 
+# ── Orgaan-config bewaken ────────────────────────────────────────────────────
+
+def zorg_voor_orgaan_config(orgaan_naam: str) -> None:
+    """Maak orgaan-config aan als die nog niet bestaat.
+
+    Voorkomt dat een scraper-run een map met documenten achterlaat zonder
+    bijbehorend configuratiebestand in organen/, waardoor het orgaan onzichtbaar
+    blijft in de interface.
+    """
+    pad = _ORGANEN_MAP / f"{orgaan_naam}.json"
+    if pad.exists():
+        return
+    _ORGANEN_MAP.mkdir(parents=True, exist_ok=True)
+    naam = " ".join(w.capitalize() for w in orgaan_naam.replace("-", " ").split())
+    config = {
+        "naam": naam,
+        "type": "gemeente",
+        "bron": "ori",
+        "vergadertypen": list(STANDAARD_VERGADERTYPEN.keys()),
+    }
+    pad.write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"  Orgaan-config aangemaakt: {pad}")
+
+
 # ── Argumenten ───────────────────────────────────────────────────────────────
 
 def _parse_vanaf() -> str | None:
@@ -132,6 +159,7 @@ def main():
         print(f"Ongeldige gemeentenaam: '{gemeente}'. Gebruik alleen letters, cijfers en koppeltekens.")
         sys.exit(1)
 
+    zorg_voor_orgaan_config(gemeente)
     vanaf = _parse_vanaf()
     vergadertypen, notubiz_id = laad_orgaan_config(gemeente)
 
@@ -220,46 +248,32 @@ def main():
 
 # ── Gerelateerde organen ─────────────────────────────────────────────────────
 
-def _zoek_in_bronbestand(bestandsnaam: str, gemeente: str) -> list[tuple[str, str]]:
-    """Zoek een gemeente in een bronnen-JSON. Geeft [(slug, naam), ...]."""
-    pad = BRONNEN_MAP / bestandsnaam
-    if not pad.exists():
-        return []
-    data = json.loads(pad.read_text(encoding="utf-8"))
-    return [
-        (slug, info["naam"])
-        for slug, info in data.items()
-        if not slug.startswith("_") and gemeente in info.get("gemeenten", [])
-    ]
+_SECTIES = [
+    ("veiligheidsregio", "Veiligheidsregio"),
+    ("waterschap",       "Waterschappen"),
+    ("gr",               "Gemeenschappelijke regelingen"),
+    ("provincie",        "Provincie"),
+]
 
 
 def toon_gerelateerde_organen(gemeente: str):
-    """Toon VR, waterschappen en GR's die bij deze gemeente horen."""
-    vrs = _zoek_in_bronbestand("veiligheidsregios.json", gemeente)
-    waterschappen = _zoek_in_bronbestand("waterschappen.json", gemeente)
-    regelingen = _zoek_in_bronbestand("regelingen.json", gemeente)
+    """Toon provincie, VR, waterschappen en GR's die bij deze gemeente horen."""
+    context = haal_bestuurlijke_context(gemeente)
 
-    if not vrs and not waterschappen and not regelingen:
+    if not any(context[t] for t, _ in _SECTIES):
         return
 
     log("")
     log("  Gerelateerde organen")
     log("  " + "─" * 56)
 
-    if vrs:
-        log("  Veiligheidsregio:")
-        for slug, naam in vrs:
-            log(f"    → {naam:<45s} python3 scraper_vr.py {slug}")
-
-    if waterschappen:
-        log("  Waterschappen:")
-        for slug, naam in waterschappen:
-            log(f"    → {naam:<45s} python3 scraper_waterschap.py {slug}")
-
-    if regelingen:
-        log("  Gemeenschappelijke regelingen:")
-        for slug, naam in regelingen:
-            log(f"    → {naam:<45s} python3 scraper_gr.py {slug}")
+    for type_sleutel, kopje in _SECTIES:
+        items = [i for i in context[type_sleutel] if i.get("downloadbaar")]
+        if not items:
+            continue
+        log(f"  {kopje}:")
+        for item in items:
+            log(f"    → {item['naam']:<45s} {item['scraper_cmd']}")
 
     log("  " + "─" * 56)
 

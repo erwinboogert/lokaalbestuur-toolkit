@@ -20,6 +20,8 @@ Vergadertypen worden geladen uit bronnen/waterschappen.json.
 Vereisten: geen externe bibliotheken (alleen standaard Python 3)
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sys
@@ -28,6 +30,7 @@ from pathlib import Path
 from api import (
     OUTPUT_BASIS, BRONNEN_MAP,
     setup_logging, log, log_samenvatting, vraag_doorzoekbaar_maken, parse_jaren_arg,
+    toon_deelnemende_gemeenten,
     alle_indices,
     haal_vergaderingen_ori,
     haal_vergaderingen_ibabs,
@@ -190,6 +193,7 @@ def main():
         log_samenvatting(nieuw, overgeslagen, fouten, output_map)
         if not droog:
             vraag_doorzoekbaar_maken(nieuw, output_map)
+        toon_deelnemende_gemeenten("waterschap", naam)
         return
 
     index = find_index_waterschap(naam)
@@ -212,6 +216,7 @@ def main():
     log_samenvatting(nieuw, overgeslagen, fouten, output_map)
     if not droog:
         vraag_doorzoekbaar_maken(nieuw, output_map)
+    toon_deelnemende_gemeenten("waterschap", naam)
 
 
 if __name__ == "__main__":

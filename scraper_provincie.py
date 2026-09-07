@@ -20,6 +20,8 @@ Output: ~/Documents/notulen/provincies/<naam>/
 Vereisten: geen externe bibliotheken (alleen standaard Python 3)
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sys
@@ -28,6 +30,7 @@ from pathlib import Path
 from api import (
     OUTPUT_BASIS, BRONNEN_MAP,
     setup_logging, log, log_samenvatting, vraag_doorzoekbaar_maken, parse_jaren_arg,
+    toon_deelnemende_gemeenten,
     alle_indices,
     haal_vergaderingen_ori, haal_vergaderingen_notubiz,
     download_vergaderingen_ori, download_vergaderingen_notubiz,
@@ -193,6 +196,7 @@ def main():
         log_samenvatting(nieuw, overgeslagen, fouten, output_map)
         if not droog:
             vraag_doorzoekbaar_maken(nieuw, output_map)
+        toon_deelnemende_gemeenten("provincie", naam)
         return
 
     # ORI
@@ -215,6 +219,7 @@ def main():
     log_samenvatting(nieuw, overgeslagen, fouten, output_map)
     if not droog:
         vraag_doorzoekbaar_maken(nieuw, output_map)
+    toon_deelnemende_gemeenten("provincie", naam)
 
 
 if __name__ == "__main__":

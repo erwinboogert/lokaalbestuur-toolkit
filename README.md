@@ -1,6 +1,6 @@
 # Lokaalbestuur Toolkit
 
-Nederlandse gemeenten, provincies, waterschappen en samenwerkingsverbanden publiceren duizenden vergaderstukken per jaar. Ze zijn openbaar, maar in de praktijk onvindbaar: verspreid over honderden websites, als slecht doorzoekbare PDF's, zonder centrale index.
+Nederlandse gemeenten, provincies, waterschappen en samenwerkingsverbanden publiceren duizenden vergaderstukken per jaar. Ze zijn openbaar, maar in de praktijk onvindbaar: verspreid over honderden websites, als slecht doorzoekbare PDF's, zonder centrale index. Eén uitzondering: besluiten van Gedeputeerde Staten (het dagelijks bestuur van een provincie) zijn niet allemaal openbaar — een deel kan vertrouwelijk zijn, zie de sectie hieronder.
 
 Deze toolkit downloadt die stukken automatisch en maakt ze doorzoekbaar — lokaal op je eigen machine, zonder account of API-sleutel. Je kunt er vervolgens open onderzoeksvragen over stellen: niet "zoek het woord woningbouw", maar "is er een verband tussen de bezuinigingen op sport en de stijgende obesitascijfers onder jongeren?"
 
@@ -26,13 +26,13 @@ cd lokaalbestuur-toolkit
 python3 toolkit.py setup
 ```
 
-Dat is alles. Het setup-commando controleert je Python-versie, installeert de benodigde bibliotheken, test de API-verbinding en stelt de documentenmap in. Je hebt alleen Python 3.10 of hoger nodig.
+Dat is alles. Het setup-commando controleert je Python-versie, installeert de benodigde bibliotheken, test de API-verbinding en stelt de documentenmap in. Je hebt **Python 3.10 of hoger** nodig (de scrapers gebruiken nieuwe type-syntax).
 
 **Optioneel maar aanbevolen:** [Claude Code](https://claude.ai/code) — een AI-assistent die je installeert als CLI en die zelf bestanden en mappen kan doorzoeken. Daarmee kun je de toolkit zijn volledige potentieel benutten (zie verderop).
 
 ---
 
-## Aan de slag — in drie stappen
+## Aan de slag — in vier stappen
 
 ### Stap 1 — Verkennen
 
@@ -67,7 +67,7 @@ python3 scraper_gr.py jeugdhulp-rijnmond
 python3 scraper_waterschap.py hollandse-delta
 ```
 
-### Stap 2 — Onderzoeksomgeving voorbereiden
+### Stap 3 — Onderzoeksomgeving voorbereiden
 
 ```bash
 python3 toolkit.py onderzoek rotterdam
@@ -80,7 +80,7 @@ Dit commando:
 
 De briefing beschrijft voor een AI welke bronnen er zijn, hoe ze doorzoekbaar zijn, en welk type organisatie relevant is voor welk onderwerp. Aan het einde staat ook een overzicht van beschikbare prompts en skills.
 
-### Stap 3 — Onderzoeken
+### Stap 4 — Onderzoeken
 
 **Zonder AI — direct via de terminal:**
 
@@ -154,7 +154,7 @@ Voorbeelden: DCMR Milieudienst Rijnmond, veiligheidsregio's.
 Een kleine groep GRs publiceert nauwelijks openbaar. Ze zijn wettelijk verplicht dat wel te doen (Wgr art. 22, Woo). Je kunt een formeel verzoek opstellen met:
 
 ```
-/wob-verzoek <onderwerp>
+/woo-verzoek <onderwerp>
 ```
 
 ### Waterschappen
@@ -179,9 +179,9 @@ python3 scraper_vr.py --welke rotterdam    # welke VR hoort bij een gemeente?
 
 De scraper ondersteunt alle publicatievormen: eigen websites (22 regio's), iBabs (Brabant-Noord), en Notubiz (Zeeland). Relevant bij onderwerpen als brandweer, crisisbeheersing en rampenbestrijding.
 
-### Provincies
+### Provincies (Provinciale Staten)
 
-Alle 12 Nederlandse provincies staan in de catalogus. 10 zijn automatisch scrapebaar: 8 via de ORI API, 2 via Notubiz (Gelderland, Noord-Brabant). Drenthe en Zeeland hebben geen geautomatiseerde bron. De toolkit weet welke provincie bij welke gemeente hoort en toont dat automatisch bij `verkennen`. Downloaden:
+Alle 12 Nederlandse provincies staan in de catalogus. 11 zijn automatisch scrapebaar: 8 via de ORI API, 1 via Notubiz (Gelderland), 2 via het publieke iBabs-portaal (Zeeland, Noord-Brabant — Noord-Brabant's Notubiz-feed viel op onbekende datum stil zonder foutmelding). Alleen Drenthe heeft geen geautomatiseerde bron. De toolkit weet welke provincie bij welke gemeente hoort en toont dat automatisch bij `verkennen`. Downloaden:
 
 ```bash
 python3 scraper_provincie.py zuid-holland
@@ -190,6 +190,18 @@ python3 scraper_provincie.py --lijst-ori       # toon provincies in ORI API
 ```
 
 Relevant bij onderwerpen als ruimtelijke ordening, natuur en stikstof, woningbouwafspraken, regionale infrastructuur, energietransitie en interbestuurlijk toezicht op gemeenten.
+
+### Gedeputeerde Staten
+
+Provinciale Staten stelt kaders en controleert; **Gedeputeerde Staten** (het dagelijks bestuur van een provincie — vergunningen, subsidies, grondaankoop, contracten) voert uit. GS-besluiten krijgen structureel minder aandacht dan PS-vergaderingen, terwijl daar het feitelijke bestuur gebeurt. Anders dan bij PS zit GS bijna nooit in hetzelfde vergaderportaal: van de 12 provincies is er maar 1 (Gelderland) waar GS in dezelfde Notubiz-feed zit als PS. De overige gebruiken een eigen website (besluitenlijst-PDF's), een apart iBabs-portaal, of — bij Utrecht — platte tekst zonder documentbijlagen. 10 van de 12 provincies zijn zo scrapebaar; Overijssel niet (de bron is publiek maar zit achter Cloudflare-botdetectie, die deze toolkit bewust niet omzeilt).
+
+```bash
+python3 scraper_gs.py --lijst          # toon GS-status per provincie (bron of reden waarom niet)
+python3 scraper_gs.py gelderland       # download GS-besluiten
+python3 toolkit.py scrape-gs           # alle geconfigureerde GS-bronnen in één keer bijwerken
+```
+
+**Let op:** niet elk GS-besluit is openbaar — een deel kan (tijdelijk) vertrouwelijk zijn. De scraper haalt op wat publiek gepubliceerd is, niet noodzakelijk de volledige besluitvorming.
 
 ---
 
@@ -201,7 +213,7 @@ De toolkit is zo gebouwd dat Claude Code weet wat er beschikbaar is:
 
 - De `context.md` briefing vertelt Claude welke bronnen er zijn en hoe hij moet zoeken
 - De `prompts/` map bevat sjablonen voor veelvoorkomende onderzoeksvormen
-- De `.claude/skills/` map bevat acties die Claude kan uitvoeren — rapport opslaan, WOO-verzoek genereren, alert instellen
+- De `.claude/commands/` map bevat acties die Claude kan uitvoeren — rapport opslaan, WOO-verzoek genereren, alert instellen, trefwoorden verfijnen
 
 Na een onderzoekssessie biedt Claude zelf aan welke vervolgstappen zinvol zijn. Dat overzicht staat ook in de briefing:
 
@@ -245,9 +257,15 @@ python3 scraper_vr.py --lijst                   # toon alle 25 veiligheidsregio'
 python3 scraper_vr.py --welke <gemeente>        # welke VR hoort bij gemeente?
 python3 scraper_waterschap.py <slug>            # waterschap
 python3 scraper_gr.py <slug>                    # gemeenschappelijke regeling
-python3 scraper_provincie.py <slug>             # provincie
+python3 scraper_provincie.py <slug>             # provincie (Provinciale Staten)
 python3 scraper_provincie.py --lijst            # toon alle provincies en hun bron
+python3 scraper_gs.py <slug>                    # Gedeputeerde Staten van een provincie
+python3 scraper_gs.py --lijst                   # toon GS-status per provincie
 python3 toolkit.py scrape --alles               # alle geconfigureerde organen bijwerken
+python3 toolkit.py scrape-waterschappen         # alle geconfigureerde waterschappen
+python3 toolkit.py scrape-regelingen            # alle geconfigureerde GRs
+python3 toolkit.py scrape-provincies            # alle geconfigureerde provincies
+python3 toolkit.py scrape-gs                    # alle geconfigureerde GS-bronnen
 
 # Onderzoek
 python3 toolkit.py onderzoek <gemeente>         # zoekindex + Claude-briefing
@@ -259,17 +277,23 @@ python3 scraper_gr.py --lijst-ori               # ontdek GRs in de ORI API
 python3 scraper_gr.py --zoek <naam>             # zoek GR-organisatie in Notubiz
 
 # Organen en bronnen instellen
-python3 toolkit.py nieuw-orgaan                 # gemeente, waterschap of GR toevoegen
+python3 toolkit.py nieuw-orgaan                 # gemeente toevoegen (interactief)
+python3 toolkit.py nieuwe-regeling              # GR toevoegen (interactief)
+python3 toolkit.py nieuw-waterschap             # waterschap toevoegen (interactief)
+python3 toolkit.py nieuwe-provincie             # provincie toevoegen (interactief)
+python3 toolkit.py brondata-bijwerken           # GR-index uit overheid.nl verversen
 
 # Monitoring
 python3 toolkit.py nieuw-dossier                # dossier met trefwoorden aanmaken
-python3 analyse.py --dossier <naam>             # handmatig alert draaien
+python3 analyse.py --dossier <naam>             # analyse handmatig draaien
 
-# Overzicht
+# Overzicht en onderhoud
 python3 toolkit.py                              # dashboard
 python3 toolkit.py status                       # uitgebreid statusoverzicht
 python3 toolkit.py setup                        # installatie (afhankelijkheden + configuratie)
 python3 toolkit.py check                        # installatiecheck
+python3 toolkit.py fix-cron                     # crontab-regels controleren/herstellen
+python3 toolkit.py --help                       # alle commando's met korte uitleg
 ```
 
 ---
@@ -289,17 +313,21 @@ python3 toolkit.py check                        # installatiecheck
 ```
 lokaalbestuur-toolkit/
 ├── toolkit.py              hoofdinterface
+├── api.py                  gedeelde scraper-functies (ORI / Notubiz / iBabs)
 ├── scraper.py              gemeentedocumenten (ORI API)
 ├── scraper_waterschap.py   waterschapstukken (ORI API + iBabs)
 ├── scraper_gr.py           GR-stukken (ORI / Notubiz / iBabs)
 ├── scraper_vr.py           veiligheidsregio's (website / Notubiz / iBabs)
-├── scraper_provincie.py    provincies (ORI API / Notubiz)
+├── scraper_provincie.py    provincies — Provinciale Staten (ORI API / Notubiz)
+├── scraper_gs.py           Gedeputeerde Staten (eigen website / Notubiz / iBabs, per provincie)
 ├── analyse.py              keyword-alerts
 ├── index.py                zoekindex (SQLite FTS5)
 ├── bronnen/                catalogussen (gemeenten, waterschappen, GRs, VRs, provincies)
 ├── organen/                configuratie per orgaan
 ├── dossiers/               configuratie per monitoringsdossier
 ├── prompts/                sjablonen voor onderzoeksgesprekken
+├── .claude/commands/       slash-commando's binnen dit project (rapport-opslaan, woo-verzoek, …)
+├── skills/                 systeembrede skills (te kopiëren naar ~/.claude/commands/)
 └── checklists/             rode-vlagchecklist lokaal bestuur
 
 ~/Documents/notulen/
@@ -311,5 +339,6 @@ lokaalbestuur-toolkit/
 ├── waterschappen/hollandse-delta/
 ├── regelingen/jeugdhulp-rijnmond/
 ├── veiligheidsregios/rotterdam-rijnmond/
-└── provincies/zuid-holland/
+├── provincies/zuid-holland/
+└── gs/zuid-holland/
 ```

@@ -12,6 +12,8 @@ Gebruik:
     python3 toolkit.py check                 controleer installatie
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sqlite3
@@ -21,8 +23,14 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+from api import haal_bestuurlijke_context, haal_grs_voor_gemeente
+
 TOOLKIT_MAP = Path(__file__).parent
 PYTHON = sys.executable
+
+BRONNEN_MAP             = TOOLKIT_MAP / "bronnen"
+GR_INDEX_PAD            = BRONNEN_MAP / "regelingen_overheid.json"
+VEROUDERD_DREMPEL_DAGEN = 180  # 6 maanden
 
 
 def _lees_config() -> dict:
@@ -434,46 +442,53 @@ def ververs_notubiz_catalogus():
 
 # ── GR-detectie via overheid.nl ───────────────────────────────────────────────
 
-def haal_grs_voor_gemeente(slug: str) -> list[dict]:
-    """Haal de GRs op waaraan een gemeente deelneemt via organisaties.overheid.nl."""
-    mapping_pad = TOOLKIT_MAP / "bronnen" / "gemeenten_overheid.json"
+# ── Brondata-beheer ───────────────────────────────────────────────────────────
+
+def _brondata_leeftijd_dagen():
+    """Geef het aantal dagen sinds de laatste GR-index-update, of None als onbekend."""
+    if not GR_INDEX_PAD.exists():
+        return None
     try:
-        mapping = json.loads(mapping_pad.read_text(encoding="utf-8"))
+        data = json.loads(GR_INDEX_PAD.read_text(encoding="utf-8"))
+        gegenereerd = data.get("_gegenereerd", "")
+        if gegenereerd:
+            dt = datetime.strptime(gegenereerd, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            return (datetime.now(timezone.utc) - dt).days
     except Exception:
-        return []
+        pass
+    return None
 
-    info = mapping.get(slug)
-    if not info:
-        return []
 
-    overheid_id = info["overheid_id"]
-    gemeente_naam = info["naam"].replace(" ", "_").replace("'", "")
-    url = f"https://organisaties.overheid.nl/{overheid_id}/Gemeente_{gemeente_naam}"
+def _controleer_brondata():
+    """Waarschuw als de GR-index verouderd is en bied aan om bij te werken."""
+    dagen = _brondata_leeftijd_dagen()
+    if dagen is None or dagen < VEROUDERD_DREMPEL_DAGEN:
+        return
 
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "lokaalbestuur-toolkit/1.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            html = resp.read().decode("utf-8")
-    except Exception:
-        return []
+    maanden = round(dagen / 30)
+    print()
+    print(f"  Let op: de GR-index is {maanden} maanden oud.")
+    print(f"  Nieuwe of hernoemde gemeenschappelijke regelingen worden")
+    print(f"  mogelijk niet herkend. Bijwerken duurt enkele seconden.")
+    print()
+    antwoord = input("  Nu bijwerken? (j/n) [j]: ").strip().lower() or "j"
+    if antwoord == "j":
+        brondata_bijwerken(stil=False)
+    else:
+        print()
 
-    # Haal alle GR-links op (/samenwerkingen/ID/Naam/)
-    grs = []
-    for m in re.finditer(
-        r'href="[^"]*?/samenwerkingen/(\d+)/([^/"]+)/"',
-        html
-    ):
-        overheid_gr_id, slug_raw = m.group(1), m.group(2)
-        naam = re.sub(r"_+", " ", slug_raw).strip()
-        naam = re.sub(r"^Gemeenschappelijk[e]?\s+[Rr]egeling\s+", "", naam)
-        naam = naam[0].upper() + naam[1:] if naam else naam
-        gr_slug = re.sub(r"^gemeenschappelijk[e]?-regeling-", "", slug_raw.lower().replace("_", "-"))
-        grs.append({
-            "slug": gr_slug,
-            "naam": naam,
-            "overheid_id": overheid_gr_id,
-        })
-    return grs
+
+def brondata_bijwerken(stil=False):
+    """Ververs de GR-index en vul ontbrekende overheid_ids bij in regelingen.json."""
+    if not stil:
+        print()
+        print("  Brondata bijwerken…")
+    script = TOOLKIT_MAP / "bouw_gr_index.py"
+    result = subprocess.run([PYTHON, str(script), "--update-catalogus"])
+    if result.returncode != 0 and not stil:
+        print("  ! Bijwerken mislukt. Controleer je internetverbinding.")
+    if not stil:
+        print()
 
 
 def nieuwe_gemeente():
@@ -1162,21 +1177,23 @@ def onderzoek(args: list):
         "slug": gemeente,
     })
 
-    # GR-detectie via index + officiële deelname via overheid.nl
+    # Bestuurlijke context: provincie, VR, waterschappen, GRs (alles in één call)
+    context = haal_bestuurlijke_context(gemeente)
+    officieel_grs = context["gr"]
+
+    # GR-detectie via zoekindex (vermeldingen in vergaderstukken)
     regelingen_pad = gemeente_map / "regelingen.md"
     gevonden_grs: list[dict] = []
     if index_aanwezig and (not regelingen_pad.exists() or ververs_gr):
         print(f"  GRs detecteren in vergaderstukken…")
         gevonden_grs = detecteer_regelingen_in_index(gemeente_map)
-        print(f"  Officiële GR-deelname ophalen via overheid.nl…")
-        officieel = haal_grs_voor_gemeente(gemeente)
-        _schrijf_regelingen_md(gemeente, gemeente_map, gevonden_grs, officieel)
+        _schrijf_regelingen_md(gemeente, gemeente_map, gevonden_grs, officieel_grs)
         if gevonden_grs:
             print(f"  → {len(gevonden_grs)} gemeenschappelijke regelingen gevonden in stukken")
         else:
             print("  → Geen GRs gevonden in de stukken")
-        if officieel:
-            print(f"  → {len(officieel)} officiële GRs via overheid.nl")
+        if officieel_grs:
+            print(f"  → {len(officieel_grs)} officiële GRs via overheid.nl")
         print(f"    Opgeslagen: {regelingen_pad}")
     elif regelingen_pad.exists():
         # Lees bestaande detectie voor de briefing
@@ -1185,118 +1202,24 @@ def onderzoek(args: list):
             if m and m.group(1) != "Naam":
                 gevonden_grs.append({"naam": m.group(1), "vermeldingen": int(m.group(2))})
 
-    # GRs
-    reg_pad = TOOLKIT_MAP / "bronnen" / "regelingen.json"
-    if reg_pad.exists():
-        try:
-            regelingen = {
-                k: v for k, v in json.loads(reg_pad.read_text(encoding="utf-8")).items()
-                if not k.startswith("_")
-            }
-            for slug, info in regelingen.items():
-                deelnemers = info.get("deelnemers", [])
-                if deelnemers and gemeente not in deelnemers:
-                    continue
-                naam = info.get("naam", slug)
-                gr_map = OUTPUT_BASIS / "regelingen" / slug
-                if gr_map.exists() and any(gr_map.rglob("*.pdf")):
-                    n = sum(1 for _ in gr_map.rglob("*.pdf"))
-                    beschikbaar.append({
-                        "naam": naam, "type": "gr", "n_docs": n,
-                        "pad": str(gr_map), "index": False, "slug": slug,
-                    })
-                else:
-                    ontbrekend.append({
-                        "naam": naam, "type": "gr",
-                        "commando": f"python3 scraper_gr.py {slug}",
-                    })
-        except Exception:
-            pass
-
-    # Waterschappen
-    ws_pad = TOOLKIT_MAP / "bronnen" / "waterschappen.json"
-    if ws_pad.exists():
-        try:
-            waterschappen = {
-                k: v for k, v in json.loads(ws_pad.read_text(encoding="utf-8")).items()
-                if not k.startswith("_")
-            }
-            for slug, info in waterschappen.items():
-                naam = info.get("naam", slug)
-                ws_map = OUTPUT_BASIS / "waterschappen" / slug
-                if ws_map.exists() and any(ws_map.rglob("*.pdf")):
-                    n = sum(1 for _ in ws_map.rglob("*.pdf"))
-                    beschikbaar.append({
-                        "naam": naam, "type": "waterschap", "n_docs": n,
-                        "pad": str(ws_map), "index": False, "slug": slug,
-                    })
-                else:
-                    ontbrekend.append({
-                        "naam": naam, "type": "waterschap",
-                        "commando": f"python3 scraper_waterschap.py {slug}",
-                    })
-        except Exception:
-            pass
-
-    # Veiligheidsregio's
-    vr_pad = TOOLKIT_MAP / "bronnen" / "veiligheidsregios.json"
-    if vr_pad.exists():
-        try:
-            vr_config = {
-                k: v for k, v in json.loads(vr_pad.read_text(encoding="utf-8")).items()
-                if not k.startswith("_")
-            }
-            for slug, info in vr_config.items():
-                if gemeente not in info.get("gemeenten", []):
-                    continue
-                naam = info.get("naam", slug)
-                vr_map = OUTPUT_BASIS / "veiligheidsregios" / slug
-                if vr_map.exists() and any(vr_map.rglob("*.pdf")):
-                    n = sum(1 for _ in vr_map.rglob("*.pdf"))
-                    beschikbaar.append({
-                        "naam": naam, "type": "veiligheidsregio", "n_docs": n,
-                        "pad": str(vr_map), "index": False, "slug": slug,
-                    })
-                else:
-                    ontbrekend.append({
-                        "naam": naam, "type": "veiligheidsregio",
-                        "commando": f"python3 scraper_vr.py {slug}",
-                    })
-        except Exception:
-            pass
-
-    # Provincies
-    prov_pad = TOOLKIT_MAP / "bronnen" / "provincies.json"
-    if prov_pad.exists():
-        try:
-            prov_config = {
-                k: v for k, v in json.loads(prov_pad.read_text(encoding="utf-8")).items()
-                if not k.startswith("_")
-            }
-            for slug, info in prov_config.items():
-                if gemeente not in info.get("gemeenten", []):
-                    continue
-                naam = info.get("naam", slug)
-                prov_map = OUTPUT_BASIS / "provincies" / slug
-                brontype = info.get("brontype", "")
-                if brontype == "geen":
-                    ontbrekend.append({
-                        "naam": naam, "type": "provincie",
-                        "commando": "(geen geautomatiseerde bron)",
-                    })
-                elif prov_map.exists() and any(prov_map.rglob("*.pdf")):
-                    n = sum(1 for _ in prov_map.rglob("*.pdf"))
-                    beschikbaar.append({
-                        "naam": naam, "type": "provincie", "n_docs": n,
-                        "pad": str(prov_map), "index": False, "slug": slug,
-                    })
-                else:
-                    ontbrekend.append({
-                        "naam": naam, "type": "provincie",
-                        "commando": f"python3 scraper_provincie.py {slug}",
-                    })
-        except Exception:
-            pass
+    # Map context-items naar beschikbaar/ontbrekend lijsten
+    for orgaan_type in ("gr", "waterschap", "veiligheidsregio", "provincie"):
+        for item in context[orgaan_type]:
+            if item["gedownload"]:
+                beschikbaar.append({
+                    "naam": item["naam"],
+                    "type": orgaan_type,
+                    "n_docs": item["n_docs"],
+                    "pad": str(item["pad"]),
+                    "index": False,
+                    "slug": item["slug"],
+                })
+            else:
+                ontbrekend.append({
+                    "naam": item["naam"],
+                    "type": orgaan_type,
+                    "commando": item["scraper_cmd"],
+                })
 
     # Resultaat tonen
     print()
@@ -1717,6 +1640,8 @@ def verkennen(args: list):
         print("\nGebruik: python3 toolkit.py verkennen <gemeente>\n")
         return
 
+    _controleer_brondata()
+
     gemeente = args[0].lower()
     naam = gemeente.capitalize()
 
@@ -1728,99 +1653,45 @@ def verkennen(args: list):
     print()
     print("─" * 50)
 
-    # Verzamel achtergrondinfo — stil, dan pas tonen
     print(f"\n  Vooronderzoek voor {naam}…")
+    context = haal_bestuurlijke_context(gemeente)
 
-    # Veiligheidsregio
-    gevonden_vr = []
-    vr_pad = TOOLKIT_MAP / "bronnen" / "veiligheidsregios.json"
-    if vr_pad.exists():
-        try:
-            vr_config = {k: v for k, v in json.loads(vr_pad.read_text(encoding="utf-8")).items()
-                         if not k.startswith("_")}
-            gevonden_vr = [(slug, info) for slug, info in vr_config.items()
-                           if gemeente in info.get("gemeenten", [])]
-        except Exception:
-            pass
+    def _status_label(item: dict) -> str:
+        if not item.get("downloadbaar", True):
+            return "geen geautomatiseerde bron"
+        return "al gedownload" if item["gedownload"] else "nog niet gedownload"
 
-    # GRs
-    grs = haal_grs_voor_gemeente(gemeente)
-
-    # Waterschappen — gefilterd op gemeente
-    ws_pad = TOOLKIT_MAP / "bronnen" / "waterschappen.json"
-    relevante_ws = []
-    if ws_pad.exists():
-        try:
-            for slug, info in json.loads(ws_pad.read_text(encoding="utf-8")).items():
-                if slug.startswith("_"):
-                    continue
-                if gemeente not in info.get("gemeenten", []):
-                    continue
-                ws_map = OUTPUT_BASIS / "waterschappen" / slug
-                al = ws_map.exists() and any(ws_map.rglob("*.pdf"))
-                relevante_ws.append((slug, info, al))
-        except Exception:
-            pass
-
-    # Provincie — gefilterd op gemeente
-    prov_pad = TOOLKIT_MAP / "bronnen" / "provincies.json"
-    gevonden_prov = []
-    if prov_pad.exists():
-        try:
-            prov_config = {k: v for k, v in json.loads(prov_pad.read_text(encoding="utf-8")).items()
-                          if not k.startswith("_")}
-            gevonden_prov = [(slug, info) for slug, info in prov_config.items()
-                            if gemeente in info.get("gemeenten", [])]
-        except Exception:
-            pass
-
-    # Tonen
     print()
     print("─" * 50)
     print(f"\n  Uit het vooronderzoek voor {naam}:\n")
 
-    if gevonden_prov:
-        for slug, info in gevonden_prov:
-            prov_map = OUTPUT_BASIS / "provincies" / slug
-            al = prov_map.exists() and any(prov_map.rglob("*.pdf"))
-            brontype = info.get("brontype", "")
-            if brontype == "geen":
-                label = "geen geautomatiseerde bron"
-            elif al:
-                label = "al gedownload"
-            else:
-                label = "nog niet gedownload"
-            print(f"  Provincie         {info['naam']} ({label})")
+    if context["provincie"]:
+        for p in context["provincie"]:
+            print(f"  Provincie         {p['naam']} ({_status_label(p)})")
     else:
         print(f"  Provincie         niet gevonden in catalogus")
 
-    if gevonden_vr:
-        for slug, info in gevonden_vr:
-            vr_map = OUTPUT_BASIS / "veiligheidsregios" / slug
-            al = vr_map.exists() and any(vr_map.rglob("*.pdf"))
-            label = "al gedownload" if al else "nog niet gedownload"
-            print(f"  Veiligheidsregio  {info['naam']} ({label})")
+    if context["veiligheidsregio"]:
+        for v in context["veiligheidsregio"]:
+            print(f"  Veiligheidsregio  {v['naam']} ({_status_label(v)})")
     else:
         print(f"  Veiligheidsregio  niet gevonden in catalogus")
 
     print()
 
-    if grs:
-        print(f"  Gemeenschappelijke regelingen ({len(grs)}):")
-        for gr in grs:
-            gr_map = OUTPUT_BASIS / "regelingen" / gr["slug"]
-            al = gr_map.exists() and any(gr_map.rglob("*.pdf"))
-            label = " ✓" if al else ""
-            print(f"    • {gr['naam']}{label}")
+    if context["gr"]:
+        print(f"  Gemeenschappelijke regelingen ({len(context['gr'])}):")
+        for gr in context["gr"]:
+            vink = " ✓" if gr["gedownload"] else ""
+            print(f"    • {gr['naam']}{vink}")
     else:
         print("  Gemeenschappelijke regelingen: geen gevonden")
 
-    if relevante_ws:
+    if context["waterschap"]:
         print()
-        print(f"  Waterschap{'pen' if len(relevante_ws) > 1 else ''}:")
-        for slug, info, al in relevante_ws:
-            label = "al gedownload" if al else "nog niet gedownload"
-            print(f"    • {info.get('naam', slug)} ({label})")
+        print(f"  Waterschap{'pen' if len(context['waterschap']) > 1 else ''}:")
+        for ws in context["waterschap"]:
+            print(f"    • {ws['naam']} ({_status_label(ws)})")
 
     # Afsluiting
     print()
@@ -2067,7 +1938,9 @@ def main():
             print(HELP_ALGEMEEN)
         return
 
-    if commando == "verkennen":
+    if commando == "brondata-bijwerken":
+        brondata_bijwerken()
+    elif commando == "verkennen":
         verkennen(rest)
     elif commando == "nieuw-dossier":
         nieuw_dossier()

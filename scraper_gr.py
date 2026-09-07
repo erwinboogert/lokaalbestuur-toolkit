@@ -31,6 +31,8 @@ Output: ~/Documents/notulen/regelingen/<naam>/
 Vereisten: geen externe bibliotheken (alleen standaard Python 3)
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sys
@@ -39,6 +41,7 @@ from pathlib import Path
 from api import (
     OUTPUT_BASIS, BRONNEN_MAP,
     setup_logging, log, log_samenvatting, vraag_doorzoekbaar_maken, parse_jaren_arg,
+    toon_deelnemende_gemeenten,
     alle_indices,
     notubiz_verzoek,
     haal_vergaderingen_notubiz,
@@ -285,6 +288,7 @@ def main():
     log_samenvatting(nieuw, overgeslagen, fouten, output_map)
     if not droog:
         vraag_doorzoekbaar_maken(nieuw, output_map)
+    toon_deelnemende_gemeenten("gr", naam)
 
 
 if __name__ == "__main__":

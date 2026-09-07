@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 .DS_Store
 config.local.json
+.playwright-mcp/
+bronnen/grs_cache.json

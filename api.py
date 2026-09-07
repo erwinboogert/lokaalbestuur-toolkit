@@ -9,6 +9,8 @@ Bevat alle herbruikbare logica voor:
   - Configuratie (config.local.json)
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import re
@@ -628,3 +630,363 @@ def vraag_doorzoekbaar_maken(nieuw: int, output_map: Path):
     print()
     index_script = TOOLKIT_MAP / "index.py"
     subprocess.run([sys.executable, str(index_script), output_map.name])
+
+
+# ── Bestuurlijke context (provincie, VR, waterschap, GRs per gemeente) ───────
+
+_GRS_CACHE_PAD = BRONNEN_MAP / "grs_cache.json"
+_GRS_CACHE_TTL_UREN = 24
+
+
+def _lees_grs_cache() -> dict:
+    if not _GRS_CACHE_PAD.exists():
+        return {}
+    try:
+        return json.loads(_GRS_CACHE_PAD.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _schrijf_grs_cache(cache: dict) -> None:
+    cache.setdefault("_opmerking",
+        f"Cache van organisaties.overheid.nl GR-deelname per gemeente. "
+        f"Per gemeente {_GRS_CACHE_TTL_UREN} uur geldig."
+    )
+    try:
+        _GRS_CACHE_PAD.write_text(
+            json.dumps(cache, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+    except Exception:
+        pass
+
+
+def _cache_geldig(entry: dict) -> bool:
+    opgehaald = entry.get("_opgehaald", "")
+    if not opgehaald:
+        return False
+    try:
+        dt = datetime.fromisoformat(opgehaald)
+    except ValueError:
+        return False
+    leeftijd = datetime.now(dt.tzinfo) - dt
+    return leeftijd < timedelta(hours=_GRS_CACHE_TTL_UREN)
+
+
+def haal_grs_voor_gemeente(slug: str, gebruik_cache: bool = True) -> list[dict]:
+    """Haal de GRs op waaraan een gemeente deelneemt via organisaties.overheid.nl.
+
+    Geeft een lijst van dicts met 'slug', 'naam' en 'overheid_id'.
+    Resultaten worden 24 uur lokaal gecached in bronnen/grs_cache.json.
+    Zet gebruik_cache=False om de cache over te slaan (b.v. bij refresh).
+    """
+    cache = _lees_grs_cache() if gebruik_cache else {}
+    entry = cache.get(slug)
+    if entry and _cache_geldig(entry):
+        return entry.get("grs", [])
+
+    mapping_pad = BRONNEN_MAP / "gemeenten_overheid.json"
+    try:
+        mapping = json.loads(mapping_pad.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+    info = mapping.get(slug)
+    if not info:
+        return []
+
+    overheid_id = info["overheid_id"]
+    gemeente_naam = info["naam"].replace(" ", "_").replace("'", "")
+    url = f"https://organisaties.overheid.nl/{overheid_id}/Gemeente_{gemeente_naam}"
+
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "lokaalbestuur-toolkit/1.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            html = resp.read().decode("utf-8")
+    except Exception:
+        # Netwerk faalde: val terug op cache, ook als die verlopen is
+        if entry:
+            return entry.get("grs", [])
+        return []
+
+    # Laad GR-index voor nette namen (indien beschikbaar)
+    gr_index_pad = BRONNEN_MAP / "regelingen_overheid.json"
+    gr_index = {}
+    if gr_index_pad.exists():
+        try:
+            gr_index = {
+                k: v for k, v in
+                json.loads(gr_index_pad.read_text(encoding="utf-8")).items()
+                if not k.startswith("_")
+            }
+        except Exception:
+            pass
+
+    # Haal alle GR-links op (/samenwerkingen/ID/Naam/)
+    grs = []
+    for m in re.finditer(
+        r'href="[^"]*?/samenwerkingen/(\d+)/([^/"]+)/"',
+        html
+    ):
+        overheid_gr_id, slug_raw = m.group(1), m.group(2)
+
+        # Gebruik de index voor een nette naam; val terug op URL-afleiding
+        if overheid_gr_id in gr_index:
+            naam = gr_index[overheid_gr_id]["naam"]
+        else:
+            naam = re.sub(r"_+", " ", slug_raw).strip()
+            naam = re.sub(r"^Gemeenschappelijk[e]?\s+[Rr]egeling\s+", "", naam)
+            naam = naam[0].upper() + naam[1:] if naam else naam
+
+        gr_slug = re.sub(
+            r"^gemeenschappelijk[e]?-regeling-", "",
+            slug_raw.lower().replace("_", "-")
+        )
+        grs.append({
+            "slug": gr_slug,
+            "naam": naam,
+            "overheid_id": overheid_gr_id,
+        })
+
+    # Schrijf naar cache
+    cache[slug] = {
+        "_opgehaald": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "grs": grs,
+    }
+    _schrijf_grs_cache(cache)
+    return grs
+
+
+def _orgaan_status(pad: Path) -> tuple[bool, int]:
+    """Geef (gedownload, n_docs) voor een orgaan-map."""
+    if not pad.exists():
+        return False, 0
+    n = sum(1 for _ in pad.rglob("*.pdf"))
+    return n > 0, n
+
+
+_BRONBESTAND_PER_TYPE = {
+    "waterschap":       "waterschappen.json",
+    "veiligheidsregio": "veiligheidsregios.json",
+    "gr":               "regelingen.json",
+    "provincie":        "provincies.json",
+}
+
+
+def toon_deelnemende_gemeenten(orgaan_type: str, slug: str) -> None:
+    """Toon na een scraper-run welke gemeenten bij dit orgaan horen.
+
+    orgaan_type: 'waterschap', 'veiligheidsregio', 'gr' of 'provincie'.
+    Per gemeente: vinkje als al gedownload (PDF's in OUTPUT_BASIS/<slug>/),
+    anders het scraper-commando om hem op te halen.
+    Stilte als er geen catalogusgegevens zijn — beter geen weergave dan ruis.
+    """
+    bestandsnaam = _BRONBESTAND_PER_TYPE.get(orgaan_type)
+    if not bestandsnaam:
+        return
+
+    pad = BRONNEN_MAP / bestandsnaam
+    if not pad.exists():
+        return
+
+    try:
+        data = json.loads(pad.read_text(encoding="utf-8"))
+    except Exception:
+        return
+
+    info = data.get(slug)
+    if not info:
+        return
+
+    gemeenten = info.get("gemeenten", [])
+    if not gemeenten:
+        return
+
+    items: list[tuple[str, bool, int]] = []
+    for g_slug in sorted(gemeenten):
+        g_map = OUTPUT_BASIS / g_slug
+        gedownload, n_docs = _orgaan_status(g_map)
+        items.append((g_slug, gedownload, n_docs))
+
+    al_gedownload = [i for i in items if i[1]]
+
+    log("")
+    log(f"  Deelnemende gemeenten ({len(items)}, waarvan {len(al_gedownload)} al gedownload)")
+    log("  " + "─" * 56)
+    for g_slug, gedownload, n_docs in items:
+        if gedownload:
+            log(f"    ✓ {g_slug:<35s} ({n_docs} docs)")
+        else:
+            log(f"    ○ {g_slug:<35s} python3 scraper.py {g_slug}")
+    log("  " + "─" * 56)
+
+
+def haal_bestuurlijke_context(gemeente: str, gebruik_cache: bool = True) -> dict:
+    """Geef de complete bestuurlijke context van een gemeente terug.
+
+    Bevraagt organisaties.overheid.nl voor GRs (met 24-uurs cache) en de
+    lokale catalogus voor provincie/VR/waterschap. Per orgaan: of er al
+    documenten zijn gedownload, en hoe je het zou downloaden.
+
+    Geeft een dict met sleutels 'provincie', 'veiligheidsregio',
+    'waterschap', 'gr'. Elke waarde is een lijst van dicts met:
+        slug:         str   — voor scraper-commando en folder
+        naam:         str   — voor display
+        gedownload:   bool  — al PDF's gevonden in OUTPUT_BASIS
+        n_docs:       int   — aantal PDF's (0 als niet gedownload)
+        pad:          Path  — waar de PDF's staan/zouden staan
+        downloadbaar: bool  — of er een automatische bron is
+        scraper_cmd:  str   — kant-en-klaar shell-commando, of toelichting
+                              als downloadbaar = False
+
+    Extra velden:
+        provincie-items: 'brontype' (str, "geen" voor zonder scraper)
+        gr-items:        'overheid_id' (str)
+    """
+    context: dict[str, list[dict]] = {
+        "provincie": [],
+        "veiligheidsregio": [],
+        "waterschap": [],
+        "gr": [],
+    }
+
+    # ── Provincie ────────────────────────────────────────────────────────
+    prov_pad = BRONNEN_MAP / "provincies.json"
+    if prov_pad.exists():
+        try:
+            prov_config = json.loads(prov_pad.read_text(encoding="utf-8"))
+            for slug, info in prov_config.items():
+                if slug.startswith("_"):
+                    continue
+                if gemeente not in info.get("gemeenten", []):
+                    continue
+                pad = OUTPUT_BASIS / "provincies" / slug
+                gedownload, n_docs = _orgaan_status(pad)
+                brontype = info.get("brontype", "")
+                downloadbaar = brontype != "geen"
+                scraper_cmd = (
+                    f"python3 scraper_provincie.py {slug}"
+                    if downloadbaar else "(geen geautomatiseerde bron)"
+                )
+                context["provincie"].append({
+                    "slug": slug,
+                    "naam": info.get("naam", slug),
+                    "gedownload": gedownload,
+                    "n_docs": n_docs,
+                    "pad": pad,
+                    "downloadbaar": downloadbaar,
+                    "scraper_cmd": scraper_cmd,
+                    "brontype": brontype,
+                })
+        except Exception:
+            pass
+
+    # ── Veiligheidsregio ─────────────────────────────────────────────────
+    vr_pad = BRONNEN_MAP / "veiligheidsregios.json"
+    if vr_pad.exists():
+        try:
+            vr_config = json.loads(vr_pad.read_text(encoding="utf-8"))
+            for slug, info in vr_config.items():
+                if slug.startswith("_"):
+                    continue
+                if gemeente not in info.get("gemeenten", []):
+                    continue
+                pad = OUTPUT_BASIS / "veiligheidsregios" / slug
+                gedownload, n_docs = _orgaan_status(pad)
+                context["veiligheidsregio"].append({
+                    "slug": slug,
+                    "naam": info.get("naam", slug),
+                    "gedownload": gedownload,
+                    "n_docs": n_docs,
+                    "pad": pad,
+                    "downloadbaar": True,
+                    "scraper_cmd": f"python3 scraper_vr.py {slug}",
+                })
+        except Exception:
+            pass
+
+    # ── Waterschap ───────────────────────────────────────────────────────
+    ws_pad = BRONNEN_MAP / "waterschappen.json"
+    if ws_pad.exists():
+        try:
+            ws_config = json.loads(ws_pad.read_text(encoding="utf-8"))
+            for slug, info in ws_config.items():
+                if slug.startswith("_"):
+                    continue
+                if gemeente not in info.get("gemeenten", []):
+                    continue
+                pad = OUTPUT_BASIS / "waterschappen" / slug
+                gedownload, n_docs = _orgaan_status(pad)
+                context["waterschap"].append({
+                    "slug": slug,
+                    "naam": info.get("naam", slug),
+                    "gedownload": gedownload,
+                    "n_docs": n_docs,
+                    "pad": pad,
+                    "downloadbaar": True,
+                    "scraper_cmd": f"python3 scraper_waterschap.py {slug}",
+                })
+        except Exception:
+            pass
+
+    # ── Gemeenschappelijke regelingen (overheid.nl) ──────────────────────
+    # Bouw overheid_id → slug mapping voor geconfigureerde GRs in regelingen.json
+    # zodat we de juiste folder/scraper-slug gebruiken bij matches.
+    reg_pad = BRONNEN_MAP / "regelingen.json"
+    overheid_id_naar_slug: dict[str, str] = {}
+    if reg_pad.exists():
+        try:
+            for slug, info in json.loads(reg_pad.read_text(encoding="utf-8")).items():
+                if slug.startswith("_"):
+                    continue
+                oid = str(info.get("overheid_id", ""))
+                if oid:
+                    overheid_id_naar_slug[oid] = slug
+        except Exception:
+            pass
+
+    officieel_grs = haal_grs_voor_gemeente(gemeente, gebruik_cache=gebruik_cache)
+    if officieel_grs:
+        for gr in officieel_grs:
+            cat_slug = overheid_id_naar_slug.get(str(gr["overheid_id"]))
+            in_catalogus = cat_slug is not None
+            slug = cat_slug if in_catalogus else gr["slug"]
+            pad = OUTPUT_BASIS / "regelingen" / slug
+            gedownload, n_docs = _orgaan_status(pad)
+            context["gr"].append({
+                "slug": slug,
+                "naam": gr["naam"],
+                "gedownload": gedownload,
+                "n_docs": n_docs,
+                "pad": pad,
+                "downloadbaar": True,
+                "scraper_cmd": f"python3 scraper_gr.py {slug}",
+                "overheid_id": gr["overheid_id"],
+                "in_catalogus": in_catalogus,
+            })
+    elif reg_pad.exists():
+        # Overheid.nl onbereikbaar → val terug op regelingen.json met gemeente-filter
+        try:
+            for slug, info in json.loads(reg_pad.read_text(encoding="utf-8")).items():
+                if slug.startswith("_"):
+                    continue
+                gemeenten_gr = info.get("gemeenten", [])
+                if gemeenten_gr and gemeente not in gemeenten_gr:
+                    continue
+                pad = OUTPUT_BASIS / "regelingen" / slug
+                gedownload, n_docs = _orgaan_status(pad)
+                context["gr"].append({
+                    "slug": slug,
+                    "naam": info.get("naam", slug),
+                    "gedownload": gedownload,
+                    "n_docs": n_docs,
+                    "pad": pad,
+                    "downloadbaar": True,
+                    "scraper_cmd": f"python3 scraper_gr.py {slug}",
+                    "overheid_id": str(info.get("overheid_id", "")),
+                    "in_catalogus": True,
+                })
+        except Exception:
+            pass
+
+    return context

@@ -1,0 +1,38 @@
+name: Brondata bijwerken (kwartaal)
+
+# Draait automatisch op de eerste dag van elk kwartaal.
+# Kan ook handmatig worden gestart via de GitHub Actions-interface.
+
+on:
+  schedule:
+    - cron: '0 7 1 1,4,7,10 *'   # 1 jan, 1 apr, 1 jul, 1 okt — 07:00 UTC
+  workflow_dispatch:               # handmatig starten via Actions-tab
+
+jobs:
+  bijwerken:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write              # nodig voor git push
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Python instellen
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: GR-index vernieuwen en catalogus bijwerken
+        run: python3 bouw_gr_index.py --update-catalogus
+
+      - name: Commit als er wijzigingen zijn
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add bronnen/regelingen_overheid.json bronnen/regelingen.json
+          git diff --staged --quiet || (
+            DATUM=$(date +%Y-%m-%d)
+            git commit -m "chore: ververs GR-index (kwartaalupdate ${DATUM})"
+            git push
+          )
